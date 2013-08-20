@@ -13,14 +13,230 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\MathLib">
+      <UniqueIdentifier>{b3bd1a3e-6e48-4aaa-b520-65df76365090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\MathLib">
+      <UniqueIdentifier>{abd15b7e-9127-431c-9070-2bf876445306}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Resource">
+      <UniqueIdentifier>{d10ffbf3-e16c-4b27-8223-cef8ee9ffd55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Resource">
+      <UniqueIdentifier>{0d2c06ab-af4b-4972-8391-d3ae65301510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Util">
+      <UniqueIdentifier>{0416da3e-feb6-44b9-b456-2aa2ca4f1781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Util">
+      <UniqueIdentifier>{30d7f35a-59af-425f-9d15-c8e4fd757de2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Render">
+      <UniqueIdentifier>{6e1676c6-6971-4da2-ae39-cbaa72f8ee8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Render">
+      <UniqueIdentifier>{bcccd399-7bf9-4312-b3f3-e74478f13c48}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ZPMath.cpp">
+    <ClCompile Include="Vec2.cpp">
+      <Filter>源文件\MathLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec3.cpp">
+      <Filter>源文件\MathLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec4.cpp">
+      <Filter>源文件\MathLib</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtil.cpp">
+      <Filter>源文件\MathLib</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshManager.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialManager.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="SubMesh.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="ColladaMeshLoader.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeImageTextureLoader.cpp">
+      <Filter>源文件\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="SoftRenderImpl.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderImpl.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPipeline.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="FlatShadingPipeline.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="GouraudShadingPipeline.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="PhongShadingPipeline.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalMapShadingPipeline.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderContext.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorFrameBuffer.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthFrameBuffer.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPipelineFactory.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ZP3DEngine.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ZPMath.h">
+    <ClInclude Include="ZPDependency.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ZPPlatform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ZPPredefine.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ZPStdDependency.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MemLeakDetector.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtil.h">
+      <Filter>头文件\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2.h">
+      <Filter>头文件\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec3.h">
+      <Filter>头文件\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec4.h">
+      <Filter>头文件\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>头文件\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshManager.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialManager.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SubMesh.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="IMeshLoader.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="ColladaMeshLoader.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="ITextureLoader.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>头文件\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeImageTextureLoader.h">
+      <Filter>头文件\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="IRender.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SoftRenderImpl.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderImpl.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPipeline.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="FlatShadingPipeline.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="GouraudShadingPipeline.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="PhongShadingPipeline.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalMapShadingPipeline.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderContext.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorFrameBuffer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthFrameBuffer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPipelineFactory.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ZP3DEngine.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
