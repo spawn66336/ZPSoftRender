@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="头文件\MathLib">
-      <UniqueIdentifier>{b3bd1a3e-6e48-4aaa-b520-65df76365090}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件\MathLib">
-      <UniqueIdentifier>{abd15b7e-9127-431c-9070-2bf876445306}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\Resource">
       <UniqueIdentifier>{d10ffbf3-e16c-4b27-8223-cef8ee9ffd55}</UniqueIdentifier>
     </Filter>
@@ -37,19 +31,25 @@
     <Filter Include="源文件\Render">
       <UniqueIdentifier>{bcccd399-7bf9-4312-b3f3-e74478f13c48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Math">
+      <UniqueIdentifier>{b3bd1a3e-6e48-4aaa-b520-65df76365090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Math">
+      <UniqueIdentifier>{abd15b7e-9127-431c-9070-2bf876445306}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vec2.cpp">
-      <Filter>源文件\MathLib</Filter>
+      <Filter>源文件\Math</Filter>
     </ClCompile>
     <ClCompile Include="Vec3.cpp">
-      <Filter>源文件\MathLib</Filter>
+      <Filter>源文件\Math</Filter>
     </ClCompile>
     <ClCompile Include="Vec4.cpp">
-      <Filter>源文件\MathLib</Filter>
+      <Filter>源文件\Math</Filter>
     </ClCompile>
     <ClCompile Include="MathUtil.cpp">
-      <Filter>源文件\MathLib</Filter>
+      <Filter>源文件\Math</Filter>
     </ClCompile>
     <ClCompile Include="MeshManager.cpp">
       <Filter>源文件\Resource</Filter>
@@ -123,6 +123,12 @@
     <ClCompile Include="Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Matrix3.cpp">
+      <Filter>源文件\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix4.cpp">
+      <Filter>源文件\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -141,19 +147,19 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MathUtil.h">
-      <Filter>头文件\MathLib</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="Vec2.h">
-      <Filter>头文件\MathLib</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="Vec3.h">
-      <Filter>头文件\MathLib</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="Vec4.h">
-      <Filter>头文件\MathLib</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="Rect.h">
-      <Filter>头文件\MathLib</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="MeshManager.h">
       <Filter>头文件\Resource</Filter>
@@ -238,6 +244,12 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix3.h">
+      <Filter>头文件\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4.h">
+      <Filter>头文件\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
