@@ -119,6 +119,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClCompile Include="Vec3.cpp" />
     <ClCompile Include="Vec4.cpp" />
     <ClCompile Include="MathUtil.cpp" />
+    <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="ZP3DEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +158,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClInclude Include="Vec3.h" />
     <ClInclude Include="Vec4.h" />
     <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="ZP3DEngine.h" />
     <ClInclude Include="ZPDependency.h" />
     <ClInclude Include="ZPMathDependency.h" />

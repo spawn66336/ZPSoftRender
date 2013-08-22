@@ -129,6 +129,9 @@
     <ClCompile Include="Matrix4.cpp">
       <Filter>源文件\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>源文件\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -253,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="ZPMathDependency.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
