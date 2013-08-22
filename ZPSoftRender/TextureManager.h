@@ -4,7 +4,7 @@
 namespace Resource
 { 
 
-	class TextureManager
+	class ZPEXPORT TextureManager
 	{
 	public:
 		TextureManager(void);

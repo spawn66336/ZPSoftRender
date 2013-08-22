@@ -28,18 +28,23 @@ BEGIN_MESSAGE_MAP(CModelViewerView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CModelViewerView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_DESTROY()
+	ON_WM_CREATE()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 // CModelViewerView 构造/析构
 
-CModelViewerView::CModelViewerView()
+CModelViewerView::CModelViewerView():
+	m_pEngine(NULL)
 {
-	// TODO: 在此处添加构造代码
-
+	 
 }
 
 CModelViewerView::~CModelViewerView()
 {
+	delete m_pEngine;
+	m_pEngine = NULL;
 }
 
 BOOL CModelViewerView::PreCreateWindow(CREATESTRUCT& cs)
@@ -59,7 +64,7 @@ void CModelViewerView::OnDraw(CDC* /*pDC*/)
 	if (!pDoc)
 		return;
 
-	// TODO: 在此处为本机数据添加绘制代码
+	m_pEngine->RenderOneFrame();
 }
 
 
@@ -121,7 +126,54 @@ CModelViewerDoc* CModelViewerView::GetDocument() const // 非调试版本是内联的
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CModelViewerDoc)));
 	return (CModelViewerDoc*)m_pDocument;
 }
+
+
+
 #endif //_DEBUG
 
+void CModelViewerView::RenderOneFrame( void )
+{
+	if( m_pEngine )
+	{
+		m_pEngine->RenderOneFrame();
+	}
+}
 
 // CModelViewerView 消息处理程序
+
+
+void CModelViewerView::OnDestroy()
+{
+	CView::OnDestroy();
+	 
+	m_pEngine->Destroy();
+}
+
+
+int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  在此添加您专用的创建代码
+
+	//初始化引擎
+	if( NULL == m_pEngine )
+	{
+		m_pEngine = new ZP3DEngine;
+		m_pEngine->Init( this->GetSafeHwnd() );
+	}
+
+	return 0;
+}
+
+
+void CModelViewerView::OnSize(UINT nType, int cx, int cy)
+{
+	CView::OnSize(nType, cx, cy);
+
+	if( m_pEngine )
+	{
+		m_pEngine->Resize();
+	}
+}

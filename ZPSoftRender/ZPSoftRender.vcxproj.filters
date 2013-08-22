@@ -251,5 +251,8 @@
     <ClInclude Include="Matrix4.h">
       <Filter>头文件\Math</Filter>
     </ClInclude>
+    <ClInclude Include="ZPMathDependency.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

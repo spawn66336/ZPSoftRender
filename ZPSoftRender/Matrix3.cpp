@@ -1,4 +1,5 @@
 #include "Matrix3.h"
+#include "MathUtil.h"
 
 namespace Math
 {
@@ -127,6 +128,35 @@ namespace Math
 				rs.m[iRow][iCol] = m[iCol][iRow];
 			}
 		}
+		return rs;
+	}
+
+	Math::Matrix3 Matrix3::MakeRotateWithAxisMatrix( const Vec3& axis , const Real theta )
+	{
+		Matrix3 rs; 
+
+		Real sinTheta = MathUtil::Sin( theta );
+		Real cosTheta = MathUtil::Cos( theta );
+		Real oneMinusCosTheta = 1.0f - cosTheta;
+		Real AxAx = axis.x*axis.x;
+		Real AyAy = axis.y*axis.y;
+		Real AzAz = axis.z*axis.z;
+		Real AxAy = axis.x*axis.y;
+		Real AxAz = axis.x*axis.z;
+		Real AyAz = axis.y*axis.z;
+
+		rs.m[0][0] = AxAx*oneMinusCosTheta + cosTheta; 
+		rs.m[0][1] = AxAy*oneMinusCosTheta + axis.z*sinTheta;
+		rs.m[0][2] = AxAz*oneMinusCosTheta - axis.y*sinTheta;
+
+		rs.m[1][0] = AxAy*oneMinusCosTheta - axis.z*sinTheta;
+		rs.m[1][1] = AyAy*oneMinusCosTheta + cosTheta;
+		rs.m[1][2] = AyAz*oneMinusCosTheta + axis.x*sinTheta;
+
+		rs.m[2][0] = AxAz*oneMinusCosTheta + axis.y*sinTheta;
+		rs.m[2][1] = AyAz*oneMinusCosTheta - axis.x*sinTheta;
+		rs.m[2][2] = AzAz*oneMinusCosTheta + cosTheta;
+
 		return rs;
 	}
 

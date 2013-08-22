@@ -214,3 +214,12 @@ void CModelViewerApp::SaveCustomState()
 
 
 
+
+
+BOOL CModelViewerApp::OnIdle(LONG lCount)
+{ 
+	( (CModelViewerView*)( ((CMainFrame*)AfxGetMainWnd())->GetActiveView() ) )->RenderOneFrame();
+
+	return TRUE;
+	/*return CWinAppEx::OnIdle(lCount);*/
+}

@@ -5,7 +5,7 @@ namespace Resource
 {
 
 
-class Texture2D
+class ZPEXPORT Texture2D
 {
 public:
 	Texture2D(void);

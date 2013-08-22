@@ -4,7 +4,7 @@
 namespace Resource
 {
 
-	class MaterialManager
+	class ZPEXPORT MaterialManager
 	{
 	public:
 		MaterialManager(void);

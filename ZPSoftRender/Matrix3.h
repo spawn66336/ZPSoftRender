@@ -112,6 +112,13 @@ namespace Math
 		*/
 		Matrix3 Transpose () const;
 
+		/**
+		* @brief 获得围绕任意轴旋转的矩阵
+		* @param axis 是旋转轴
+		* @param theta 是旋转角度（弧度角）
+		*/
+		static Matrix3 MakeRotateWithAxisMatrix( const Vec3& axis , const Real theta );
+
 		static const Matrix3 ZERO;
 		static const Matrix3 IDENTITY;
 

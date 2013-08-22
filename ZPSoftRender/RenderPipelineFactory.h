@@ -2,8 +2,7 @@
 #define ZP_RENDERPIPELINEFACTORY
 
 namespace Render
-{ 
-
+{  
 	class RenderPipelineFactory
 	{
 	public:

@@ -4,9 +4,9 @@
 #	if defined( _WINDOWS )
 		#include <Windows.h>
 		#include <Shlwapi.h >
-//		typedef HWND WinHandle_t;
-//#	else
-//		typedef unsigned int Handle_t; 
+		typedef HWND winHandle_t;
+#	else
+		typedef unsigned int winHandle_t; 
 #endif
 
 

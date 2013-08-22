@@ -8,6 +8,12 @@
 namespace Math
 {
 
+	/**
+	* @class Matrix4 
+	* 本类为4x4矩阵类，本引擎使用行向量，所以矩阵的级联是从左到右的。
+	* 例如 v' = vRT 变换顺序是先旋转再平移
+	* 本引擎使用左手系
+	*/
 	class Matrix4
 	{
 	public:
@@ -44,7 +50,11 @@ namespace Math
 
 		void SetColumn( const int iCol , const Vec4& vec );
 
-		inline Matrix4 Concatenate( const Matrix4& m2 ) const
+		Matrix3 GetRotatePart( void ) const;
+
+		Vec3 GetTranslationPart( void ) const;
+
+		inline Matrix4 Concat( const Matrix4& m2 ) const
 		{
 			Matrix4 rs;
 			rs.m[0][0] = m[0][0] * m2.m[0][0] + m[0][1] * m2.m[1][0] + m[0][2] * m2.m[2][0] + m[0][3] * m2.m[3][0];
@@ -72,9 +82,12 @@ namespace Math
 
 		inline Matrix4 operator * ( const Matrix4 &rhs ) const
 		{
-			return Concatenate( rhs );
+			return Concat( rhs );
 		}
 
+		/**
+		* @brief 4x4矩阵 * 4x1列向量 = 4x1列向量
+		*/
 		inline Vec4 operator * ( const Vec4& rhs ) const
 		{
 			return Vec4(
@@ -85,11 +98,66 @@ namespace Math
 				);
 		}
 
+		inline Matrix4 operator * ( const Real scale ) const
+		{
+			return Matrix4(
+				m[0][0]*scale , m[0][1]*scale , m[0][2]*scale , m[0][3]*scale ,
+				m[1][0]*scale , m[1][1]*scale , m[1][2]*scale , m[1][3]*scale ,
+				m[2][0]*scale , m[2][1]*scale , m[2][2]*scale , m[2][3]*scale ,
+				m[3][0]*scale , m[3][1]*scale , m[3][2]*scale , m[3][3]*scale
+				);
+		}
+
+	/**
+	* @brief 赋值运算符重载
+	*/
+	inline Matrix4& operator=( const Matrix4& rhs )
+	{
+		for( int iRow = 0 ; iRow < 4 ; iRow++ )
+		{
+			for( int iCol = 0 ; iCol < 4 ; iCol++ )
+			{
+				m[iRow][iCol] = rhs.m[iRow][iCol];
+			}
+		}
+		return *this;
+	}
+
+	bool operator==( const Matrix4& rhs )
+	{
+		for( int iRow = 0 ; iRow < 4 ; iRow++ )
+		{
+			for( int iCol = 0 ; iCol < 4 ; iCol++ )
+			{
+				if( m[iRow][iCol] != rhs.m[iRow][iCol] ) 
+					return false; 
+			}
+		}
+		return true;
+	}
+
+	bool operator !=( const Matrix4& rhs )
+	{
+		return !( this->operator==( rhs ) );
+	}
+
+	static Matrix4 MakeTranslationMatrix( const Vec3& vec );
+
+	/**
+	* @brief 获得围绕任意轴旋转的矩阵
+	* @param axis 是旋转轴
+	* @param theta 是旋转角度（弧度角）
+	*/
+	static Matrix4 MakeRotateWithAxisMatrix( const Vec3& axis , const Real theta );
+
 		static const Matrix4 ZERO;
 		static const Matrix4 IDENTITY;
 
 		Real m[4][4];
 	};
+
+
+		
 
 	/**
 	* @brief 1x4行向量 * 4x4矩阵 = 1x4行向量
@@ -103,6 +171,15 @@ namespace Math
 			lhs.x * rhs.m[0][3] + lhs.y * rhs.m[1][3] + lhs.z * rhs.m[2][3] + lhs.w * rhs.m[3][3] 
 			);
 	}
+
+	/**
+	* @brief 4x4矩阵左乘标量
+	*/
+	inline Matrix4 operator * ( const Real scale , const Matrix4& rhs )
+	{
+		return rhs.operator*( scale );
+	}
+
 
 }//namespace Math
 

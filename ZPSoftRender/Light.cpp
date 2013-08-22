@@ -3,7 +3,13 @@
 namespace Render
 { 
 
-	Light::Light(void)
+	Light::Light(void):
+	m_name(),
+	m_ambient(),
+	m_diffuse(),
+	m_specular(),
+	m_pos(),
+	m_active(false)
 	{
 	}
 
