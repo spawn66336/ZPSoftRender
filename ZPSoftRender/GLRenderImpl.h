@@ -29,15 +29,9 @@ public:
 	virtual void SetClearColor( const Math::Vec4& color); 
 	virtual void ClearBuffer( unsigned int flag); 
 
-	virtual void VertexPointer( const Math::Vec3* vertices); 
-	virtual void NormalPointer( const Math::Vec3* normals); 
-	virtual void TexcoordPointer( const Math::Vec2* texcoords); 
-	virtual void TangentPointer( const Math::Vec3* tangents){}
-	virtual void BinormalPointer( const Math::Vec3* binormals){}
-	virtual  void DrawElements( int* indices, int count, PRIMITIVE_TYPE primitiveType ); 
-
-	virtual void SetTexture2D( int channel, Resource::Texture2D* tex ); 
-
+	virtual void ApplyMaterial( Resource::Material* pMaterial );
+	virtual  void DrawElements( RenderPrimitive& renderPrimitive );
+	 
 	virtual void SetShadingModel( SHADE_MODEL type ) ; 
 
 	virtual Light* CreateLight( const String& name ); 
@@ -57,7 +51,6 @@ protected:
 	void _SetupPixelFormat( void ); 
 	void _ApplyShadeModel( void );
 
-
 protected:
 
 	winHandle_t m_hWnd;						///>Windows窗体句柄
@@ -71,9 +64,11 @@ protected:
 	bool				m_enableLighting;			///>是否启用光照
 	SHADE_MODEL	m_shadeModel;	///>着色模型
 
-	typedef std::map<String,Light*> lightTable_t;
-
+	typedef std::map<String,Light*> lightTable_t; 
 	lightTable_t m_lights;						///>光源列表
+
+	typedef std::list<unsigned int> commitTextureList_t;
+	commitTextureList_t m_commitTexturesList;
 };
 
 }//namespace Render

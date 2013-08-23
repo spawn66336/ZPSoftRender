@@ -2,6 +2,7 @@
 #define ZP_SUBMESH
 
 #include "ZPDependency.h"
+#include "RenderPrimitive.h"
 
 namespace Math
 {
@@ -15,9 +16,8 @@ namespace Resource
 { 
 	class Material;
 
-	class ZPEXPORT SubMesh
-	{ 
-	
+	class  SubMesh
+	{  
 	public:
 
 		SubMesh(void);
@@ -27,57 +27,25 @@ namespace Resource
 
 		void SetName( const String& name){ m_name = name; }
 
-		Material* Material( void );
+		Resource::Material* GetMaterial( void );
 
-		void SetMaterial( Material* mat );
+		void SetMaterial( Resource::Material* mat );
 
-		 Math::Vec3* Vertices( void );
+		const Math::Matrix4 GetMatrix(void) const { return m_mat; }
 
-		 Math::Vec2* Texcoords( void );
+		void SetMatrix( const Math::Matrix4& mat ){ m_mat = mat; }
 
-		 Math::Vec3* Normals( void );
+		Render::RenderPrimitive& RenderData(void){  return m_renderPrimitive; }
 
-		 Math::Vec3* Tangents( void );
+		const Render::RenderPrimitive& RenderData(void) const { return m_renderPrimitive; }
 
-		 Math::Vec3* Binormals( void );
-
-		 void* Indices( void );
-
-		 void SetVertices( Math::Vec3* vertices, int num );
-
-		 void SetNormals( Math::Vec3* norms, int num );
-
-		 void SetTexcoords( Math::Vec2* texcoords, int num );
-
-		 void SetTangents( Math::Vec3* tangents, int num);
-
-		 void SetBinormals( Math::Vec3* binormals, int num );
-
-		 void SetIndices( int* indices, int num);
-		  
-		  
-		int VertexCount( void ) const ;
-
-		int NormalCount( void ) const;
-
-		int TexcoordCount( void ) const;
-
-		int BinormalCount( void ) const;
-
-		int TangentCount( void ) const;
-
-		int IndicesCount( void ) const;
-
-		int PrimitiveType( void ) const; 
-
-	protected:
-
-		String m_name;			///>子模型名
-		Material* m_pMaterial; ///>该子模型的材质
-
-		 Math::Vec3* m_pVertices; ///>顶点位置列表
-		 int	m_iVerticesCount;		  ///>顶点数
-
+		void SetRenderData( const Render::RenderPrimitive& data );
+		 
+	protected: 
+		String m_name;							///>子模型名
+		Resource::Material*  m_pMaterial; ///>该子模型的材质 
+		Math::Matrix4			m_mat;			///>子模型变换矩阵
+		Render::RenderPrimitive m_renderPrimitive; ///>用于渲染的几何图元 
 	};
 
 }//namespace Resrouce

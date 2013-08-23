@@ -14,14 +14,19 @@ SubMesh::~SubMesh(void)
 {
 }
 
-Material* SubMesh::Material( void )
+Resource::Material* SubMesh::GetMaterial( void )
 {
 	return m_pMaterial;
 }
 
-void SubMesh::SetMaterial( Material* mat )
+void SubMesh::SetMaterial( Resource::Material* mat )
 {
 	m_pMaterial = mat;
+}
+
+void SubMesh::SetRenderData( const Render::RenderPrimitive& data )
+{
+	m_renderPrimitive = data;
 }
 
 }//namespace Resource

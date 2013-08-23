@@ -53,9 +53,9 @@ void Camera::Reset( void )
 Math::Matrix4 Camera::GetCameraMatrix( void )
 {
 	return Math::Matrix4(
-			m_t.x , m_up.x , m_dir.x , 0.0f,
+			m_t.x , m_up.x , m_dir.x , 0.0f ,
 			m_t.y , m_up.y , m_dir.y , 0.0f ,
-			m_t.z , m_up.z , m_dir.z , 0.0f,
-			m_t.DotProduct( -m_pos ), m_up.DotProduct( -m_pos ) , m_dir.DotProduct( -m_pos) , 1.0f
+			m_t.z , m_up.z , m_dir.z  , 0.0f ,
+			m_t.DotProduct( -m_pos ) , m_up.DotProduct( -m_pos ) , m_dir.DotProduct( -m_pos) , 1.0f
 		);
 }

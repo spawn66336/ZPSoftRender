@@ -9,12 +9,13 @@ namespace Resource
 	MeshManager::MeshManager(void)
 	{
 		m_pLoader = new ColladaMeshLoader;
+		SetFirstMeshActive();
 	}
-
 
 	MeshManager::~MeshManager(void)
 	{
 		ZP_SAFE_DELETE( m_pLoader );
+		this->DeleteAllMesh();
 	}
 
 	Mesh* MeshManager::CreateOrRetrieveMesh( const String& path )
@@ -24,12 +25,13 @@ namespace Resource
 		{
 			return pMesh;
 		}
+
 		pMesh = m_pLoader->Load( path );
 
 		if( pMesh )
 		{
 			m_meshes.insert( std::make_pair( path , pMesh ) );
-			m_itActiveMesh = m_meshes.begin();
+			SetFirstMeshActive();
 		}
 		return pMesh;
 	}
@@ -55,25 +57,46 @@ namespace Resource
 		ZP_SAFE_DELETE( itFindMesh->second );
 		m_meshes.erase( itFindMesh );
 
-		m_itActiveMesh = m_meshes.begin();
+		SetFirstMeshActive();
 		return true;
 	}
 
-	bool MeshManager::DeleteMesh( Mesh* mesh )
+	bool MeshManager::DeleteMesh( Mesh* pMesh )
 	{
+		meshTable_t::iterator itFindMesh = m_meshes.find( pMesh->Name() );
+		if( itFindMesh == m_meshes.end() )
+		{
+			return false;
+		} 
 
+		ZP_ASSERT( itFindMesh->second == pMesh );
+		ZP_SAFE_DELETE( itFindMesh->second );
+		m_meshes.erase( itFindMesh );
+
+		SetFirstMeshActive();
+		return true;
 	}
 
 	void MeshManager::DeleteAllMesh( void )
 	{
+		meshTable_t::iterator itMesh = m_meshes.begin();
+		while( itMesh != m_meshes.end() )
+		{
+			ZP_SAFE_DELETE( itMesh->second );
+			itMesh++;
+		}
+		m_meshes.clear();
 
+		SetFirstMeshActive();
 	}
 
-	void MeshManager::DrawActiveMesh( Render::IRender* render, const Math::Matrix4& localToWorldMat )
+	void MeshManager::DrawActiveMesh( Render::IRender* pRenderer, const Math::Matrix4& localToWorldMat )
 	{
 		if( m_itActiveMesh != m_meshes.end() )
 		{
-			
+			Mesh* pMesh = m_itActiveMesh->second;
+			ZP_ASSERT( NULL != pMesh );
+			pMesh->Draw( pRenderer , localToWorldMat );
 		}
 	}
 

@@ -8,14 +8,15 @@ namespace Resource
 	{
 	}
 
-
 	ColladaMeshLoader::~ColladaMeshLoader(void)
 	{
 	}
 
 	Mesh* ColladaMeshLoader::Load( const String& path )
 	{
-		return NULL;
+		Mesh* pMesh = new Mesh;
+		pMesh->SetName( path );
+		return pMesh;
 	}
 
 

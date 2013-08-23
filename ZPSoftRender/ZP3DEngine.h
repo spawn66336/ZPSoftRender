@@ -10,13 +10,7 @@ namespace Render
 	class IRender;
 }
 
-namespace Resource
-{
-	class MeshManager;
-	class TextureManager;
-	class MaterialManager;
 
-}
 
 class ZPEXPORT ZP3DEngine
 {
@@ -28,11 +22,9 @@ public:
 	virtual void Destroy( void ); 
 	virtual void Resize( void ); 
 
-	virtual Camera* GetCamera( void );
-	virtual Resource::MeshManager* GetMeshManager( void );
-	virtual Resource::MaterialManager* GetMaterialManager( void );
-	virtual Resource::TextureManager* GetTextureManager( void );
+	virtual void LoadResources( void );
 
+	virtual Camera* GetCamera( void );
 	virtual void RenderOneFrame( void );
 
 protected:

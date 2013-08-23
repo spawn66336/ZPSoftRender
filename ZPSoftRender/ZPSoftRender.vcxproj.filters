@@ -132,6 +132,12 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>源文件\Math</Filter>
     </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPrimitive.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -258,6 +264,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPrimitive.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>

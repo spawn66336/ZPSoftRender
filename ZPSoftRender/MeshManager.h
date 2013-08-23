@@ -2,6 +2,7 @@
 #define ZP_MESHMANAGER
 
 #include "ZPDependency.h"
+#include "Singleton.h"
 
 namespace Render
 {
@@ -18,23 +19,23 @@ namespace Resource
 	class Mesh;
 	class IMeshLoader;
 	 
-	class ZPEXPORT MeshManager
+	class  MeshManager : public Util::SingletonT<MeshManager>
 	{
 	public:
 		MeshManager(void);
 		virtual ~MeshManager(void);
 
-		Mesh* CreateOrRetrieveMesh( const String& path );
+		Mesh* CreateOrRetrieveMesh( const String& name );
 			 
 		Mesh* RetrieveMesh( const String& name );
 		 
 	    bool DeleteMeshByName( const String& name );
 		 
-		bool DeleteMesh( Mesh* mesh );
+		bool DeleteMesh( Mesh* pMesh );
 
 	    void DeleteAllMesh( void ); 
 
-	    void DrawActiveMesh( Render::IRender* render, const Math::Matrix4& localToWorldMat);
+	    void DrawActiveMesh( Render::IRender* pRenderer, const Math::Matrix4& localToWorldMat);
 
 	    void SetFirstMeshActive( void );
 

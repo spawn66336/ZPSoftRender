@@ -50,13 +50,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ZPSOFTRENDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\vld\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vld\include\;.\freeimage\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\vld\lib\Win32\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(TargetDir)\lib
@@ -73,15 +73,15 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ZPSOFTRENDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\vld\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vld\include\;.\freeimage\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>.\vld\lib\Win32\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(TargetDir)\lib
@@ -111,6 +111,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClCompile Include="RenderContext.cpp" />
     <ClCompile Include="RenderPipeline.cpp" />
     <ClCompile Include="RenderPipelineFactory.cpp" />
+    <ClCompile Include="RenderPrimitive.cpp" />
     <ClCompile Include="SoftRenderImpl.cpp" />
     <ClCompile Include="SubMesh.cpp" />
     <ClCompile Include="Texture2D.cpp" />
@@ -120,6 +121,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClCompile Include="Vec4.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="ZP3DEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +151,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClInclude Include="RenderContext.h" />
     <ClInclude Include="RenderPipeline.h" />
     <ClInclude Include="RenderPipelineFactory.h" />
+    <ClInclude Include="RenderPrimitive.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SoftRenderImpl.h" />
     <ClInclude Include="SubMesh.h" />
@@ -159,6 +162,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClInclude Include="Vec4.h" />
     <ClInclude Include="MathUtil.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="ZP3DEngine.h" />
     <ClInclude Include="ZPDependency.h" />
     <ClInclude Include="ZPMathDependency.h" />

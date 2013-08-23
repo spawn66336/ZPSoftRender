@@ -17,30 +17,35 @@ namespace Resource
 {
 	class SubMesh;
 	 
-	class ZPEXPORT Mesh
+	class  Mesh
 	{
+	public: 
+
+		typedef std::map<String,SubMesh*> subMeshTable_t;
+
 	public:
 		Mesh(void);
 		virtual ~Mesh(void);
 
-		String Name( void ) const{ return m_name; }
+		String Name( void ) const { return m_name; }
 
 		void SetName( const String& name ){ m_name = name; }
 		  
-		 void Draw( Render::IRender* render, const Math::Matrix4& localToWorldMat );
+		 void Draw( Render::IRender* pRenderer, const Math::Matrix4& localToWorldMat );
 
 		 int SubMeshCount( void ) const;
 
-		 void AddSubMesh( SubMesh* submesh );
+		 bool AddSubMesh( SubMesh* pSubMesh );
+
+		 SubMesh* FindSubMeshByName( const String& name );
 		  
 		 bool DeleteSubMeshByName( const String& name );
 		  
-		 bool DeleteSubMesh( SubMesh* submesh );
+		 bool DeleteSubMesh( SubMesh* pSubMesh );
 
-	protected:
+		 void DeleteAllSubMeshes(void);
 
-		typedef std::map<String,SubMesh*> subMeshTable_t;
-
+	protected: 
 		String m_name;							///>模型名称
 		subMeshTable_t m_submeshTab; ///>子模型列表
 	};

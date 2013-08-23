@@ -2,6 +2,7 @@
 #define ZP_IRENDER
 
 #include "ZPDependency.h"
+#include "RenderPrimitive.h"
 
 namespace Math
 {
@@ -14,6 +15,7 @@ namespace Math
 namespace Resource
 {
 	class Texture2D;
+	class Material;
 }
 
 namespace Render
@@ -21,29 +23,22 @@ namespace Render
 	
     class Light;
 
-enum PRIMITIVE_TYPE
-{
-	TYPE_LINES,
-	TYPE_TRIANGLES
-};
+	 
+	enum TEXMAP_CHANNEL
+	{
+		DIFFUSE_CH = 0,
+		BUMPMAP_CH = 1
+	};
 
-enum TEXMAP_CHANNEL
-{
-	DIFFUSE_CH = 0,
-	BUMPMAP_CH = 1
-};
-
-enum SHADE_MODEL
-{
-	WIREFRAME_MODEL,
-	FLAT_MODEL,
-	GOURAUD_MODEL,
-	PHONG_MODEL,
-	NORMMAP_MODEL
-};
-
-
-
+	enum SHADE_MODEL
+	{
+		WIREFRAME_MODEL,
+		FLAT_MODEL,
+		GOURAUD_MODEL,
+		PHONG_MODEL,
+		NORMMAP_MODEL
+	};
+	 
 class IRender
 {
 public: 
@@ -73,43 +68,10 @@ public:
 	 */
 	virtual void ClearBuffer(unsigned int flag) = 0;
 
-	/**
-	 * 
-	 * @param vertices
-	 */
-	virtual void VertexPointer( const Math::Vec3* vertices) = 0;
+	virtual void ApplyMaterial( Resource::Material* pMaterial ) = 0;
 
-	/**
-	 * 
-	 * @param normals
-	 */
-	virtual void NormalPointer( const Math::Vec3* normals) = 0;
-
-	/**
-	 * 
-	 * @param texcoords
-	 */
-	virtual void TexcoordPointer( const Math::Vec2* texcoords) = 0;
-
-	/**
-	 * 
-	 * @param tangents
-	 */
-	virtual void TangentPointer( const Math::Vec3* tangents) = 0;
-
-	/**
-	 * 
-	 * @param binormals
-	 */
-	virtual void BinormalPointer( const Math::Vec3* binormals) = 0;
-
-	/**
-	 * 
-	 * @param indices
-	 * @param count
-	 * @param primitiveType
-	 */
-	virtual  void DrawElements( int* indices, int count, PRIMITIVE_TYPE primitiveType ) = 0;
+ 
+	virtual  void DrawElements( RenderPrimitive& renderPrimitive ) = 0;
 
 	/**
 	 * 
@@ -122,12 +84,7 @@ public:
 	 * @param enable
 	 */
 	virtual void EnableLight( bool enable ) = 0;
-
-	/** 
-	 * @param channel
-	 * @param tex
-	 */
-	virtual void SetTexture2D( int channel, Resource::Texture2D* tex ) = 0;
+	 
 
 	/**
 	 * 

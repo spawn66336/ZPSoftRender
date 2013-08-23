@@ -2,6 +2,8 @@
 #include <gl\GL.h>
 #include <gl\GLU.h>
 #include "Light.h"
+#include "Material.h"
+#include "Texture2D.h"
 
 
 namespace Render
@@ -44,6 +46,15 @@ void GLRenderImpl::Destroy()
 {
 	ZP_ASSERT( NULL != m_hWnd && NULL != m_hRC && NULL != m_hDC );
 
+	//清除所有已提交的纹理
+	commitTextureList_t::iterator itCommitTexHandle = m_commitTexturesList.begin();
+	while( itCommitTexHandle != m_commitTexturesList.end() )
+	{
+		glDeleteTextures( 1 , &(*itCommitTexHandle) );
+		itCommitTexHandle++;
+	}
+	m_commitTexturesList.clear();
+
 	wglMakeCurrent( m_hDC , NULL );
 	wglDeleteContext( m_hRC );
 	::ReleaseDC( m_hWnd , m_hDC );
@@ -64,27 +75,51 @@ void GLRenderImpl::SetClearColor( const Math::Vec4& color )
 }
 
 void GLRenderImpl::ClearBuffer( unsigned int flag ){ }
+ 
 
-void GLRenderImpl::VertexPointer( const Math::Vec3* vertices )
+void GLRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 {
-	glVertexPointer( 3 , GL_FLOAT , 0 , vertices );
+	ZP_ASSERT( NULL != pMaterial );
+
+	glMaterialfv( GL_FRONT , GL_AMBIENT , &( pMaterial->GetAmbient().x ) );
+	glMaterialfv( GL_FRONT , GL_DIFFUSE , &( pMaterial->GetDiffuse().x ) );
+	glMaterialfv( GL_FRONT , GL_SPECULAR , &( pMaterial->GetSpecular().x ) );
+	glMaterialfv( GL_FRONT , GL_SHININESS , &( pMaterial->GetShininess() ) );
+
+	if( m_enableTexture2D )
+	{ 
+		Resource::Texture2D* pDiffuseTexture = pMaterial->GetTexture( DIFFUSE_CH );
+		if( pDiffuseTexture && NULL != pDiffuseTexture->Pixels() )
+		{
+			if( pDiffuseTexture->IsCommit() )
+			{
+				glBindTexture( GL_TEXTURE_2D , pDiffuseTexture->GetTextureHandle() );
+			}else{
+				GLuint newTextureHandle = 0;
+				glGenTextures( 1 , &newTextureHandle );
+				m_commitTexturesList.push_back( newTextureHandle );
+				glBindTexture( GL_TEXTURE_2D , newTextureHandle );
+				glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_S , GL_CLAMP );
+				glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_WRAP_T , GL_CLAMP );
+				glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MAG_FILTER , GL_NEAREST );
+				glTexParameteri( GL_TEXTURE_2D , GL_TEXTURE_MIN_FILTER , GL_NEAREST );
+				glTexImage2D( GL_TEXTURE_2D , 0 , GL_RGBA , 
+					pDiffuseTexture->Width() , pDiffuseTexture->Height() , 0 , GL_RGBA , GL_UNSIGNED_BYTE , 
+					pDiffuseTexture->Pixels() );
+
+				pDiffuseTexture->SetTextureHandle( newTextureHandle );
+			}
+		}
+	} 
 }
 
-void GLRenderImpl::NormalPointer( const Math::Vec3* normals )
-{
-	glNormalPointer( GL_FLOAT , 0 , normals );
-}
 
-void GLRenderImpl::TexcoordPointer( const Math::Vec2* texcoords )
+void GLRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 {
-	glTexCoordPointer( 2 , GL_FLOAT , 0 , texcoords );
-}
 
-void GLRenderImpl::DrawElements( int* indices, int count, PRIMITIVE_TYPE primitiveType )
-{
 	GLenum primitiveTypeGL = GL_LINES;
 
-	switch( primitiveType )
+	switch( renderPrimitive.PrimitiveType() )
 	{
 	case TYPE_LINES:
 		primitiveTypeGL = GL_LINES;
@@ -96,7 +131,59 @@ void GLRenderImpl::DrawElements( int* indices, int count, PRIMITIVE_TYPE primiti
 		return;
 	}
 
-	glDrawElements( primitiveTypeGL , count , GL_INT , indices );
+	VertexBuffer& vexBufRef = renderPrimitive.VertexBuf();
+
+	if( 0 == vexBufRef.Count() )
+	{
+		return;
+	}
+
+	bool hasPosition = false;
+	bool hasNormal = false;
+	bool hasTexcoord = false;
+
+	if( vexBufRef.ChannelFlag() & POSITION_CH )
+	{
+		hasPosition = true;
+	} 
+	if( vexBufRef.ChannelFlag() & NORMAL_CH )
+	{
+		hasNormal = true;
+	} 
+	if( vexBufRef.ChannelFlag() & TEXCOORD_CH )
+	{
+		hasTexcoord = true;
+	}
+
+	if( hasPosition )
+	{
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glVertexPointer( 3 , GL_FLOAT , vexBufRef.Stride() , vexBufRef.PositionPointer() );
+	}else{
+		return;
+	} 
+	if( hasNormal )
+	{
+		glEnableClientState( GL_NORMAL_ARRAY );
+		glNormalPointer( GL_FLOAT , vexBufRef.Stride() , vexBufRef.NormalPointer() );
+	} 
+	if( hasTexcoord )
+	{
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glTexCoordPointer( 2 , GL_FLOAT , vexBufRef.Stride() , vexBufRef.TexcoordPointer() );
+	}
+
+	glDrawElements( primitiveTypeGL , renderPrimitive.IndicesCount() , GL_UNSIGNED_INT , renderPrimitive.Indices() );
+
+	glDisableClientState( GL_VERTEX_ARRAY ); 
+	if( hasNormal )
+	{
+		glDisableClientState( GL_NORMAL_ARRAY );
+	} 
+	if( hasTexcoord )
+	{
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	}
 }
 
 void GLRenderImpl::EnableTexture2D( bool enable )
@@ -106,15 +193,10 @@ void GLRenderImpl::EnableTexture2D( bool enable )
 
 void GLRenderImpl::EnableLight( bool enable )
 {
-	m_enableLighting = enable;
-
+	m_enableLighting = enable; 
 }
 
-void GLRenderImpl::SetTexture2D( int channel, Resource::Texture2D* tex )
-{
-
-}
-
+ 
 void GLRenderImpl::EnableDepthTest( bool enable )
 {
 	m_enableDepthTest = enable;
@@ -303,19 +385,12 @@ void GLRenderImpl::BeginDraw( void )
 				iLight++;
 			}
 		}
-	}//if( m_enableLighting )
-
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_NORMAL_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	}//if( m_enableLighting ) 
 	 
 }
 
 void GLRenderImpl::EndDraw( void )
-{
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	glDisableClientState( GL_NORMAL_ARRAY );
-	glDisableClientState( GL_VERTEX_ARRAY ); 
+{  
 
 	glDisable( GL_DEPTH_TEST );
 	glDisable( GL_LIGHTING );
