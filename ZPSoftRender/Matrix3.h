@@ -7,7 +7,7 @@
 namespace Math
 { 
 
-	class Matrix3
+	class ZPEXPORT Matrix3
 	{
 	public:
 		/**

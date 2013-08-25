@@ -31,7 +31,7 @@ namespace Resource
 
 		void SetMaterial( Resource::Material* mat );
 
-		const Math::Matrix4 GetMatrix(void) const { return m_mat; }
+		const Math::Matrix4& GetMatrix(void) const { return m_mat; }
 
 		void SetMatrix( const Math::Matrix4& mat ){ m_mat = mat; }
 

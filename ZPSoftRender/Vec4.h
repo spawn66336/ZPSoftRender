@@ -7,7 +7,7 @@ namespace Math
 { 
 	class Vec3;
 
-	class Vec4
+	class ZPEXPORT Vec4
 	{
 	public: 
 		Real x , y , z , w; 
@@ -54,6 +54,7 @@ namespace Math
 		Vec4& operator /= ( const Real val );
 		Vec4& operator /= ( const Vec4& rhs );
 
+		void Set( const Real in_x , const Real in_y , const Real in_z , const Real in_w );
 		Real DotProduct( const Vec4& v  ) const;
 		bool IsNaN(void) const;
 

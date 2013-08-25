@@ -14,7 +14,7 @@ namespace Math
 	* 例如 v' = vRT 变换顺序是先旋转再平移
 	* 本引擎使用左手系
 	*/
-	class Matrix4
+	class ZPEXPORT Matrix4
 	{
 	public:
 		/**
@@ -53,6 +53,17 @@ namespace Math
 		Matrix3 GetRotatePart( void ) const;
 
 		Vec3 GetTranslationPart( void ) const;
+
+		inline Matrix4 Transpose(void) const
+		{
+			return Matrix4(
+				m[0][0], m[1][0], m[2][0], m[3][0],
+				m[0][1], m[1][1], m[2][1], m[3][1],
+				m[0][2], m[1][2], m[2][2], m[3][2],
+				m[0][3], m[1][3], m[2][3], m[3][3]
+			);
+		}
+
 
 		inline Matrix4 Concat( const Matrix4& m2 ) const
 		{
@@ -120,6 +131,14 @@ namespace Math
 				m[iRow][iCol] = rhs.m[iRow][iCol];
 			}
 		}
+		return *this;
+	}
+
+	inline Matrix4& operator=( const Matrix3& rhs )
+	{
+		m[0][0] = rhs.m[0][0]; m[0][1] = rhs.m[0][1]; m[0][2] = rhs.m[0][2];
+		m[1][0] = rhs.m[1][0]; m[1][1] = rhs.m[1][1]; m[1][2] = rhs.m[1][2];
+		m[2][0] = rhs.m[2][0]; m[2][1] = rhs.m[2][1]; m[2][2] = rhs.m[2][2];
 		return *this;
 	}
 

@@ -50,13 +50,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ZPSOFTRENDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\vld\include\;.\freeimage\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vld\include\;.\freeimage\;.\collada\include\COLLADABaseUtils\include\;.\collada\include\COLLADAFramework\include\;.\collada\include\COLLADASaxFrameworkLoader\include\;.\collada\include\Externals\MathMLSolver\include\;.\collada\include\Externals\MathMLSolver\include\AST\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\;.\collada\lib\$(ConfigurationName)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;User32.lib;Gdi32.lib;FreeImage.lib;MathMLSolver.lib;OpenCOLLADABaseUtils.lib;OpenCOLLADAFramework.lib;OpenCOLLADASaxFrameworkLoader.lib;GeneratedSaxParser.lib;OpenCOLLADAStreamWriter.lib;pcre.lib;xml.lib;UTF.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(TargetDir)\lib
@@ -73,15 +73,15 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ZPSOFTRENDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\vld\include\;.\freeimage\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\vld\include\;.\freeimage\;.\collada\include\COLLADABaseUtils\include\;.\collada\include\COLLADAFramework\include\;.\collada\include\COLLADASaxFrameworkLoader\include\;.\collada\include\Externals\MathMLSolver\include\;.\collada\include\Externals\MathMLSolver\include\AST\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\;.\collada\lib\$(ConfigurationName)\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;User32.lib;Gdi32.lib;FreeImage.lib;MathMLSolver.lib;OpenCOLLADABaseUtils.lib;OpenCOLLADAFramework.lib;OpenCOLLADASaxFrameworkLoader.lib;GeneratedSaxParser.lib;OpenCOLLADAStreamWriter.lib;pcre.lib;xml.lib;UTF.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(TargetDir)\lib
@@ -92,6 +92,8 @@ del $(TargetDir)\$(TargetName).lib</Command>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColladaMeshLoader.cpp" />
+    <ClCompile Include="ColladaMeshReader.cpp" />
+    <ClCompile Include="ColladaSubMeshReader.cpp" />
     <ClCompile Include="ColorFrameBuffer.cpp" />
     <ClCompile Include="DepthFrameBuffer.cpp" />
     <ClCompile Include="FlatShadingPipeline.cpp" />
@@ -127,6 +129,8 @@ del $(TargetDir)\$(TargetName).lib</Command>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColladaMeshLoader.h" />
+    <ClInclude Include="ColladaMeshReader.h" />
+    <ClInclude Include="ColladaSubMeshReader.h" />
     <ClInclude Include="ColorFrameBuffer.h" />
     <ClInclude Include="DepthFrameBuffer.h" />
     <ClInclude Include="FlatShadingPipeline.h" />

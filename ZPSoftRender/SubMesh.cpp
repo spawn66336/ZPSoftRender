@@ -5,7 +5,9 @@ namespace Resource
 {
 
 
-SubMesh::SubMesh(void)
+SubMesh::SubMesh(void):
+m_pMaterial(NULL),
+m_mat( Math::Matrix4::IDENTITY )
 {
 }
 

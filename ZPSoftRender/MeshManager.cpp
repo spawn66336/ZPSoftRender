@@ -10,6 +10,7 @@ namespace Resource
 	{
 		m_pLoader = new ColladaMeshLoader;
 		SetFirstMeshActive();
+		m_strDefaultLocation = ".\\media\\models\\";
 	}
 
 	MeshManager::~MeshManager(void)
@@ -35,6 +36,13 @@ namespace Resource
 		}
 		return pMesh;
 	}
+
+
+	Mesh* MeshManager::CreateOrRetrieveMeshFromDefaultLocation( const String& name )
+	{
+		return CreateOrRetrieveMesh( m_strDefaultLocation + name );
+	}
+
 
 	Mesh* MeshManager::RetrieveMesh( const String& name )
 	{
@@ -112,6 +120,10 @@ namespace Resource
 			m_itActiveMesh = m_meshes.begin();
 		}else{
 			m_itActiveMesh++;
+			if( m_itActiveMesh == m_meshes.end() )
+			{
+				m_itActiveMesh = m_meshes.begin();
+			}
 		}
 	}
 

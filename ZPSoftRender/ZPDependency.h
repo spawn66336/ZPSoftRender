@@ -6,4 +6,6 @@
 #include "ZPPlatform.h"
 #include "Singleton.h"
 
+#pragma warning( disable : 4819 )
+
 #endif //ZP_DEPENDENCY

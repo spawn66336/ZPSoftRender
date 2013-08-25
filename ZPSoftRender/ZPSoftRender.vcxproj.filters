@@ -37,6 +37,12 @@
     <Filter Include="源文件\Math">
       <UniqueIdentifier>{abd15b7e-9127-431c-9070-2bf876445306}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Collada">
+      <UniqueIdentifier>{9bba52dd-1d2f-4b34-b00f-a5c65fc8c7e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Collada">
+      <UniqueIdentifier>{a5595c8a-8bfe-4709-bdf5-5a8aba8275ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vec2.cpp">
@@ -137,6 +143,12 @@
     </ClCompile>
     <ClCompile Include="RenderPrimitive.cpp">
       <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ColladaMeshReader.cpp">
+      <Filter>源文件\Collada</Filter>
+    </ClCompile>
+    <ClCompile Include="ColladaSubMeshReader.cpp">
+      <Filter>源文件\Collada</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +283,12 @@
     </ClInclude>
     <ClInclude Include="RenderPrimitive.h">
       <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ColladaMeshReader.h">
+      <Filter>头文件\Collada</Filter>
+    </ClInclude>
+    <ClInclude Include="ColladaSubMeshReader.h">
+      <Filter>头文件\Collada</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

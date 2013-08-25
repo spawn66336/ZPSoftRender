@@ -22,5 +22,6 @@
 #include <deque>
 #include <queue>
 #include <bitset>
+#include <stack>
 
 #endif //ZP_STD_DEPENDENCY

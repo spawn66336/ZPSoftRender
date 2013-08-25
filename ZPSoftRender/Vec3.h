@@ -6,7 +6,7 @@
 namespace Math
 { 
 	//三维向量
-	class Vec3 
+	class ZPEXPORT Vec3 
 	{
 	public: 
 		Real x , y , z; 
@@ -17,6 +17,7 @@ namespace Math
 		explicit Vec3( const Real val );
 		~Vec3();
 
+		void Set( const Real in_x , const Real in_y , const Real in_z );
 		//三维向量的平方长度 （此函数不做耗时的平方根运算）
 		Real SquaredLength(void) const { return x*x + y*y + z*z ; }
 		//三维向量到v的平方距离 （此函数不做耗时的平方根运算）

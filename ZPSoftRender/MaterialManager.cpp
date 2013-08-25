@@ -24,6 +24,7 @@ Resource::Material* MaterialManager::CreateOrRetrieveMaterial( const String& nam
 	}
 
 	pMaterial = new Resource::Material;
+	pMaterial->SetName( name );
 	ZP_ASSERT( NULL != pMaterial ); 
 	m_materials.insert( std::make_pair( name , pMaterial ) ); 
 	return pMaterial;

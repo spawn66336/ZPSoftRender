@@ -5,6 +5,8 @@
 #include "IRender.h"
 #include "ZPMathDependency.h"
 
+class Camera;
+
 namespace Render
 {
 
@@ -18,7 +20,7 @@ public:
 	virtual void Destroy(); 
 	virtual void Resize(); 
 
-	virtual void BeginDraw( void ); 
+	virtual void BeginDraw( Camera* pCam ); 
 	virtual void EndDraw( void ); 
 	virtual void SwapBuffers( void );
 
@@ -50,7 +52,9 @@ protected:
 
 	void _SetupPixelFormat( void ); 
 	void _ApplyShadeModel( void );
-
+	void _ApplyAllActiveLights( void );
+public:
+	void _DrawFrameOfAxes( void );
 protected:
 
 	winHandle_t m_hWnd;						///>Windows΄°ΜεΎδ±ϊ

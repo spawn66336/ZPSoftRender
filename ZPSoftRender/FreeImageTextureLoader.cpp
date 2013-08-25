@@ -28,7 +28,11 @@ namespace Resource
 		{
 
 			FIBITMAP *dib = FreeImage_Load(fif, path.c_str(), 0); 
-			ZP_ASSERT( NULL != dib );
+			//无法读取此纹理
+			if( NULL == dib )
+			{
+				return NULL;
+			} 
 
 			pNewTexture2D = new Texture2D;
 			ZP_ASSERT( NULL != pNewTexture2D );

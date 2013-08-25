@@ -32,7 +32,7 @@ namespace Render
 		String m_name;
 		bool    m_active;
 		Math::Vec4   m_ambient;
-		Math::Vec4	   m_diffuse;
+		Math::Vec4	m_diffuse;
 		Math::Vec4   m_specular;
 		Math::Vec4   m_pos; 
 	};

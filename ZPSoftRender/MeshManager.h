@@ -26,6 +26,8 @@ namespace Resource
 		virtual ~MeshManager(void);
 
 		Mesh* CreateOrRetrieveMesh( const String& name );
+
+		Mesh* CreateOrRetrieveMeshFromDefaultLocation( const String& name );
 			 
 		Mesh* RetrieveMesh( const String& name );
 		 
@@ -45,6 +47,7 @@ namespace Resource
 
 		typedef std::map<String,Mesh*> meshTable_t;
 
+		String m_strDefaultLocation;
 		meshTable_t m_meshes;						///>模型列表
 		meshTable_t::iterator m_itActiveMesh;  ///>当前所显示的模型迭代器
 		IMeshLoader* m_pLoader;					///>模型读取器

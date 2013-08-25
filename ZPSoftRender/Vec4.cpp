@@ -219,6 +219,14 @@ bool Vec4::IsNaN( void ) const
 	return MathUtil::IsNaN(x) || MathUtil::IsNaN(y) || MathUtil::IsNaN(z) || MathUtil::IsNaN(w);
 }
 
+void Vec4::Set( const Real in_x , const Real in_y , const Real in_z , const Real in_w )
+{
+	x = in_x;
+	y = in_y;
+	z = in_z;
+	w = in_w;
+}
+
 
 
 Vec4 operator+( const Vec4& lhs , const Real rhs )

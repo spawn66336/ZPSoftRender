@@ -1,5 +1,6 @@
 #include "ColladaMeshLoader.h"
 #include "Mesh.h"
+#include "ColladaMeshReader.h"
 
 namespace Resource
 { 
@@ -15,7 +16,13 @@ namespace Resource
 	Mesh* ColladaMeshLoader::Load( const String& path )
 	{
 		Mesh* pMesh = new Mesh;
-		pMesh->SetName( path );
+		pMesh->SetName( path ); 
+		
+		ColladaMeshReader colladaMeshReader( path , pMesh );
+		if( false == colladaMeshReader.Load() )
+		{ 
+			ZP_SAFE_DELETE( pMesh );
+		} 
 		return pMesh;
 	}
 

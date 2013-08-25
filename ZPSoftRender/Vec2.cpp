@@ -81,6 +81,14 @@ namespace Math
 		return false;
 	}
 
+
+	void Vec2::Set( const Real in_x , const Real in_y )
+	{
+		x = in_x;
+		y = in_y;
+	}
+
+
 	Real Vec2::SquaredDistance( const Vec2& v ) const
 	{
 		return ( (*this) - v ).SquaredLength(); 

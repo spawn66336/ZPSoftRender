@@ -4,6 +4,7 @@
 #include "Light.h"
 #include "Material.h"
 #include "Texture2D.h"
+#include "Camera.h"
 
 
 namespace Render
@@ -14,9 +15,9 @@ m_hWnd(NULL),
 m_hDC(NULL),
 m_hRC(NULL),
 m_clearColor(), 
-m_enableTexture2D(false),  
-m_enableDepthTest(false),
-m_enableLighting(false),
+m_enableTexture2D(true),  
+m_enableDepthTest(true),
+m_enableLighting(true),
 m_shadeModel(PHONG_MODEL)
 {
 
@@ -80,11 +81,12 @@ void GLRenderImpl::ClearBuffer( unsigned int flag ){ }
 void GLRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 {
 	ZP_ASSERT( NULL != pMaterial );
-
+	
 	glMaterialfv( GL_FRONT , GL_AMBIENT , &( pMaterial->GetAmbient().x ) );
 	glMaterialfv( GL_FRONT , GL_DIFFUSE , &( pMaterial->GetDiffuse().x ) );
 	glMaterialfv( GL_FRONT , GL_SPECULAR , &( pMaterial->GetSpecular().x ) );
 	glMaterialfv( GL_FRONT , GL_SHININESS , &( pMaterial->GetShininess() ) );
+	glColor4fv( &( pMaterial->GetDiffuse().x ) );
 
 	if( m_enableTexture2D )
 	{ 
@@ -204,9 +206,7 @@ void GLRenderImpl::EnableDepthTest( bool enable )
 
 void GLRenderImpl::SetShadingModel( SHADE_MODEL type )
 {
-	m_shadeModel = type;
-
-
+	m_shadeModel = type; 
 }
 
 Light* GLRenderImpl::CreateLight( const String& name )
@@ -274,7 +274,7 @@ void GLRenderImpl::PopMatrix()
 }
 
 void GLRenderImpl::LoadMatrix( const Math::Matrix4 &mat )
-{
+{  
 	glLoadMatrixf( (GLfloat*)mat.m );
 }
 
@@ -284,8 +284,8 @@ void GLRenderImpl::LoadIdentity()
 }
 
 void GLRenderImpl::MultMatrix( const Math::Matrix4 &mat )
-{
-	glMultMatrixf( (GLfloat*)mat.m );
+{ 
+	glMultMatrixf( (GLfloat*)(mat.m) );
 }
 
 void GLRenderImpl::_SetupPixelFormat( void )
@@ -319,7 +319,7 @@ void GLRenderImpl::_SetupPixelFormat( void )
 	ZP_ASSERT( TRUE == bResult );
 }
 
-void GLRenderImpl::BeginDraw( void )
+void GLRenderImpl::BeginDraw(  Camera* pCam  )
 { 
 	GLsizei wndWidth =  ( m_wndRect.right - m_wndRect.left );
 	GLsizei wndHeight =  ( m_wndRect.bottom - m_wndRect.top );
@@ -330,10 +330,14 @@ void GLRenderImpl::BeginDraw( void )
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); 
 	
 	glMatrixMode( GL_PROJECTION );
+	glLoadIdentity();
 	gluPerspective( 90.0f ,  aspect , 1.0 , 1000.0f );
 	//glLoadMatrixf( (GLfloat*)m_projectionMat.m );
 	glMatrixMode( GL_MODELVIEW );
-	glLoadIdentity();
+	glLoadIdentity();  
+	this->LoadMatrix( pCam->GetCameraMatrix() );
+
+	_DrawFrameOfAxes();
 
 	_ApplyShadeModel();
 
@@ -350,43 +354,12 @@ void GLRenderImpl::BeginDraw( void )
 	}else{
 		glDisable( GL_DEPTH_TEST );
 	}
+	  
+	glEnable( GL_COLOR_MATERIAL );
+	glColorMaterial( GL_FRONT ,  GL_DIFFUSE );
+	
+	_ApplyAllActiveLights();
 
-	if( m_enableLighting )
-	{
-		glEnable( GL_LIGHTING );
-	}else{
-		glDisable( GL_LIGHTING );
-	} 
-
-	//准备光源
-	if( m_enableLighting )
-	{
-		int iLight = 0;
-		lightTable_t::iterator itLight = m_lights.begin();
-		while( itLight != m_lights.end() )
-		{
-			//OpenGL最大支持到8个光源
-			if( iLight >= 8 )
-			{
-				break;
-			}
-
-			Light* pLight = itLight->second;
-			
-			if( pLight->IsActive() )
-			{
-				GLenum lightIndxGL = GL_LIGHT0 + iLight;
-				glEnable( lightIndxGL );
-				glLightfv( lightIndxGL , GL_AMBIENT , &( pLight->Ambient().x ) );
-				glLightfv( lightIndxGL , GL_DIFFUSE  ,  &( pLight->Diffuse().x ) );
-				glLightfv( lightIndxGL , GL_SPECULAR , &( pLight->Specular().x ) );
-				glLightfv( lightIndxGL , GL_POSITION , &( pLight->Position().x ) );
-
-				iLight++;
-			}
-		}
-	}//if( m_enableLighting ) 
-	 
 }
 
 void GLRenderImpl::EndDraw( void )
@@ -439,6 +412,69 @@ void GLRenderImpl::_ApplyShadeModel( void )
 
 	glPolygonMode( GL_FRONT_AND_BACK , polyMode );
 	glShadeModel( shadeModelGL );
+}
+
+void GLRenderImpl::_DrawFrameOfAxes( void )
+{
+	glDisable( GL_LIGHTING );
+	glEnable( GL_DEPTH_TEST );
+
+	glLineWidth( 2.0f );
+
+	glColor3f( 1.0f , 0.0f , 0.0f );
+	glBegin( GL_LINES );
+		glVertex3f(0.0f,0.0f,0.0f);
+		glVertex3f(100.0f,0.0f,0.0f);
+	glEnd();
+
+	glColor3f( 0.0f , 1.0f , 0.0f );
+	glBegin( GL_LINES );
+		glVertex3f(0.0f,0.0f,0.0f);
+		glVertex3f(0.0f,100.0f,0.0f);
+	glEnd();
+
+	glColor3f( 0.0f , 0.0f , 1.0f );
+	glBegin( GL_LINES );
+		glVertex3f(0.0f,0.0f,0.0f);
+		glVertex3f(0.0f,0.0f,100.0f);
+	glEnd();
+
+}
+
+void GLRenderImpl::_ApplyAllActiveLights( void )
+{
+	//准备光源
+	if( m_enableLighting )
+	{
+		int iLight = 0;
+		lightTable_t::iterator itLight = m_lights.begin();
+		while( itLight != m_lights.end() )
+		{
+			//OpenGL最大支持到8个光源
+			if( iLight >= 8 )
+			{
+				break;
+			}
+
+			Light* pLight = itLight->second;
+
+			if( pLight->IsActive() )
+			{
+				GLenum lightIndxGL = GL_LIGHT0 + iLight;
+				glEnable( lightIndxGL );
+				glLightfv( lightIndxGL , GL_AMBIENT , &( pLight->Ambient().x ) );
+				glLightfv( lightIndxGL , GL_DIFFUSE  ,  &( pLight->Diffuse().x ) );
+				glLightfv( lightIndxGL , GL_SPECULAR , &( pLight->Specular().x ) );
+				glLightfv( lightIndxGL , GL_POSITION , &( pLight->Position().x ) ); 
+				iLight++;
+			}
+			itLight++;
+		}//while( itLight != m_lights.end() )
+
+		glEnable( GL_LIGHTING );
+	}else{
+		glDisable( GL_LIGHTING );
+	}
 }
 
 }//namespace Render

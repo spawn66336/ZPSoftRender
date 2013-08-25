@@ -6,7 +6,7 @@
 namespace Math
 {     
 		//二维向量
-		class Vec2
+		class ZPEXPORT Vec2
 		{
 		public: 
 
@@ -18,6 +18,7 @@ namespace Math
 			explicit Vec2( const Real val ); 
 			~Vec2();  
 
+			void Set( const Real in_x , const Real in_y );
 			//二维向量的平方长度 （此函数不做耗时的平方根运算）
 			Real SquaredLength(void) const { return x*x + y*y; }
 			//二维向量到v的平方距离 （此函数不做耗时的平方根运算）

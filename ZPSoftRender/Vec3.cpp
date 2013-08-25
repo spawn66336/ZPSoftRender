@@ -276,6 +276,13 @@ namespace Math
 			MathUtil::RealEqual( z , rhs.z , tolerance );
 	}
 
+	void Vec3::Set( const Real in_x , const Real in_y , const Real in_z )
+	{
+		x = in_x;
+		y = in_y;
+		z = in_z;
+	}
+
 
 
 

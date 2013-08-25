@@ -12,6 +12,7 @@ m_pTextureLoader(NULL)
 {
 	FreeImageTextureLoader::InitFreeImageLib();
 	m_pTextureLoader = new FreeImageTextureLoader;
+	m_strDefaultLocation = ".\\media\\images\\";
 }
 
 
@@ -39,6 +40,12 @@ Texture2D* TextureManager::CreateOrRetrieveTexture2D( const String& name )
 	}
 	return pTex2D;
 }
+
+Texture2D* TextureManager::CreateOrRetrieveTexture2DFromDefaultLocation( const String& name )
+{
+	return CreateOrRetrieveTexture2D( m_strDefaultLocation + name );
+}
+
 
 Texture2D* TextureManager::RetrieveTexture2D( const String& name )
 {
@@ -78,6 +85,7 @@ void TextureManager::DeleteAllTexture2D( void )
 	}
 	m_textures.clear();
 }
+
 
 
 }//namespace Resource

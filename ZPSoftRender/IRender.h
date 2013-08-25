@@ -4,6 +4,8 @@
 #include "ZPDependency.h"
 #include "RenderPrimitive.h"
 
+class Camera;
+
 namespace Math
 {
 	class Vec2;
@@ -32,7 +34,7 @@ namespace Render
 
 	enum SHADE_MODEL
 	{
-		WIREFRAME_MODEL,
+		WIREFRAME_MODEL = 0,
 		FLAT_MODEL,
 		GOURAUD_MODEL,
 		PHONG_MODEL,
@@ -52,7 +54,7 @@ public:
 
 	virtual void Resize() = 0;
 
-	virtual void BeginDraw( void ) = 0;
+	virtual void BeginDraw( Camera* pCam ) = 0;
 
 	virtual void EndDraw( void ) = 0;
 

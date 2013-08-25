@@ -31,12 +31,19 @@ BEGIN_MESSAGE_MAP(CModelViewerView, CView)
 	ON_WM_DESTROY()
 	ON_WM_CREATE()
 	ON_WM_SIZE()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
+	ON_WM_LBUTTONDOWN()
+	ON_COMMAND(IDM_RESET_CAMERA, &CModelViewerView::OnResetCamera)
+	ON_WM_CHAR()
 END_MESSAGE_MAP()
 
 // CModelViewerView 构造/析构
 
 CModelViewerView::CModelViewerView():
-	m_pEngine(NULL)
+	m_pEngine(NULL),
+	m_pCamera( NULL ),
+	m_bDragFlag( FALSE )
 {
 	 
 }
@@ -162,6 +169,9 @@ int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 		m_pEngine = new ZP3DEngine;
 		m_pEngine->Init( this->GetSafeHwnd() );
+		m_pEngine->LoadResources();
+		m_pCamera = m_pEngine->GetCamera();
+		m_pEngine->RegisterFrameListener( this );
 	}
 
 	return 0;
@@ -176,4 +186,126 @@ void CModelViewerView::OnSize(UINT nType, int cx, int cy)
 	{
 		m_pEngine->Resize();
 	}
+}
+
+
+void CModelViewerView::OnMouseMove(UINT nFlags, CPoint point)
+{ 
+	if( m_pCamera )
+	{
+		if( TRUE == m_bDragFlag )
+		{
+			int dx = point.x - m_mousePoint.x;
+			int dy = point.y - m_mousePoint.y;
+
+			m_pCamera->RotateWithUp( ((float)dx) / 1000.0f );
+			m_pCamera->RotateWithT( ((float)dy) / 1000.0f ); 
+		}
+	} 
+	m_mousePoint = point;
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+void CModelViewerView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	m_bDragFlag = FALSE;
+	m_mousePoint = point;
+	CView::OnLButtonUp(nFlags, point);
+}
+
+
+void CModelViewerView::OnLButtonDown(UINT nFlags, CPoint point)
+{ 
+	m_bDragFlag = TRUE;
+	m_mousePoint = point;
+	CView::OnLButtonDown(nFlags, point);
+}
+
+
+void CModelViewerView::OnResetCamera()
+{
+	if( m_pCamera )
+	{
+		m_pCamera->Reset();
+	}
+}
+
+void CModelViewerView::FrameStarted( void )
+{
+	if( NULL == m_pCamera )
+	{
+		return;
+	}
+
+	Real moveSpeed = 1.0f;
+
+	//前进
+	if( GetKeyState('W')&0x80 ||
+		GetKeyState('w')&0x80)
+	{
+		m_pCamera->MoveAlongDir(moveSpeed);
+	}
+
+	//后退
+	if( GetKeyState('S')&0x80 ||
+		GetKeyState('s')&0x80)
+	{
+		m_pCamera->MoveAlongDir(-moveSpeed);
+	}
+
+	//左平移
+	if( GetKeyState('A')&0x80 ||
+		GetKeyState('a')&0x80)
+	{
+		m_pCamera->MoveAlongT(-moveSpeed);
+	}
+
+	//右平移
+	if( GetKeyState('D')&0x80 ||
+		GetKeyState('d')&0x80)
+	{
+		m_pCamera->MoveAlongT(moveSpeed);
+	}
+
+	if( GetKeyState('Q')&0x80 ||
+		GetKeyState('q')&0x80
+		)
+	{
+		m_pCamera->RotateWithDir( 0.01f );
+	}
+
+	if( GetKeyState('E')&0x80 ||
+		GetKeyState('e')&0x80
+		)
+	{
+		m_pCamera->RotateWithDir( -0.01f );
+	}
+}
+
+void CModelViewerView::FrameEnded( void )
+{
+
+}
+
+
+void CModelViewerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{ 
+
+
+	if( nChar == 'L' ||
+		nChar == 'l'
+		)
+	{
+		m_pEngine->SwitchShadeMode();
+	}
+
+	if( nChar == 'C' ||
+		nChar == 'c'
+		)
+	{
+		m_pEngine->SwitchMesh();
+	}
+	__super::OnChar(nChar, nRepCnt, nFlags);
 }

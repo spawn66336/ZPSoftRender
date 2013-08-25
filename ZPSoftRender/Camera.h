@@ -4,7 +4,7 @@
 #include "ZPDependency.h"
 #include "ZPMathDependency.h"
 
-class Camera
+class ZPEXPORT Camera
 {
 public:
 	Camera(void);
@@ -15,6 +15,12 @@ public:
 	void RotateWithT( const Real theta );
 
 	void RotateWithDir( const Real theta );
+
+	void MoveAlongDir( const Real len );
+
+	void MoveAlongUp( const Real len );
+
+	void MoveAlongT( const Real len );
 
 	Math::Vec3 GetPos(void) const { return m_pos; }
 

@@ -11,6 +11,10 @@ namespace Render
 	m_pos(),
 	m_active(false)
 	{
+		m_ambient.Set( 0.0f , 0.0f , 0.0f , 1.0f );
+		m_diffuse.Set( 0.75f ,0.75f ,0.75f ,1.0f );
+		m_specular.Set( 1.0f , 1.0f , 1.0f ,1.0f );
+		m_pos.Set( 100.0f ,100.0f , 100.0f ,0.0f );
 	}
 
 
