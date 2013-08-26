@@ -150,6 +150,9 @@
     <ClCompile Include="ColladaSubMeshReader.cpp">
       <Filter>源文件\Collada</Filter>
     </ClCompile>
+    <ClCompile Include="FrameStackAllocator.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="ColladaSubMeshReader.h">
       <Filter>头文件\Collada</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameStackAllocator.h">
+      <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

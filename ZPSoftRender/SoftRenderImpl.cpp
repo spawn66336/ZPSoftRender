@@ -2,6 +2,7 @@
 #include "RenderContext.h"
 #include "RenderPipelineFactory.h"
 #include "RenderPipeline.h"
+#include "FrameStackAllocator.h"
 
 namespace Render
 { 
@@ -41,6 +42,9 @@ void SoftRenderImpl::Resize()
 
 void SoftRenderImpl::BeginDraw( Camera* pCam )
 {
+	//Çå¿ÕÕ»·ÖÅäÆ÷ÄÚ´æ
+	FrameStackAllocator::GetInstance()->Clear();
+
 	this->SetClearColor( Math::Vec4( 0.0f , 0.0f , 0.0f ,1.0f ) );
 	this->ClearBuffer( COLOR_BUFFER_FLAG | DEPTH_BUFFER_FLAG );
 }

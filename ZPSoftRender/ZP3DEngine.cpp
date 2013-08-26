@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "RenderPipelineFactory.h"
 #include "SoftRenderImpl.h"
+#include "FrameStackAllocator.h"
 
 ZP3DEngine::ZP3DEngine(void):
 m_pRenderer(NULL),
@@ -25,6 +26,7 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 {
 	ZP_ASSERT( NULL == m_pRenderer ); 
 
+	Render::FrameStackAllocator::CreateInstance();
 	Render::RenderPipelineFactory::CreateInstance();
 	Resource::TextureManager::CreateInstance();
 	Resource::MaterialManager::CreateInstance();
@@ -61,6 +63,7 @@ void ZP3DEngine::Destroy( void )
 	Resource::MaterialManager::DestroyInstance();
 	Resource::TextureManager::DestroyInstance();
 	Render::RenderPipelineFactory::DestroyInstance();
+	Render::FrameStackAllocator::DestroyInstance();
 }
 
 void ZP3DEngine::Resize( void )

@@ -115,6 +115,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClCompile Include="RenderPipelineFactory.cpp" />
     <ClCompile Include="RenderPrimitive.cpp" />
     <ClCompile Include="SoftRenderImpl.cpp" />
+    <ClCompile Include="FrameStackAllocator.cpp" />
     <ClCompile Include="SubMesh.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureManager.cpp" />
@@ -158,6 +159,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClInclude Include="RenderPrimitive.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SoftRenderImpl.h" />
+    <ClInclude Include="FrameStackAllocator.h" />
     <ClInclude Include="SubMesh.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureManager.h" />
