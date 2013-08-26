@@ -2,9 +2,14 @@
 #define ZP_MATHUTIL
 
 #include "ZPDependency.h"
- 
+
+
 	namespace Math
-	{    
+	{   
+		class Vec4;
+
+		typedef unsigned int BGRA8888_t;
+
 		class MathUtil
 		{ 
 			MathUtil(){}
@@ -33,6 +38,9 @@
 			static Real UnitRandom(void);
 			static Real RangeRandom( const Real low , const Real high );
 			static Real SymmetricRandom(void);
+
+			static Real Clamp( const Real val , const Real lower , const Real upper );
+			static BGRA8888_t ColorVecToRGBA8888( const Vec4& color );
 
 			/*
 			===========================

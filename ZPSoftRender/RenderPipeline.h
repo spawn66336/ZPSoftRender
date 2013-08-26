@@ -3,12 +3,34 @@
 
 namespace Render
 {
+	class RenderContext;
+	class RenderPrimitive;
 
 	class RenderPipeline
 	{
 	public:
 		RenderPipeline(void);
-		virtual ~RenderPipeline(void);
+		virtual ~RenderPipeline(void); 
+
+		virtual void SetRenderContext( RenderContext* pRenderContext ){ m_pRenderContext = pRenderContext; }
+
+		virtual RenderContext* GetRenderContext( void ) const { return m_pRenderContext; }
+
+		virtual void DrawElements( RenderPrimitive& renderPrimitive );
+
+		virtual void RunVertexShaderStage( void );
+
+		virtual void RunRasterizationStage( void );
+
+		virtual void RunEarlyZPassStage( void );
+
+		virtual void RunFragmentShaderStage( void );
+
+		virtual void RunMergeStage( void );
+
+	private:
+
+		RenderContext* m_pRenderContext;
 	};
 
 }//namespace Render

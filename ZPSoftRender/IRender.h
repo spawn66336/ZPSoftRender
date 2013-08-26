@@ -32,6 +32,12 @@ namespace Render
 		BUMPMAP_CH = 1
 	};
 
+	enum CLEAR_BUFFER_FLAG
+	{
+		COLOR_BUFFER_FLAG = 1,
+		DEPTH_BUFFER_FLAG = 2
+	};
+
 	enum SHADE_MODEL
 	{
 		WIREFRAME_MODEL = 0,

@@ -144,6 +144,7 @@ void CModelViewerView::RenderOneFrame( void )
 	{
 		m_pEngine->RenderOneFrame();
 	}
+	
 }
 
 // CModelViewerView 消息处理程序

@@ -111,6 +111,8 @@ void GLRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 
 				pDiffuseTexture->SetTextureHandle( newTextureHandle );
 			}
+		}else{ //若没有漫反射纹理则将纹理绑定为空
+			glBindTexture( GL_TEXTURE_2D , 0 );
 		}
 	} 
 }

@@ -1,4 +1,5 @@
 #include "MathUtil.h" 
+#include "Vec4.h"
  
 	namespace Math
 	{
@@ -60,6 +61,31 @@
 				return true;
 			else
 				return false;
+		}
+
+		Math::BGRA8888_t MathUtil::ColorVecToRGBA8888( const Vec4& color )
+		{
+			BGRA8888_t rgba;
+			unsigned char* pElems = reinterpret_cast<unsigned char*>( &rgba ); 
+			pElems[0] = static_cast<unsigned char>( 255.0f * Clamp( color.z , 0.0f , 1.0f ) );
+			pElems[1] = static_cast<unsigned char>( 255.0f * Clamp( color.y , 0.0f , 1.0f ) );
+			pElems[2] = static_cast<unsigned char>( 255.0f * Clamp( color.x , 0.0f , 1.0f ) );
+			pElems[3] = static_cast<unsigned char>( 255.0f * Clamp( color.w , 0.0f , 1.0f ) );
+			return rgba; 
+		}
+
+		Real MathUtil::Clamp( const Real val , const Real lower , const Real upper )
+		{
+			Real final_val = val;
+			if( val <= lower )
+			{
+				final_val = lower;
+			}
+			if( val >= upper )
+			{
+				final_val = upper;
+			}
+			return final_val; 
 		}
 
 	

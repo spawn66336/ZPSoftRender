@@ -6,6 +6,8 @@
 #include "MaterialManager.h"
 #include "TextureManager.h"
 #include "Light.h"
+#include "RenderPipelineFactory.h"
+#include "SoftRenderImpl.h"
 
 ZP3DEngine::ZP3DEngine(void):
 m_pRenderer(NULL),
@@ -23,11 +25,13 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 {
 	ZP_ASSERT( NULL == m_pRenderer ); 
 
+	Render::RenderPipelineFactory::CreateInstance();
 	Resource::TextureManager::CreateInstance();
 	Resource::MaterialManager::CreateInstance();
 	Resource::MeshManager::CreateInstance();
 
-	m_pRenderer = new Render::GLRenderImpl;
+	//m_pRenderer = new Render::GLRenderImpl;
+	m_pRenderer = new Render::SoftRenderImpl;
 	m_pRenderer->Init( hwnd );
 	m_pRenderer->SetClearColor( Math::Vec4( 0.0f,0.0f,0.0f,1.0f) );
 	m_pRenderer->EnableLight( true );
@@ -56,6 +60,7 @@ void ZP3DEngine::Destroy( void )
 	Resource::MeshManager::DestroyInstance();
 	Resource::MaterialManager::DestroyInstance();
 	Resource::TextureManager::DestroyInstance();
+	Render::RenderPipelineFactory::DestroyInstance();
 }
 
 void ZP3DEngine::Resize( void )
