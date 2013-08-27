@@ -2,9 +2,22 @@
 #define ZP_FRAMEBUFFER
 
 #include "ZPDependency.h"
+#include "ZPMathDependency.h" 
 
 namespace Render
 {
+
+	/**
+
+		屏幕坐标系 		
+		(0,0)	-------------------> X
+		|
+		|
+		|
+		|
+		V
+		Y
+	*/
 
 	class FrameBuffer
 	{
@@ -56,6 +69,32 @@ namespace Render
 		}
 
 		inline void* Pixels( void ) const { return m_pPixels; }
+
+		/**
+		* @brief DDA算法画直线
+		*/
+		void DrawLineDDA( const Math::Vec2& p0 , const Math::Vec2& p1 , void* pPixel );
+
+		void DrawLineMidPoint( const Math::Vec2& p0 , const Math::Vec2& p1 , void* pPixel );
+
+		/**
+		* @brief 绘制实心平底三角形
+		*/
+		void DrawTriangle2DFlatBaseSolid( const int x0 , const int y0 , const int x1 , const int y1 , const int x2 , const int y2 , void* pPixel );
+
+		/**
+		* @brief 绘制实心平顶三角形
+		*/
+		void DrawTriangle2DFlatTopSolid( const int x0 , const int y0 , const int x1 , const int y1 , const int x2 , const int y2 , void* pPixel );
+
+		/**
+		* @brief 绘制实心三角形
+		*/
+		void DrawTriangle2DSolid( const Math::Vec2& p0 , const Math::Vec2& p1 , const Math::Vec2& p2 , void* pPixel );
+
+		void DrawVLine( const int x , const int y0 , const int y1 , void* pPixel );
+
+		void DrawHLine( const int y , const int x0 , const int x1 , void* pPixel ); 
 
 		void FillBitmapInfo( BITMAPINFO& bitmapInfo );
 

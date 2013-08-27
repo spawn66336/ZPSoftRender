@@ -28,13 +28,21 @@ public:
 
 	void Reset( void );
 
+	Math::Matrix4 GetGLCameraMatrix( void );
+
 	Math::Matrix4 GetCameraMatrix( void );
+	
+	void SetFov( const Real fov ){ m_fov = fov; }
+
+	Real GetFov( void ) const { return m_fov; }
 
 protected:
 	Math::Vec3 m_up; ///>上方向向量
 	Math::Vec3 m_t;	///>水平方向向量
 	Math::Vec3 m_dir; ///>摄像机所面向的位置向量
 	Math::Vec3 m_pos; ///>摄像机的位置
+
+	Real			 m_fov;	 ///>视口张角(按角度计)
 };
 
 #endif

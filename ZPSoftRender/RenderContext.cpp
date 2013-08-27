@@ -8,6 +8,7 @@ namespace Render
 RenderContext::RenderContext(void):
 m_hWnd(NULL),
 m_hDC(NULL),
+m_aspect(1.0f),
 m_enableTexture2D(false),	
 m_enableDepthTest(false),		
 m_enableLighting(false),
@@ -43,14 +44,27 @@ void RenderContext::Resize( void )
 	::GetClientRect( m_hWnd , &m_wndRect );
 	int iWndWidth = m_wndRect.right - m_wndRect.left;
 	int iWndHeight = m_wndRect.bottom - m_wndRect.top;
-
+	 
 	if( iWndWidth > MAX_SCREEN_WIDTH )
 		iWndWidth = MAX_SCREEN_WIDTH;
 	if( iWndHeight > MAX_SCREEN_HEIGHT )
 		iWndHeight = MAX_SCREEN_HEIGHT;
 
+	m_aspect = ( (Real)iWndWidth ) / ( (Real)iWndHeight );
+
 	m_colorFrameBuf.Resize( iWndWidth , iWndHeight );
 	m_zFrameBuf.Resize( iWndWidth , iWndHeight );
+
+	//更新透视坐标到屏幕坐标变换矩阵
+	Real alpha = 0.5f * (Real)iWndWidth - 0.5f;
+	Real beta   = 0.5f * (Real)iWndHeight - 0.5f;
+
+	m_currProjToScreenMat = Math::Matrix4( 
+			alpha , 0.0f    , 0.0f  , 0.0f ,
+			0.0f   , -beta  , 0.0f  , 0.0f ,
+			0.0f   , 0.0f    , 1.0f  , 0.0f ,
+			alpha , beta   , 0.0f  , 1.0f 
+		);
 }
 
 void RenderContext::EnableTexture2D( bool enable )
@@ -123,36 +137,36 @@ void RenderContext::DeleteAllLights( void )
 
 void RenderContext::SetProjectionMatrix( const Math::Matrix4& mat )
 {
-	m_projectionMat = mat;
+	m_currCamToProjMat = mat;
 }
 
 void RenderContext::PushMatrix()
 {
-	m_modelViewMatrixStack.push( m_currModelViewMat );
+	m_modelViewMatrixStack.push( m_currLocalToCamMat );
 }
 
 void RenderContext::PopMatrix()
 {
 	if( m_modelViewMatrixStack.size() )
 	{
-		m_currModelViewMat = m_modelViewMatrixStack.top();
+		m_currLocalToCamMat = m_modelViewMatrixStack.top();
 		m_modelViewMatrixStack.pop();
 	}
 }
 
 void RenderContext::LoadMatrix( const Math::Matrix4 &mat )
 {
-	m_currModelViewMat = mat;
+	m_currLocalToCamMat = mat;
 }
 
 void RenderContext::LoadIdentity()
 {
-	m_currModelViewMat = Math::Matrix4::IDENTITY;
+	m_currLocalToCamMat = Math::Matrix4::IDENTITY;
 }
 
 void RenderContext::MultMatrix( const Math::Matrix4 &mat )
 {
-	m_currModelViewMat = mat * m_currModelViewMat;
+	m_currLocalToCamMat = mat * m_currLocalToCamMat;
 }
 
 void RenderContext::SetClearColor( const Math::Vec4& color )
@@ -200,6 +214,17 @@ void RenderContext::SetCurrMaterial(  Resource::Material* pMat )
 Resource::Material* RenderContext::GetCurrMaterial( void ) const
 {
 	return m_pCurrMaterial;
+}
+
+void RenderContext::SetPerspectiveProjection( const Real fov , const Real near , const Real far )
+{
+	Real d = 1.0f * Math::MathUtil::Tan( Math::MathUtil::DegreesToRadians( fov/2.0f ) );
+	m_currCamToProjMat = Math::Matrix4(
+			d ,		 0.0f , 0.0f , 0.0f ,
+			0.0f , d*m_aspect , 0.0f , 0.0f ,
+			0.0f , 0.0f , 1.0f , 1.0f ,
+			0.0f , 0.0f , 0.0f , 0.0f 
+		);
 }
 
 }//namespace Render

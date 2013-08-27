@@ -6,7 +6,8 @@
 		const Real MathUtil::PI	 = Real( 4.0f*atan( 1.0f ) );
 		const Real MathUtil::HALF_PI = 0.5f*PI ; 
 		const Real MathUtil::TWO_PI = 2.0f*PI;
-
+		const Real MathUtil::fDeg2Rad = PI / Real(180.0);
+		const Real MathUtil::fRad2Deg = Real(180.0) / PI;
 		 
 		
 		Real MathUtil::Fabs( const Real x )
@@ -87,6 +88,13 @@
 			}
 			return final_val; 
 		}
+
+		int MathUtil::Abs( const int x )
+		{
+			return abs(x);
+		}
+
+
 
 	
 

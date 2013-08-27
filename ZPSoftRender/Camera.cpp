@@ -7,6 +7,8 @@ Camera::Camera(void)
 	m_t = Math::Vec3::UNIT_X;
 	m_dir = Math::Vec3::UNIT_Z; 
 	m_pos.Set( 0.0f , 50.0f , -100.0f );
+
+	m_fov = 90.0f;
 }
 
 Camera::~Camera(void)
@@ -51,7 +53,7 @@ void Camera::Reset( void )
 	m_pos.Set( 0.0f , 50.0f , -100.0f );
 }
 
-Math::Matrix4 Camera::GetCameraMatrix( void )
+Math::Matrix4 Camera::GetGLCameraMatrix( void )
 {
 	Math::Vec3 negDir = -m_dir;
 	return Math::Matrix4(
@@ -61,6 +63,18 @@ Math::Matrix4 Camera::GetCameraMatrix( void )
 			m_t.DotProduct( -m_pos ) , m_up.DotProduct( -m_pos ) , negDir.DotProduct( -m_pos) , 1.0f
 		);
 }
+
+
+Math::Matrix4 Camera::GetCameraMatrix( void )
+{
+	return Math::Matrix4(
+		m_t.x , m_up.x , m_dir.x , 0.0f ,
+		m_t.y , m_up.y , m_dir.y , 0.0f ,
+		m_t.z , m_up.z , m_dir.z  , 0.0f ,
+		m_t.DotProduct( -m_pos ) , m_up.DotProduct( -m_pos ) , m_dir.DotProduct( -m_pos) , 1.0f
+		);
+}
+
 
 void Camera::MoveAlongDir( const Real len )
 {

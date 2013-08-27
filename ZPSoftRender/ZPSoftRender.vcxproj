@@ -111,6 +111,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClCompile Include="NormalMapShadingPipeline.cpp" />
     <ClCompile Include="PhongShadingPipeline.cpp" />
     <ClCompile Include="RenderContext.cpp" />
+    <ClCompile Include="RenderList.cpp" />
     <ClCompile Include="RenderPipeline.cpp" />
     <ClCompile Include="RenderPipelineFactory.cpp" />
     <ClCompile Include="RenderPrimitive.cpp" />
@@ -154,6 +155,7 @@ del $(TargetDir)\$(TargetName).lib</Command>
     <ClInclude Include="PhongShadingPipeline.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="RenderContext.h" />
+    <ClInclude Include="RenderList.h" />
     <ClInclude Include="RenderPipeline.h" />
     <ClInclude Include="RenderPipelineFactory.h" />
     <ClInclude Include="RenderPrimitive.h" />

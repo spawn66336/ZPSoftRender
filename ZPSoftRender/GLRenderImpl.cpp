@@ -337,7 +337,7 @@ void GLRenderImpl::BeginDraw(  Camera* pCam  )
 	//glLoadMatrixf( (GLfloat*)m_projectionMat.m );
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();  
-	this->LoadMatrix( pCam->GetCameraMatrix() );
+	this->LoadMatrix( pCam->GetGLCameraMatrix() );
 
 	_DrawFrameOfAxes();
 

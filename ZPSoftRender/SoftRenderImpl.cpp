@@ -3,6 +3,7 @@
 #include "RenderPipelineFactory.h"
 #include "RenderPipeline.h"
 #include "FrameStackAllocator.h"
+#include "Camera.h"
 
 namespace Render
 { 
@@ -46,7 +47,12 @@ void SoftRenderImpl::BeginDraw( Camera* pCam )
 	FrameStackAllocator::GetInstance()->Clear();
 
 	this->SetClearColor( Math::Vec4( 0.0f , 0.0f , 0.0f ,1.0f ) );
-	this->ClearBuffer( COLOR_BUFFER_FLAG | DEPTH_BUFFER_FLAG );
+	this->ClearBuffer( COLOR_BUFFER_FLAG | DEPTH_BUFFER_FLAG ); 
+
+	m_pRenderContext->SetPerspectiveProjection( pCam->GetFov() , 1.0f , 9999.0f );
+	 
+	m_pRenderContext->LoadIdentity();
+	m_pRenderContext->LoadMatrix( pCam->GetCameraMatrix() );
 }
 
 void SoftRenderImpl::EndDraw( void )

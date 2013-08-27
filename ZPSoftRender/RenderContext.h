@@ -47,7 +47,7 @@ namespace Render
 		virtual Light* FindLightByName( const String& name);
 		virtual void DeleteAllLights( void );
 
-
+		virtual void SetPerspectiveProjection( const Real fov , const Real near , const Real far );
 		virtual void SetProjectionMatrix( const Math::Matrix4& mat );
 		virtual void PushMatrix();
 		virtual void PopMatrix();
@@ -55,8 +55,9 @@ namespace Render
 		virtual void LoadIdentity();
 		virtual void MultMatrix( const Math::Matrix4 &mat);
 
-		virtual const Math::Matrix4& GetCurrModelViewMatrix( void ) const { return m_currModelViewMat; }
-		virtual const Math::Matrix4& GetCurrProjectionMatrix( void ) const { return m_projectionMat; }
+		virtual const Math::Matrix4& GetCurrModelViewMatrix( void ) const { return m_currLocalToCamMat; }
+		virtual const Math::Matrix4& GetCurrProjectionMatrix( void ) const { return m_currCamToProjMat; }
+		virtual const Math::Matrix4& GetCurrProjectionToScreenMatrix( void ) const { return m_currProjToScreenMat; }
 
 		FrameBuffer& GetColorFrameBuffer( void ){ return m_colorFrameBuf; }
 		FrameBuffer& GetZFrameBuffer( void ){ return m_zFrameBuf; }
@@ -65,8 +66,10 @@ namespace Render
 		winHandle_t m_hWnd;						///>Windows窗体句柄 
 		HDC				m_hDC;						///>图形设备描述符
 		RECT				m_wndRect;					///>当前窗体大小
-		Math::Matrix4 m_projectionMat;      ///>当前投影矩阵
-		Math::Matrix4 m_currModelViewMat; ///>当前模型视图矩阵
+		Real				m_aspect;						///>视口宽高比
+		Math::Matrix4 m_currCamToProjMat;      ///>当前投影矩阵
+		Math::Matrix4 m_currLocalToCamMat; ///>当前模型视图矩阵
+		Math::Matrix4 m_currProjToScreenMat; 
 		Math::Vec4	m_clearColor;				///>清除颜色
 		bool				m_enableTexture2D;		///>二维纹理是否开启
 		bool				m_enableDepthTest;		///>深度测试是否开启

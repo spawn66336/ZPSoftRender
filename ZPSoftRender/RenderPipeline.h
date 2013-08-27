@@ -1,5 +1,6 @@
 #ifndef ZP_RENDERPIPELINE
 #define ZP_RENDERPIPELINE
+#include "RenderList.h"
 
 namespace Render
 {
@@ -18,6 +19,8 @@ namespace Render
 
 		virtual void DrawElements( RenderPrimitive& renderPrimitive );
 
+	protected:
+
 		virtual void RunVertexShaderStage( void );
 
 		virtual void RunRasterizationStage( void );
@@ -31,6 +34,7 @@ namespace Render
 	private:
 
 		RenderContext* m_pRenderContext;
+		RenderList		  m_renderList;
 	};
 
 }//namespace Render

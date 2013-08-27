@@ -153,6 +153,9 @@
     <ClCompile Include="FrameStackAllocator.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
+    <ClCompile Include="RenderList.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -294,6 +297,9 @@
       <Filter>头文件\Collada</Filter>
     </ClInclude>
     <ClInclude Include="FrameStackAllocator.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderList.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>
