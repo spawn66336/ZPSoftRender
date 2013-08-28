@@ -36,9 +36,9 @@ typedef std::string String;
 
 typedef float Real; 
 
-#define EPSLION	(1e-06)
-#define EQUAL( x , y )  ( ( ( (x) - (y) ) < EPSLION ) &&  ( ( (x) - (y) ) > -EPSLION ) )
-#define LESS_THAN( x , y ) ( ( (y)-(x) ) > EPSLION )
-#define GREATER_THAN( x , y ) ( ( (x)-(y) ) > EPSLION )
+#define EPSLION	0.0001f
+#define REAL_EQUAL( x , y )  ( ( ( (x) - (y) ) < EPSLION ) &&  ( ( (x) - (y) ) > -EPSLION ) )
+#define REAL_LESS_THAN( x , y ) ( ( (y)-(x) ) > EPSLION )
+#define REAL_GREATER_THAN( x , y ) ( ( (x)-(y) ) > EPSLION )
 
 #endif//ZP_PREDEFINE

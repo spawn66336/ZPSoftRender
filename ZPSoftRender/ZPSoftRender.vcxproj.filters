@@ -156,6 +156,12 @@
     <ClCompile Include="RenderList.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="RasterProcessor.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -300,6 +306,12 @@
       <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="RenderList.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterProcessor.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>

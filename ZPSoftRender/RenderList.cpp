@@ -64,6 +64,112 @@ namespace Render
 		m_uiState |= bit;
 	}
 
+	Render::RVertex RVertex::operator+( const RVertex& rhs ) const
+	{
+		RVertex newVert;
+		newVert.m_v3Pos = m_v3Pos + rhs.m_v3Pos;
+		newVert.m_v3Normal = m_v3Normal + rhs.m_v3Normal;
+		newVert.m_v2Texcoord = m_v2Texcoord + rhs.m_v2Texcoord;
+		newVert.m_v3Tangent = m_v3Tangent + rhs.m_v3Tangent;
+		newVert.m_v3Binormal = m_v3Binormal + rhs.m_v3Binormal;
+		newVert.m_v4Color = m_v4Color + rhs.m_v4Color;
+		return newVert;
+	}
+
+	Render::RVertex RVertex::operator-( const RVertex& rhs ) const
+	{
+		RVertex newVert;
+		newVert.m_v3Pos = m_v3Pos - rhs.m_v3Pos;
+		newVert.m_v3Normal = m_v3Normal - rhs.m_v3Normal;
+		newVert.m_v2Texcoord = m_v2Texcoord - rhs.m_v2Texcoord;
+		newVert.m_v3Tangent = m_v3Tangent - rhs.m_v3Tangent;
+		newVert.m_v3Binormal = m_v3Binormal - rhs.m_v3Binormal;
+		newVert.m_v4Color = m_v4Color - rhs.m_v4Color;
+		return newVert;
+	}
+
+	Render::RVertex RVertex::operator*( const Real rhs ) const
+	{
+		RVertex newVert;
+		newVert.m_v3Pos = m_v3Pos * rhs;
+		newVert.m_v3Normal = m_v3Normal * rhs;
+		newVert.m_v2Texcoord = m_v2Texcoord * rhs;
+		newVert.m_v3Tangent = m_v3Tangent * rhs;
+		newVert.m_v3Binormal = m_v3Binormal * rhs;
+		newVert.m_v4Color = m_v4Color * rhs;
+		return newVert;
+	}
+
+	Render::RVertex RVertex::operator/( const Real rhs ) const
+	{
+		RVertex newVert;
+		newVert.m_v3Pos = m_v3Pos / rhs;
+		newVert.m_v3Normal = m_v3Normal / rhs;
+		newVert.m_v2Texcoord = m_v2Texcoord  / rhs;
+		newVert.m_v3Tangent = m_v3Tangent / rhs;
+		newVert.m_v3Binormal = m_v3Binormal / rhs;
+		newVert.m_v4Color = m_v4Color / rhs;
+		return newVert;
+	}
+
+	RVertex& RVertex::operator+=( const RVertex& rhs )
+	{
+		m_v3Pos += rhs.m_v3Pos;
+		m_v3Normal += rhs.m_v3Normal;
+		m_v2Texcoord += rhs.m_v2Texcoord;
+		m_v3Tangent += rhs.m_v3Tangent;
+		m_v3Binormal += rhs.m_v3Binormal;
+		m_v4Color += rhs.m_v4Color;
+		return *this;
+	}
+
+	RVertex& RVertex::operator-=( const RVertex& rhs )
+	{
+		m_v3Pos -= rhs.m_v3Pos;
+		m_v3Normal -= rhs.m_v3Normal;
+		m_v2Texcoord  -= rhs.m_v2Texcoord;
+		m_v3Tangent -= rhs.m_v3Tangent;
+		m_v3Binormal -= rhs.m_v3Binormal;
+		m_v4Color -= rhs.m_v4Color;
+		return *this;
+	}
+
+	RVertex& RVertex::operator*=( const Real rhs )
+	{
+		m_v3Pos *= rhs;
+		m_v3Normal *= rhs;
+		m_v2Texcoord  *= rhs;
+		m_v3Tangent *= rhs;
+		m_v3Binormal *= rhs;
+		m_v4Color *= rhs;
+		return *this;
+	}
+
+	RVertex& RVertex::operator/=( const Real rhs )
+	{
+		m_v3Pos /= rhs;
+		m_v3Normal /= rhs;
+		m_v2Texcoord  /= rhs;
+		m_v3Tangent /= rhs;
+		m_v3Binormal /= rhs;
+		m_v4Color /= rhs;
+		return *this;
+	}
+
+
+	Render::RVertex operator*( const Real lhs , const RVertex& rhs )
+	{
+		RVertex newVert;
+		newVert.m_v3Pos = rhs.m_v3Pos * lhs;
+		newVert.m_v3Normal = rhs.m_v3Normal * lhs;
+		newVert.m_v2Texcoord = rhs.m_v2Texcoord * lhs;
+		newVert.m_v3Tangent = rhs.m_v3Tangent * lhs;
+		newVert.m_v3Binormal = rhs.m_v3Binormal * lhs;
+		newVert.m_v4Color = rhs.m_v4Color * lhs;
+		return newVert;
+	}
+
+
 	RFace::RFace(): 
 	m_uiState(0),
 	m_pNext(NULL)

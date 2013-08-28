@@ -1,6 +1,8 @@
 #ifndef ZP_RENDERPIPELINE
 #define ZP_RENDERPIPELINE
 #include "RenderList.h"
+#include "RasterProcessor.h"
+#include "PixelShader.h"
 
 namespace Render
 {
@@ -73,6 +75,8 @@ namespace Render
 
 		RenderContext* m_pRenderContext;
 		RenderList		  m_renderList;
+		RasterProcessor  m_rasterProcessor;
+		PixelShader			m_pixelShader;
 	};
 
 }//namespace Render

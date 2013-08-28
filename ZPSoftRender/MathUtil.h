@@ -37,6 +37,7 @@
 			static Real Sqrt( const Real val ); 
 			static Real Pow( const Real x , const Real y );
 			static bool IsNaN( const Real val ); 
+			static int Ceil( const Real x );
 
 			static inline Real DegreesToRadians(Real deg) { return deg * fDeg2Rad; }
 			static inline Real RadiansToDegrees(Real rad) { return rad * fRad2Deg; }

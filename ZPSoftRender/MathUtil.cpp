@@ -99,6 +99,11 @@
 			return pow( x , y );
 		}
 
+		int MathUtil::Ceil( const Real x )
+		{
+			return static_cast<int>( ceil(x) );
+		}
+
 
 
 	

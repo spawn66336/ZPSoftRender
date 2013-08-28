@@ -5,6 +5,7 @@
 #include "Light.h"
 #include "ZPMathDependency.h"
 #include "Material.h"
+#include "IRender.h"
 
 namespace Render
 {
@@ -22,8 +23,17 @@ namespace Render
 	}
 
 	void RenderPipeline::DrawElements( RenderPrimitive& renderPrimitive )
-	{
+	{ 
 		FrameStackAllocator::GetInstance()->Clear();
+
+		if( NULL == m_pRenderContext )
+		{
+			return;
+		}
+
+		m_rasterProcessor.SetColorBuffer( &( m_pRenderContext->GetColorFrameBuffer() ) );
+		m_rasterProcessor.SetDepthBuffer( &( m_pRenderContext->GetDepthFrameBuffer() ) );
+
 		m_renderList.Clear(); 
 		m_renderList.CopyFromRenderPrimitive( renderPrimitive ); 
 
@@ -176,7 +186,8 @@ namespace Render
 				unsigned int uiEndIndx = uiVertIndices[ (uiLine+1)%3 ];
 				Math::Vec2 v2P0( m_renderList.GetRTransVerts()[uiStartIndx].m_v3Pos.x ,  m_renderList.GetRTransVerts()[uiStartIndx].m_v3Pos.y );
 				Math::Vec2 v2P1(  m_renderList.GetRTransVerts()[uiEndIndx].m_v3Pos.x ,  m_renderList.GetRTransVerts()[uiEndIndx].m_v3Pos.y );
-				m_pRenderContext->GetColorFrameBuffer().DrawLineMidPoint( v2P0 , v2P1 , static_cast<void*>( &lineColor ) );
+				//m_pRenderContext->GetColorFrameBuffer().DrawLineMidPoint( v2P0 , v2P1 , static_cast<void*>( &lineColor ) );
+				m_rasterProcessor.DrawLineMidPoint( v2P0 , v2P1 , Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
 			} 
 			pFace = pFace->m_pNext;
 		}
@@ -187,6 +198,8 @@ namespace Render
 		RFace* pFace = m_renderList.GetFaceList();
 		RVertex* pVerts = m_renderList.GetRTransVerts();
 
+		m_pixelShader.SetShadeModel( FLAT_MODEL );
+		
 		while( NULL != pFace )
 		{
 			if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
@@ -194,9 +207,9 @@ namespace Render
 				pFace = pFace->m_pNext;
 				continue;
 			}
+			 
 
-			Math::BGRA8888_t faceColor = 
-				Math::MathUtil::ColorVecToRGBA8888( pFace->m_v4Color );
+			m_pixelShader.SetFaceColor( pFace->m_v4Color );
 
 			unsigned int uiVertIndices[3];  
 			uiVertIndices[0] = pFace->m_uiIndices[0];
@@ -206,7 +219,9 @@ namespace Render
 			Math::Vec2 v2P0( pVerts[uiVertIndices[0]].m_v3Pos.x , pVerts[uiVertIndices[0]].m_v3Pos.y );
 			Math::Vec2 v2P1( pVerts[uiVertIndices[1]].m_v3Pos.x , pVerts[uiVertIndices[1]].m_v3Pos.y );
 			Math::Vec2 v2P2( pVerts[uiVertIndices[2]].m_v3Pos.x , pVerts[uiVertIndices[2]].m_v3Pos.y ); 
-			m_pRenderContext->GetColorFrameBuffer().DrawTriangle2DSolid( v2P0 , v2P1 , v2P2 ,  static_cast<void*>( &faceColor ) );
+
+			//m_pRenderContext->GetColorFrameBuffer().DrawTriangle2DSolid( v2P0 , v2P1 , v2P2 ,  static_cast<void*>( &faceColor ) );
+			m_rasterProcessor.DrawTriangle2D( pVerts[uiVertIndices[0]] , pVerts[uiVertIndices[1]] , pVerts[uiVertIndices[2]] , m_pixelShader );
 
 			pFace = pFace->m_pNext;
 		}
@@ -236,42 +251,36 @@ namespace Render
 			}
 
 			//将光源位置变换到相机空间
-			Math::Vec4 v4LightPos = ( pLight->Position() ) * m_pRenderContext->GetCurrWorldToCamMatrix();
-
-			RFace* pFace = m_renderList.GetFaceList();
+			Math::Vec4 v4LightPos = ( pLight->Position() ) * m_pRenderContext->GetCurrWorldToCamMatrix(); 
 			RVertex* pVerts = m_renderList.GetRTransVerts();
 
-			while( NULL != pFace )
+			for( unsigned int uiVert = 0 ; uiVert < m_renderList.VertCount() ; uiVert++ )
 			{
-				if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
-				{  
-					pFace = pFace->m_pNext;
+				RVertex& v = pVerts[uiVert];
+
+				if( !v.TestStateBit( RVERT_STATE_ACTIVE ) )
+				{
 					continue;
 				}
 
-				for( int iVert = 0 ; iVert < 3 ; iVert++ )
-				{
-					unsigned int uiVert = pFace->m_uiIndices[iVert];
-					Math::Vec3 v3Viewer = -(pVerts[uiVert].m_v3Pos); 
-					v3Viewer.Normalize();
-					Math::Vec3 v3LightDir = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - pVerts[uiVert].m_v3Pos; 
-					v3LightDir.Normalize();
+				Math::Vec3 v3Viewer = -(v.m_v3Pos); 
+				v3Viewer.Normalize();
+				Math::Vec3 v3LightDir = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3Pos; 
+				v3LightDir.Normalize();
 
-					Math::Vec3 v3H = ( v3Viewer + v3LightDir ).NormalisedCopy();
+				Math::Vec3 v3H = ( v3Viewer + v3LightDir ).NormalisedCopy();
 
-					Real fSpecFactor = pVerts[uiVert].m_v3Normal.DotProduct( v3H );
-					fSpecFactor = fSpecFactor > 0.0f ? fSpecFactor : 0.0f;
-					fSpecFactor = Math::MathUtil::Pow( fSpecFactor , pMaterial->GetShininess() );
+				Real fSpecFactor = v.m_v3Normal.DotProduct( v3H );
+				fSpecFactor = fSpecFactor > 0.0f ? fSpecFactor : 0.0f;
+				fSpecFactor = Math::MathUtil::Pow( fSpecFactor , pMaterial->GetShininess() );
 
-					Real fDiffFactor = pVerts[uiVert].m_v3Normal.DotProduct( v3LightDir );
-					fDiffFactor = fDiffFactor > 0.0f ? fDiffFactor : 0.0f;
+				Real fDiffFactor = v.m_v3Normal.DotProduct( v3LightDir );
+				fDiffFactor = fDiffFactor > 0.0f ? fDiffFactor : 0.0f;
 
-					pVerts[uiVert].m_v4Color += fSpecFactor*( pMaterial->GetSpecular()* pLight->Specular() ) + 
-						fDiffFactor*( pMaterial->GetDiffuse() * pLight->Diffuse() );
-				} 
-
-				pFace = pFace->m_pNext;
-			}
+				v.m_v4Color += fSpecFactor*( pMaterial->GetSpecular()* pLight->Specular() ) + 
+					fDiffFactor*( pMaterial->GetDiffuse() * pLight->Diffuse() );
+			} 
+			 
 			itLight++;
 		}
 	}
@@ -343,24 +352,30 @@ namespace Render
 	{
 		RFace* pFace = m_renderList.GetFaceList();
 
+		m_pixelShader.SetShadeModel( GOURAUD_MODEL );
+
 		while( NULL != pFace )
 		{
 			if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
 			{
 				pFace = pFace->m_pNext;
 				continue;
-			}
-			 
+			} 
 
 			unsigned int uiVertIndices[3];  
 			uiVertIndices[0] = pFace->m_uiIndices[0];
 			uiVertIndices[1] = pFace->m_uiIndices[1];
 			uiVertIndices[2] = pFace->m_uiIndices[2];
 
-			m_pRenderContext->GetColorFrameBuffer().DrawTriangle2D( 
+			/*m_pRenderContext->GetColorFrameBuffer().DrawTriangle2D( 
+			m_renderList.GetRTransVerts()[uiVertIndices[0]] , 
+			m_renderList.GetRTransVerts()[uiVertIndices[1]] ,
+			m_renderList.GetRTransVerts()[uiVertIndices[2]] );*/
+
+			m_rasterProcessor.DrawTriangle2D( 
 				m_renderList.GetRTransVerts()[uiVertIndices[0]] , 
 				m_renderList.GetRTransVerts()[uiVertIndices[1]] ,
-				m_renderList.GetRTransVerts()[uiVertIndices[2]] );
+				m_renderList.GetRTransVerts()[uiVertIndices[2]] , m_pixelShader );
 
 			pFace = pFace->m_pNext;
 		}

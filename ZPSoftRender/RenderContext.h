@@ -67,7 +67,7 @@ namespace Render
 		virtual const Math::Matrix4& GetCurrProjectionToScreenMatrix( void ) const { return m_currProjToScreenMat; }
 
 		FrameBuffer& GetColorFrameBuffer( void ){ return m_colorFrameBuf; }
-		FrameBuffer& GetZFrameBuffer( void ){ return m_zFrameBuf; }
+		FrameBuffer& GetDepthFrameBuffer( void ){ return m_zFrameBuf; }
 
 	protected:
 		winHandle_t m_hWnd;						///>Windows΄°ΜεΎδ±ϊ 

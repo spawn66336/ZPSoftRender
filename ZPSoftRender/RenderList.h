@@ -31,6 +31,16 @@ namespace Render
 		void CopyFromVertex( const Vertex& v );
 		RVertex& operator=( const RVertex& rhs );
 
+		RVertex operator+( const RVertex& rhs ) const;
+		RVertex operator-( const RVertex& rhs ) const;
+		RVertex operator*( const Real rhs ) const;
+		RVertex operator/( const Real rhs ) const;
+
+		RVertex& operator+=( const RVertex& rhs );
+		RVertex& operator-=( const RVertex& rhs );
+		RVertex& operator*=( const Real rhs );
+		RVertex& operator/=( const Real rhs );
+
 		Math::Vec3 m_v3Pos;				///>顶点位置
 		Math::Vec3 m_v3Normal;			///>顶点法线
 		Math::Vec2 m_v2Texcoord;		///>顶点纹理坐标
@@ -39,6 +49,8 @@ namespace Render
 		Math::Vec4 m_v4Color;				///>顶点颜色
 		unsigned int m_uiState;
 	};
+
+	RVertex operator*( const Real lhs , const RVertex& rhs );
 
 
 	enum RENDERFACE_STATE
