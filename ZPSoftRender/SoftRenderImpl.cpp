@@ -50,7 +50,7 @@ void SoftRenderImpl::BeginDraw( Camera* pCam )
 	this->ClearBuffer( COLOR_BUFFER_FLAG | DEPTH_BUFFER_FLAG ); 
 
 	m_pRenderContext->SetPerspectiveProjection( pCam->GetFov() , 1.0f , 9999.0f );
-	 
+	m_pRenderContext->SetWorldToCameraMatrix( pCam->GetCameraMatrix() );
 	m_pRenderContext->LoadIdentity();
 	m_pRenderContext->LoadMatrix( pCam->GetCameraMatrix() );
 }

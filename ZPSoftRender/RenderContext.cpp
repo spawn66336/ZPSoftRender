@@ -227,4 +227,9 @@ void RenderContext::SetPerspectiveProjection( const Real fov , const Real near ,
 		);
 }
 
+void RenderContext::SetWorldToCameraMatrix( const Math::Matrix4& mat )
+{
+	m_currWorldToCamMat = mat;
+}
+
 }//namespace Render

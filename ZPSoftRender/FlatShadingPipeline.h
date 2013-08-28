@@ -11,6 +11,8 @@ namespace Render
 	public:
 		FlatShadingPipeline(void);
 		virtual ~FlatShadingPipeline(void);
+
+		virtual void RunMergeStage( void );
 	};
 
 }//namespace Render

@@ -94,6 +94,11 @@
 			return abs(x);
 		}
 
+		Real MathUtil::Pow(  const Real x , const Real y  )
+		{
+			return pow( x , y );
+		}
+
 
 
 	

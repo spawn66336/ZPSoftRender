@@ -31,12 +31,12 @@ namespace Render
 		void CopyFromVertex( const Vertex& v );
 		RVertex& operator=( const RVertex& rhs );
 
-		Math::Vec3 m_v3Pos;
-		Math::Vec3 m_v3Normal;
-		Math::Vec2 m_v2Texcoord;
-		Math::Vec3 m_v3Tangent;
-		Math::Vec3 m_v3Binormal;
-
+		Math::Vec3 m_v3Pos;				///>顶点位置
+		Math::Vec3 m_v3Normal;			///>顶点法线
+		Math::Vec2 m_v2Texcoord;		///>顶点纹理坐标
+		Math::Vec3 m_v3Tangent;		///>顶点Tangent向量
+		Math::Vec3 m_v3Binormal;		///>顶点Binormal向量
+		Math::Vec4 m_v4Color;				///>顶点颜色
 		unsigned int m_uiState;
 	};
 
@@ -60,6 +60,8 @@ namespace Render
 
 		RFace& operator=( const RFace& rhs );
 
+		Math::Vec3  m_v3Normal;     ///>面法线（在背面剔除阶段生成）
+		Math::Vec4  m_v4Color;		 ///>面颜色
 		unsigned int m_uiIndices[3];  ///>顶点索引
 		unsigned int m_uiState;		 ///>渲染面状态
 		RFace*			m_pNext;			 ///>下一个渲染面
@@ -77,36 +79,16 @@ namespace Render
 
 		void Clear( void );
 
-		/**
-		* @brief 对渲染列表中的所有顶点执行局部到相机坐标系转换
-		*/
-		void TransformFromLocalSpaceToCameraSpace( const Math::Matrix4& localToCam ); 
+		inline unsigned int VertCount(void) const { return m_uiVertCount; }
 
-		/**
-		* @brief 在相机空间中剔除所有背向面
-		*/
-		void RemoveBackFaceInCameraSpace( void );
+		inline unsigned int FaceCount(void) const { return m_uiFaceCount; }
 
-		/**
-		* @brief 对渲染列表中的所有顶点执行相机到投影坐标系变换
-		*/
-		void TransformFromCameraSpaceToProjectionSpace( const Math::Matrix4& camToProj );
+		inline RVertex* GetRVerts( void ) const { return m_pRVerts; }
 
-		/**
-		* @brief 对渲染列表中的所有顶点执行投影坐标系到屏幕坐标系变换
-		*/
-		void TransformFromProjectionSpaceToScreenSpace( const Math::Matrix4& projToScreen );
+		inline RVertex* GetRTransVerts( void ) const { return m_pRTransVerts; }
 
-		/**
-		* @brief 绘制面的线框模型到帧缓冲区
-		*/
-		void DrawFacesWireFrameToFrameBuffer(  FrameBuffer& buf );
-
-		/**
-		* @brief 绘制面的实色三角面模型到帧缓冲区
-		*/
-		void DrawFacesSolidTrianglesToFrameBuffer( FrameBuffer& buf );
-
+		inline RFace*    GetFaceList( void ) const { return m_pFace; }
+		 
 	protected:
 		unsigned int m_uiVertCount; ///>顶点数
 		unsigned int m_uiFaceCount; ///>面数

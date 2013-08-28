@@ -11,6 +11,10 @@ namespace Render
 	public:
 		GouraudShadingPipeline(void);
 		virtual ~GouraudShadingPipeline(void);
+
+		virtual void RunVertexShaderStage( void );
+
+		virtual void RunMergeStage( void );
 	};
 
 }//namespace Render

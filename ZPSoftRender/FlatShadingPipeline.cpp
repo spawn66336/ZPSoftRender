@@ -1,4 +1,5 @@
 #include "FlatShadingPipeline.h"
+#include "RenderContext.h"
 
 namespace Render
 { 
@@ -9,6 +10,11 @@ namespace Render
 
 	FlatShadingPipeline::~FlatShadingPipeline(void)
 	{
+	}
+
+	void FlatShadingPipeline::RunMergeStage( void )
+	{ 
+		DrawFacesSolidTrianglesToFrameBuffer();
 	}
 
 }//namespace Render

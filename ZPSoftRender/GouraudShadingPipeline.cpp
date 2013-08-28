@@ -13,5 +13,19 @@ GouraudShadingPipeline::~GouraudShadingPipeline(void)
 {
 }
 
+void GouraudShadingPipeline::RunMergeStage( void )
+{
+	DrawGouraudShadingTrianglesToFrameBuffer();
+}
+
+void GouraudShadingPipeline::RunVertexShaderStage( void )
+{
+	TransformFromLocalSpaceToCameraSpace();
+	RemoveBackFaceInCameraSpace();
+	CalcPerVertexLightInCameraSpace();
+	TransformFromCameraSpaceToProjectionSpace();
+	TransformFromProjectionSpaceToScreenSpace();
+}
+
 
 }//namespace Render

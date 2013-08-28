@@ -109,7 +109,7 @@ Vec4 Vec4::operator*( const Vec4& rhs ) const
 
 Vec4 Vec4::operator/( const Real val ) const
 {
-	assert( val != 0.0 );
+	//assert( val != 0.0 );
 
 	Real valInv = 1.0f / val;
 

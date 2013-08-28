@@ -10,6 +10,14 @@
 
 		typedef unsigned int BGRA8888_t;
 
+		template<typename T>
+		void SwapT( T& lhs , T& rhs )
+		{
+			T tmp = lhs;
+			lhs = rhs;
+			rhs = tmp;
+		}
+
 		class MathUtil
 		{ 
 			MathUtil(){}
@@ -27,6 +35,7 @@
 			static Real Sin( const Real x );
 			static Real Tan( const Real x ); 
 			static Real Sqrt( const Real val ); 
+			static Real Pow( const Real x , const Real y );
 			static bool IsNaN( const Real val ); 
 
 			static inline Real DegreesToRadians(Real deg) { return deg * fDeg2Rad; }
