@@ -9,6 +9,7 @@
 		class Vec4;
 
 		typedef unsigned int BGRA8888_t;
+		typedef unsigned int RGBA8888_t;
 
 		template<typename T>
 		void SwapT( T& lhs , T& rhs )
@@ -37,7 +38,7 @@
 			static Real Sqrt( const Real val ); 
 			static Real Pow( const Real x , const Real y );
 			static bool IsNaN( const Real val ); 
-			static int Ceil( const Real x );
+			static Real Ceil( const Real x );
 
 			static inline Real DegreesToRadians(Real deg) { return deg * fDeg2Rad; }
 			static inline Real RadiansToDegrees(Real rad) { return rad * fRad2Deg; }
@@ -54,7 +55,19 @@
 			static Real SymmetricRandom(void);
 
 			static Real Clamp( const Real val , const Real lower , const Real upper );
-			static BGRA8888_t ColorVecToRGBA8888( const Vec4& color );
+
+			static BGRA8888_t ColorVecToBGRA8888( const Vec4& color );
+
+			static Math::Vec4 RGBA8888ToVec4(  RGBA8888_t color );
+
+			static inline unsigned char MapDepthToU8( const Real depth )	
+			{
+				return static_cast<unsigned char>( 255.0f * depth );
+			}
+			static inline unsigned int MapDepthToU32( const Real depth )
+			{
+				return static_cast<unsigned int>( static_cast<Real>( 0xffffffff ) *depth );
+			}
 
 			/*
 			===========================
@@ -67,6 +80,7 @@
 			static const Real HALF_PI;
 			static const Real fDeg2Rad;
 			static const Real fRad2Deg;
+			static const Real fByte2NormReal;
 
 		};// class MathUtil
 		 

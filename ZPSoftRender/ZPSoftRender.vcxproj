@@ -85,8 +85,7 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(TargetDir)\lib
-copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib
-del $(TargetDir)\$(TargetName).lib</Command>
+copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

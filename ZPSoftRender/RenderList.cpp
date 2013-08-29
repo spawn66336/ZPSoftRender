@@ -8,20 +8,26 @@ namespace Render
 {
 
 	RVertex::RVertex():
+	m_invZ(1.0f),
 	m_uiState(0),
+	m_uiAttri( RVERT_ATTRI_SHADE_WIREFRAME),
 	m_v4Color(0.0f,0.0f,0.0f,0.0f)
 	{
 	}
 
 	RVertex::RVertex( const Vertex& v ):
+	m_invZ(1.0f),
 	m_uiState(0),
+	m_uiAttri( RVERT_ATTRI_SHADE_WIREFRAME),
 	m_v4Color(0.0f,0.0f,0.0f,0.0f)
 	{
 		this->CopyFromVertex( v );
 	}
 
 	RVertex::RVertex( const RVertex& rv ):
+	m_invZ(1.0f),
 	m_uiState(0),
+	m_uiAttri( RVERT_ATTRI_SHADE_WIREFRAME),
 	m_v4Color(0.0f,0.0f,0.0f,0.0f)
 	{
 		this->operator=( rv );
@@ -45,12 +51,15 @@ namespace Render
 	RVertex& RVertex::operator=( const RVertex& rhs )
 	{
 		m_v3Pos = rhs.m_v3Pos;
+		m_invZ = rhs.m_invZ;
+		m_v3PosInCam = rhs.m_v3PosInCam;
 		m_v3Normal = rhs.m_v3Normal;
 		m_v2Texcoord = rhs.m_v2Texcoord;
 		m_v3Tangent = rhs.m_v3Tangent;
 		m_v3Binormal = rhs.m_v3Binormal;
 		m_v4Color = rhs.m_v4Color;
 		m_uiState = rhs.m_uiState;
+		m_uiAttri = rhs.m_uiAttri;
 		return *this;
 	}
 
@@ -59,113 +68,161 @@ namespace Render
 		return ( 0 != ( m_uiState & bit ) );
 	}
 
-	void RVertex::SetStateBit( const unsigned int bit )
-	{
-		m_uiState |= bit;
-	}
-
+ 
 	Render::RVertex RVertex::operator+( const RVertex& rhs ) const
 	{
 		RVertex newVert;
-		newVert.m_v3Pos = m_v3Pos + rhs.m_v3Pos;
-		newVert.m_v3Normal = m_v3Normal + rhs.m_v3Normal;
-		newVert.m_v2Texcoord = m_v2Texcoord + rhs.m_v2Texcoord;
-		newVert.m_v3Tangent = m_v3Tangent + rhs.m_v3Tangent;
-		newVert.m_v3Binormal = m_v3Binormal + rhs.m_v3Binormal;
-		newVert.m_v4Color = m_v4Color + rhs.m_v4Color;
-		return newVert;
+		newVert = *this;
+		newVert += rhs;
+		return newVert; 
 	}
 
 	Render::RVertex RVertex::operator-( const RVertex& rhs ) const
 	{
 		RVertex newVert;
-		newVert.m_v3Pos = m_v3Pos - rhs.m_v3Pos;
-		newVert.m_v3Normal = m_v3Normal - rhs.m_v3Normal;
-		newVert.m_v2Texcoord = m_v2Texcoord - rhs.m_v2Texcoord;
-		newVert.m_v3Tangent = m_v3Tangent - rhs.m_v3Tangent;
-		newVert.m_v3Binormal = m_v3Binormal - rhs.m_v3Binormal;
-		newVert.m_v4Color = m_v4Color - rhs.m_v4Color;
-		return newVert;
+		newVert = *this;
+		newVert -= rhs;
+		return newVert; 
 	}
 
 	Render::RVertex RVertex::operator*( const Real rhs ) const
 	{
 		RVertex newVert;
-		newVert.m_v3Pos = m_v3Pos * rhs;
-		newVert.m_v3Normal = m_v3Normal * rhs;
-		newVert.m_v2Texcoord = m_v2Texcoord * rhs;
-		newVert.m_v3Tangent = m_v3Tangent * rhs;
-		newVert.m_v3Binormal = m_v3Binormal * rhs;
-		newVert.m_v4Color = m_v4Color * rhs;
-		return newVert;
+		newVert = *this;
+		newVert *= rhs;
+		return newVert; 
 	}
 
 	Render::RVertex RVertex::operator/( const Real rhs ) const
 	{
 		RVertex newVert;
-		newVert.m_v3Pos = m_v3Pos / rhs;
-		newVert.m_v3Normal = m_v3Normal / rhs;
-		newVert.m_v2Texcoord = m_v2Texcoord  / rhs;
-		newVert.m_v3Tangent = m_v3Tangent / rhs;
-		newVert.m_v3Binormal = m_v3Binormal / rhs;
-		newVert.m_v4Color = m_v4Color / rhs;
-		return newVert;
+		newVert = *this;
+		newVert /= rhs;
+		return newVert; 
 	}
 
 	RVertex& RVertex::operator+=( const RVertex& rhs )
 	{
 		m_v3Pos += rhs.m_v3Pos;
-		m_v3Normal += rhs.m_v3Normal;
-		m_v2Texcoord += rhs.m_v2Texcoord;
-		m_v3Tangent += rhs.m_v3Tangent;
-		m_v3Binormal += rhs.m_v3Binormal;
-		m_v4Color += rhs.m_v4Color;
+		m_invZ += rhs.m_invZ;
+		 
+		if( TestAttriBit( RVERT_ATTRI_SHADE_WITH_TEXTURE ) )
+		{
+			m_v2Texcoord += rhs.m_v2Texcoord;
+		} 
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_GOURAUD ) )
+		{ 
+			m_v4Color += rhs.m_v4Color;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_PHONG ) ||
+			TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Normal += rhs.m_v3Normal;
+			m_v3PosInCam += rhs.m_v3PosInCam;
+		}
+		if( TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Tangent += rhs.m_v3Tangent;
+			m_v3Binormal += rhs.m_v3Binormal;
+		}
+
 		return *this;
 	}
 
 	RVertex& RVertex::operator-=( const RVertex& rhs )
 	{
 		m_v3Pos -= rhs.m_v3Pos;
-		m_v3Normal -= rhs.m_v3Normal;
-		m_v2Texcoord  -= rhs.m_v2Texcoord;
-		m_v3Tangent -= rhs.m_v3Tangent;
-		m_v3Binormal -= rhs.m_v3Binormal;
-		m_v4Color -= rhs.m_v4Color;
+		m_invZ -= rhs.m_invZ;
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_WITH_TEXTURE ) )
+		{
+			m_v2Texcoord -= rhs.m_v2Texcoord;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_GOURAUD ) )
+		{ 
+			m_v4Color -= rhs.m_v4Color;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_PHONG ) ||
+			TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Normal -= rhs.m_v3Normal;
+			m_v3PosInCam -= rhs.m_v3PosInCam;
+		}
+		if( TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Tangent -= rhs.m_v3Tangent;
+			m_v3Binormal -= rhs.m_v3Binormal;
+		}
 		return *this;
 	}
 
 	RVertex& RVertex::operator*=( const Real rhs )
 	{
 		m_v3Pos *= rhs;
-		m_v3Normal *= rhs;
-		m_v2Texcoord  *= rhs;
-		m_v3Tangent *= rhs;
-		m_v3Binormal *= rhs;
-		m_v4Color *= rhs;
+		m_invZ *= rhs;
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_WITH_TEXTURE ) )
+		{
+			m_v2Texcoord *= rhs;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_GOURAUD ) )
+		{ 
+			m_v4Color *= rhs;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_PHONG ) ||
+			TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Normal *= rhs;
+			m_v3PosInCam *= rhs;
+		}
+		if( TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Tangent *= rhs;
+			m_v3Binormal *= rhs;
+		}
 		return *this;
 	}
 
 	RVertex& RVertex::operator/=( const Real rhs )
 	{
 		m_v3Pos /= rhs;
-		m_v3Normal /= rhs;
-		m_v2Texcoord  /= rhs;
-		m_v3Tangent /= rhs;
-		m_v3Binormal /= rhs;
-		m_v4Color /= rhs;
+		m_invZ /= rhs;
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_WITH_TEXTURE ) )
+		{
+			m_v2Texcoord /= rhs;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_GOURAUD ) )
+		{ 
+			m_v4Color /= rhs;
+		}
+
+		if( TestAttriBit( RVERT_ATTRI_SHADE_PHONG ) ||
+			TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Normal /= rhs;
+			m_v3PosInCam /= rhs;
+		}
+		if( TestAttriBit( RVERT_ATTRI_SHADE_NORMMAP ) )
+		{
+			m_v3Tangent /= rhs;
+			m_v3Binormal /= rhs;
+		}
 		return *this;
 	}
 
 
 	Render::RVertex operator*( const Real lhs , const RVertex& rhs )
 	{
-		RVertex newVert;
-		newVert.m_v3Pos = rhs.m_v3Pos * lhs;
-		newVert.m_v3Normal = rhs.m_v3Normal * lhs;
-		newVert.m_v2Texcoord = rhs.m_v2Texcoord * lhs;
-		newVert.m_v3Tangent = rhs.m_v3Tangent * lhs;
-		newVert.m_v3Binormal = rhs.m_v3Binormal * lhs;
-		newVert.m_v4Color = rhs.m_v4Color * lhs;
+		RVertex newVert = rhs;
+		newVert *= lhs; 
 		return newVert;
 	}
 

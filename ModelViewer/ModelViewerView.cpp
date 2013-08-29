@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CModelViewerView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_COMMAND(IDM_RESET_CAMERA, &CModelViewerView::OnResetCamera)
 	ON_WM_CHAR()
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 // CModelViewerView 构造/析构
@@ -69,7 +70,7 @@ void CModelViewerView::OnDraw(CDC* /*pDC*/)
 	CModelViewerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
-		return;
+		return; 
 
 	m_pEngine->RenderOneFrame();
 }
@@ -92,13 +93,11 @@ BOOL CModelViewerView::OnPreparePrinting(CPrintInfo* pInfo)
 }
 
 void CModelViewerView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
-{
-	// TODO: 添加额外的打印前进行的初始化过程
+{ 
 }
 
 void CModelViewerView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
-{
-	// TODO: 添加打印后进行的清理过程
+{ 
 }
 
 void CModelViewerView::OnRButtonUp(UINT /* nFlags */, CPoint point)
@@ -113,8 +112,7 @@ void CModelViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
 #endif
 }
-
-
+ 
 // CModelViewerView 诊断
 
 #ifdef _DEBUG
@@ -133,8 +131,7 @@ CModelViewerDoc* CModelViewerView::GetDocument() const // 非调试版本是内联的
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CModelViewerDoc)));
 	return (CModelViewerDoc*)m_pDocument;
 }
-
-
+ 
 
 #endif //_DEBUG
 
@@ -286,11 +283,9 @@ void CModelViewerView::FrameStarted( void )
 }
 
 void CModelViewerView::FrameEnded( void )
-{
-
+{ 
 }
-
-
+ 
 void CModelViewerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 { 
 
@@ -309,4 +304,11 @@ void CModelViewerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 		m_pEngine->SwitchMesh();
 	}
 	__super::OnChar(nChar, nRepCnt, nFlags);
+}
+
+
+BOOL CModelViewerView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
+	//return __super::OnEraseBkgnd(pDC);
 }

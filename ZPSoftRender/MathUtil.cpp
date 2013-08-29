@@ -8,7 +8,7 @@
 		const Real MathUtil::TWO_PI = 2.0f*PI;
 		const Real MathUtil::fDeg2Rad = PI / Real(180.0);
 		const Real MathUtil::fRad2Deg = Real(180.0) / PI;
-		 
+		const Real MathUtil::fByte2NormReal = ( 1.0f / 255.0f ) ;
 		
 		Real MathUtil::Fabs( const Real x )
 		{
@@ -64,7 +64,7 @@
 				return false;
 		}
 
-		Math::BGRA8888_t MathUtil::ColorVecToRGBA8888( const Vec4& color )
+		Math::BGRA8888_t MathUtil::ColorVecToBGRA8888( const Vec4& color )
 		{
 			BGRA8888_t rgba;
 			unsigned char* pElems = reinterpret_cast<unsigned char*>( &rgba ); 
@@ -99,15 +99,24 @@
 			return pow( x , y );
 		}
 
-		int MathUtil::Ceil( const Real x )
+		Real MathUtil::Ceil( const Real x )
 		{
-			return static_cast<int>( ceil(x) );
+			return ceil(x);
 		}
 
-
+		Math::Vec4 MathUtil::RGBA8888ToVec4(  RGBA8888_t color )
+		{
+			Math::Vec4 v4Color;
+			unsigned char* pColor = reinterpret_cast<unsigned char*>( &color );
+			v4Color.x = static_cast<Real>( pColor[0] ) * fByte2NormReal;
+			v4Color.y = static_cast<Real>( pColor[1] ) * fByte2NormReal;
+			v4Color.z = static_cast<Real>( pColor[2] ) * fByte2NormReal;
+			v4Color.w = static_cast<Real>( pColor[3] ) * fByte2NormReal;
+			return v4Color;
+		}
 
 	
 
-
+  
 
 	}// namespace Math 

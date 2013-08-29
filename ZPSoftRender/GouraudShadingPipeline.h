@@ -12,9 +12,9 @@ namespace Render
 		GouraudShadingPipeline(void);
 		virtual ~GouraudShadingPipeline(void);
 
-		virtual void RunVertexShaderStage( void );
+		virtual void RunLightingStage( void );
 
-		virtual void RunMergeStage( void );
+		virtual void RunRasterizationStage( void );
 	};
 
 }//namespace Render

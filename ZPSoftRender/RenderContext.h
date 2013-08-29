@@ -52,7 +52,7 @@ namespace Render
 		virtual void DeleteAllLights( void );
 		virtual lightTable_t& GetLightList( void ){ return m_lights; }
 
-		virtual void SetPerspectiveProjection( const Real fov , const Real near , const Real far );
+		virtual void SetPerspectiveProjection( const Real fov , const Real n , const Real f );
 		virtual void SetProjectionMatrix( const Math::Matrix4& mat );
 		virtual void SetWorldToCameraMatrix( const Math::Matrix4& mat );
 		virtual void PushMatrix();

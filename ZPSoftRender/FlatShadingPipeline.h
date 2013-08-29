@@ -12,7 +12,9 @@ namespace Render
 		FlatShadingPipeline(void);
 		virtual ~FlatShadingPipeline(void);
 
-		virtual void RunMergeStage( void );
+		virtual void RunLightingStage( void );
+
+		virtual void RunRasterizationStage( void );
 	};
 
 }//namespace Render

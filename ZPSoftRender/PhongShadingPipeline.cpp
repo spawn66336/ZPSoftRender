@@ -6,6 +6,7 @@ namespace Render
 
 	PhongShadingPipeline::PhongShadingPipeline(void)
 	{
+		m_pixelShader.SetShadeModel( PHONG_MODEL );
 	}
 
 

@@ -12,29 +12,33 @@ namespace Render
 		Light(void);
 		virtual ~Light(void);
 
-		String Name(void) const { return m_name; } 
-		void SetName( const String& name){ m_name = name; }
+		inline String Name(void) const { return m_name; } 
+		inline void SetName( const String& name){ m_name = name; }
 
-		const Math::Vec4& Ambient() const { return m_ambient; }
-		const Math::Vec4& Diffuse() const { return m_diffuse; }
-		const Math::Vec4& Specular() const { return m_specular; }
-		const Math::Vec4& Position() const { return m_pos; }
+		inline const Math::Vec4& Ambient() const { return m_v4Ambient; }
+		inline const Math::Vec4& Diffuse() const { return m_v4Diffuse; }
+		inline const Math::Vec4& Specular() const { return m_v4Specular; }
+		inline const Math::Vec4& Position() const { return m_v4Pos; }
 		 
-	    void SetAmbient( const Math::Vec4& ambient){ m_ambient = ambient; } 
-		void SetDiffuse( const Math::Vec4& diffuse){ m_diffuse = diffuse;  }  
-		void SetSpecular( const Math::Vec4& specular){ m_specular = specular; } 
-		void SetPosition( const Math::Vec4& pos){ m_pos = pos; }
+	    inline void SetAmbient( const Math::Vec4& ambient){ m_v4Ambient = ambient; } 
+		inline void SetDiffuse( const Math::Vec4& diffuse){ m_v4Diffuse = diffuse;  }  
+		inline void SetSpecular( const Math::Vec4& specular){ m_v4Specular = specular; } 
+		inline void SetPosition( const Math::Vec4& pos){ m_v4Pos = pos; }
 
-		bool IsActive(){ return m_active; } 
-		void SetActive( bool active){ m_active = active;}
+		inline bool IsActive(){ return m_active; } 
+		inline void SetActive( bool active){ m_active = active;}
+
+		inline const Math::Vec4& GetPosInCamera( void ) const { return m_v4PosInCam; }
+		inline void SetPosInCamera( const Math::Vec4& pos ){ m_v4PosInCam = pos; }
 
 	protected:
 		String m_name;
 		bool    m_active;
-		Math::Vec4   m_ambient;
-		Math::Vec4	m_diffuse;
-		Math::Vec4   m_specular;
-		Math::Vec4   m_pos; 
+		Math::Vec4   m_v4Ambient;
+		Math::Vec4	m_v4Diffuse;
+		Math::Vec4   m_v4Specular;
+		Math::Vec4   m_v4Pos;
+		Math::Vec4   m_v4PosInCam;
 	};
 
 }//namespace Render

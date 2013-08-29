@@ -6,6 +6,7 @@ namespace Render
 
 GouraudShadingPipeline::GouraudShadingPipeline(void)
 {
+	m_pixelShader.SetShadeModel( GOURAUD_MODEL );
 }
 
 
@@ -13,18 +14,15 @@ GouraudShadingPipeline::~GouraudShadingPipeline(void)
 {
 }
 
-void GouraudShadingPipeline::RunMergeStage( void )
+ 
+void GouraudShadingPipeline::RunLightingStage( void )
 {
-	DrawGouraudShadingTrianglesToFrameBuffer();
+	CalcPerVertexLightInCameraSpace();
 }
 
-void GouraudShadingPipeline::RunVertexShaderStage( void )
+void GouraudShadingPipeline::RunRasterizationStage( void )
 {
-	TransformFromLocalSpaceToCameraSpace();
-	RemoveBackFaceInCameraSpace();
-	CalcPerVertexLightInCameraSpace();
-	TransformFromCameraSpaceToProjectionSpace();
-	TransformFromProjectionSpaceToScreenSpace();
+	DrawTrianglesToFrameBuffer();
 }
 
 

@@ -52,7 +52,7 @@ namespace Render
 			return;
 		}
 
-		Math::BGRA8888_t uiPixel = Math::MathUtil::ColorVecToRGBA8888( color );
+		Math::BGRA8888_t uiPixel = Math::MathUtil::ColorVecToBGRA8888( color );
 
 		dx = x1 - x0;
 		dy = y1 - y0; 
@@ -214,37 +214,34 @@ namespace Render
 		}
 	}
 
-	void RasterProcessor::DrawScanLine( const RVertex& v0 , const RVertex& v1 , PixelShader& shader )
+
+	void RasterProcessor::DrawScanLine( const int y , const int xs , const int xe , 
+		const RVertex& v0 , const RVertex& v1 , PixelShader& shader )
 	{
-		int y = Math::MathUtil::Ceil( v0.m_v3Pos.y );
+
+		if( xe < xs )
+			return;
+		////必须保证传入的 起始位置要小于等于终止位置
+		//ZP_ASSERT( xs <= xe );
+
 		if( y < 0 || y >= static_cast<int>( BufferHeight() ) )
 		{
 			return;
 		}
 
-		RVertex rvVert0 = v0 , rvVert1 = v1;
-		 
-		if( rvVert0.m_v3Pos.x > rvVert1.m_v3Pos.x )
-		{
-			Math::SwapT( rvVert0 , rvVert1 ); 
-		}
-
-		int iXStart = Math::MathUtil::Ceil( rvVert0.m_v3Pos.x );
-		int iXEnd = Math::MathUtil::Ceil( rvVert1.m_v3Pos.x ); 
-
-
-		Real dt = 1.0f / ( rvVert1.m_v3Pos.x - rvVert0.m_v3Pos.x  );
+		Real dt = 1.0f / static_cast<Real>( xe - xs  );
 		Real t = 0.0f;
 
-		for( int x = iXStart ; x <= iXEnd ; x++ )
-		{
-			RVertex rvIVert = rvVert0*( 1.0f - t ) + rvVert1*t; 
-			Math::Vec4 v4FinalColor = shader.Run( rvIVert );
-			Math::BGRA8888_t uiPixel = Math::MathUtil::ColorVecToRGBA8888( v4FinalColor );
-			WritePixel( x , y , uiPixel );
+		for( int x = xs ; x <= xe ; x++ )
+		{ 
+			RVertex rvIVert = v0 * ( 1.0f - t ) + v1 * t;
+			if( ZTest( x , y , rvIVert.m_invZ  ) )
+			{
+				Math::BGRA8888_t uiPixel = Math::MathUtil::ColorVecToBGRA8888( shader.Run( rvIVert ) ); 
+				WritePixel( x , y , uiPixel );
+			} 
 			t += dt;
 		}
-
 	}
 
 	void RasterProcessor::DrawTriangle2D( const RVertex& v0 , const RVertex& v1 , const RVertex& v2 , PixelShader& shader )
@@ -321,12 +318,24 @@ namespace Render
 		RVertex rvVertStart = rvVert0;
 		RVertex rvVertEnd = rvVert0; 
 
-		int iYStart =  Math::MathUtil::Ceil( rvVert0.m_v3Pos.y );
-		int iYEnd   =  Math::MathUtil::Ceil( rvVert1.m_v3Pos.y );
+		Real fYStart =  Math::MathUtil::Ceil( rvVert0.m_v3Pos.y );
+		Real fYEnd   =  Math::MathUtil::Ceil( rvVert1.m_v3Pos.y ) - 1;
 
-		for( int y = iYStart ; y <= iYEnd ; y++ )
-		{ 
-			DrawScanLine( rvVertStart , rvVertEnd , shader );
+		Real fErrFactor = ( fYStart - rvVert0.m_v3Pos.y );
+		
+		RVertex rvLeftErr = rvDVertLeft * fErrFactor;
+		RVertex rvRightErr = rvDVertRight * fErrFactor;
+		Real fLeftErr = rvLeftErr.m_v3Pos.x;
+		Real fRightErr = rvRightErr.m_v3Pos.x;
+
+		for( int y = static_cast<int>(fYStart) ; y <= static_cast<int>(fYEnd) ; y++ )
+		{
+			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x + fLeftErr);
+			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  + fRightErr ) - 1;
+
+			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
+				rvVertStart + rvLeftErr , rvVertEnd + rvRightErr , shader );
+
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
 		}
@@ -342,21 +351,31 @@ namespace Render
 			Math::SwapT( rvVert0 , rvVert1 ); 
 		}
 
-		Real fInvDetLeft = 1.0f / ( rvVert2.m_v3Pos.y - rvVert0.m_v3Pos.y );
-		Real fInvDetRight = 1.0f / ( rvVert2.m_v3Pos.y - rvVert1.m_v3Pos.y );
+		Real fInvDet = 1.0f / ( rvVert2.m_v3Pos.y - rvVert0.m_v3Pos.y ); 
 
-		RVertex rvDVertLeft = ( rvVert2 - rvVert0 ) * fInvDetLeft;
-		RVertex rvDVertRight = ( rvVert2 - rvVert1 ) * fInvDetRight; 
+		RVertex rvDVertLeft = ( rvVert2 - rvVert0 ) * fInvDet;
+		RVertex rvDVertRight = ( rvVert2 - rvVert1 ) * fInvDet; 
 
 		RVertex rvVertStart = rvVert0;
 		RVertex rvVertEnd = rvVert1; 
 
-		int iYStart =  Math::MathUtil::Ceil( rvVert0.m_v3Pos.y );
-		int iYEnd   =  Math::MathUtil::Ceil( rvVert2.m_v3Pos.y );
+		Real fYStart =  Math::MathUtil::Ceil( rvVert0.m_v3Pos.y );
+		Real fYEnd   =  Math::MathUtil::Ceil( rvVert2.m_v3Pos.y ) - 1;
 
-		for( int y = iYStart ; y <= iYEnd ; y++ )
+		Real fErrFactor = ( fYStart - rvVert0.m_v3Pos.y ); 
+		RVertex rvLeftErr = rvDVertLeft * fErrFactor;
+		RVertex rvRightErr = rvDVertRight * fErrFactor;
+		Real fLeftErr = rvLeftErr.m_v3Pos.x;
+		Real fRightErr = rvRightErr.m_v3Pos.x;
+
+		for( int y = static_cast<int>( fYStart ) ; y <= static_cast<int>( fYEnd ) ; y++ )
 		{
-			DrawScanLine( rvVertStart , rvVertEnd , shader );
+			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x + fLeftErr );
+			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  + fRightErr ) - 1;
+
+			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
+				rvVertStart + rvLeftErr , rvVertEnd + rvRightErr, shader );
+
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
 		}

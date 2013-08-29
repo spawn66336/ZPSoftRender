@@ -40,12 +40,22 @@ namespace Render
 			return m_pColorBuffer->Height();
 		}
 
-		inline bool ZTest( const int x , const int y , unsigned char depth ){ return true; }
+		inline bool ZTest( const int x , const int y , Real depth )
+		{ 
+			Real fDepth = 0;
+			m_pDepthBuffer->ReadPixel( x , y , &fDepth ); 
 
-		inline void WritePixel( const int x , const int y ,  Math::BGRA8888_t color ,  unsigned char depth = 0 )
+			if( depth > fDepth )
+			{
+				m_pDepthBuffer->WritePixel( x , y , &depth );
+				return true;
+			}
+			return false;
+		}
+
+		inline void WritePixel( const int x , const int y ,  Math::BGRA8888_t color )
 		{
-			m_pColorBuffer->WritePixel( x , y , (&color) );
-			m_pDepthBuffer->WritePixel( x , y , &depth );
+			m_pColorBuffer->WritePixel( x , y , (&color) ); 
 		}
 
 		unsigned int Calc2DPointOutCode( const int x , const int y ); 
@@ -56,7 +66,7 @@ namespace Render
 
 		void DrawHLine( const int y , const int x0 , const int x1 ,  Math::BGRA8888_t  color  ); 
 
-		void DrawScanLine( const RVertex& v0 , const RVertex& v1 , PixelShader& shader );
+		void DrawScanLine( const int y , const int xs , const int xe , const RVertex& v0 , const RVertex& v1 , PixelShader& shader );
 
 		void DrawTriangle2D( const RVertex& v0 , const RVertex& v1 , const RVertex& v2 , PixelShader& shader );
 

@@ -6,6 +6,7 @@ namespace Render
 
 NormalMapShadingPipeline::NormalMapShadingPipeline(void)
 {
+	m_pixelShader.SetShadeModel( NORMMAP_MODEL );
 }
 
 

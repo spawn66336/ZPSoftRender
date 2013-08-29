@@ -8,11 +8,31 @@
 namespace Resource
 {
 	class Material;
+	class Texture2D;
 }
 
 namespace Render
 {
 	class RVertex;
+
+
+	class Texture2DSampler
+	{
+	public:
+		Texture2DSampler(void);
+		~Texture2DSampler();
+
+		void SetTexture2D( Resource::Texture2D* pTexture );
+
+		inline bool IsActive( void ) const { return NULL != m_pTexture; }
+
+		Math::Vec4 Sample( Math::Vec2& v2Texcoord );
+
+	protected: 
+		Resource::Texture2D* m_pTexture;
+		unsigned int m_uiBytesPerPixel;
+		unsigned int m_uiLineOffset; 
+	};
 
 	class PixelShader
 	{
@@ -25,13 +45,20 @@ namespace Render
 
 		inline const Math::Vec4& GetFaceColor( void ) const { return m_v4FaceColor; }
 		inline void SetFaceColor( const Math::Vec4& color ){ m_v4FaceColor = color; }
+		
+		void SetMaterial( Resource::Material* pMaterial );
+
+		inline void AddLight( Light* pLight ){ m_lights.push_back( pLight ); }
+		inline void ClearAllLights( void ){ m_lights.clear(); }
 		 
 		Math::Vec4 Run( const RVertex& v );
 		  
 		Math::Vec4 m_v4FaceColor;				///>面颜色
 		Resource::Material* m_pMaterial;      ///>材质
-		SHADE_MODEL m_shadeModel;       ///>着色模型
-
+		SHADE_MODEL m_shadeModel;       ///>着色模型 
+		typedef std::vector<Light*> lightTable_t; 
+		lightTable_t m_lights;
+		Texture2DSampler	m_diffuseTextureSampler;
 	};
 
 }//namespace Render;

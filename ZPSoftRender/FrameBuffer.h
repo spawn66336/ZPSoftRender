@@ -42,9 +42,6 @@ namespace Render
 		inline unsigned int BytesPerPixel( void ) const { return m_uiBytesPerPixel; }
 		inline unsigned int Capacity( void ) const{ return m_uiCapacity; }
 
-	
-		 
-
 		void Resize( const int uiWidth , const int uiHeight );
 		void Assign( void );
 
@@ -82,72 +79,6 @@ namespace Render
 		}
 
 		inline void* Pixels( void ) const { return m_pPixels; }
-
-		//unsigned int Calc2DPointOutCode( const int x , const int y );
-
-
-		//void DrawLineMidPoint( const Math::Vec2& p0 , const Math::Vec2& p1 , void* pPixel );
-
-		///**
-		//* @brief 绘制实心平底三角形
-		//* @ param x0 y0 平底三角形的第一个顶点 位于上方
-		//* @ param x1 y1 平底三角形的第二个顶点 位于左下
-		//* @ param x2 y2 平底三角形的第三个顶点 位于右下
-		//*/
-		//void DrawTriangle2DFlatBaseSolid( 
-		//	const int x0 , const int y0 , 
-		//	const int x1 , const int y1 , 
-		//	const int x2 , const int y2 , 
-		//	void* pPixel );
-
-		///**
-		//* @brief 绘制实心平顶三角形
-		//* @ param x0 y0 平顶三角形的第一个顶点 位于左上
-		//* @ param x1 y1 平顶三角形的第二个顶点 位于右上
-		//* @ param x2 y2 平底三角形的第三个顶点 位于下方
-		//*/
-		//void DrawTriangle2DFlatTopSolid( 
-		//	const int x0 , const int y0 , 
-		//	const int x1 , const int y1 , 
-		//	const int x2 , const int y2 , 
-		//	void* pPixel );
-
-		//void DrawTriangle2DSolid( 
-		//	const int x0 , const int y0 , 
-		//	const int x1 , const int y1 , 
-		//	const int x2 , const int y2 , 
-		//	void* pPixel );
-
-		///**
-		//* @brief 绘制实心三角形
-		//*/
-		//void DrawTriangle2DSolid( const Math::Vec2& p0 , const Math::Vec2& p1 , const Math::Vec2& p2 , void* pPixel );
-
-
-		//void DrawTriangle2DFlatBase( 			
-		//	const int x0 , const int y0 , 
-		//	const int x1 , const int y1 , 
-		//	const int x2 , const int y2 ,  
-		//	const Math::Vec4& color0 ,
-		//	const Math::Vec4& color1 ,
-		//	const Math::Vec4& color2 );
-
-		//void DrawTriangle2DFlatTop( 			
-		//		const int x0 , const int y0 , 
-		//		const int x1 , const int y1 , 
-		//		const int x2 , const int y2 ,
-		//		const Math::Vec4& color0 ,
-		//		const Math::Vec4& color1 ,
-		//		const Math::Vec4& color2  
-		//	); 
-
-		// void DrawTriangle2D( const RVertex& v0 , const RVertex& v1 , const RVertex& v2 );
-
-		//void DrawVLine( const int x , const int y0 , const int y1 , void* pPixel );
-
-		//void DrawHLine( const int y , const int x0 , const int x1 , void* pPixel ); 
-
-		//void DrawHLine( const int y , const int x0 , const int x1 , const Math::Vec4& colorStart , const Math::Vec4& colorEnd );
 
 		void FillBitmapInfo( BITMAPINFO& bitmapInfo );
 

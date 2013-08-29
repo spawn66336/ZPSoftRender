@@ -40,14 +40,12 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 	Render::Light* pLight = m_pRenderer->CreateLight( "Light0" );
 	pLight->SetActive( true );
 	pLight->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
+	pLight->SetPosition( Math::Vec4( 100.0f , 100.0f , 100.0f , 1.0f ) );
+	
 	Render::Light* pLight1 = m_pRenderer->CreateLight( "Light1" );
 	pLight1->SetActive( true );
-	pLight1->SetPosition( Math::Vec4( 0.0f , -100.0f , 0.0f , 1.0f ) );
-	pLight1->SetDiffuse( Math::Vec4( 0.0f , 1.0f , 0.0f , 1.0f ) );
-	Render::Light* pLight2 = m_pRenderer->CreateLight( "Light2" );
-	pLight2->SetActive( true );
-	pLight2->SetPosition( Math::Vec4( 0.0f , 100.0f , -100.0f , 1.0f ) );
-	pLight2->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
+	pLight1->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
+	pLight1->SetPosition( Math::Vec4( 100.0f , 100.0f , -100.0f , 1.0f ) );
 	
 	m_pCamera = new Camera;
 }

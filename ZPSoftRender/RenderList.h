@@ -16,6 +16,16 @@ namespace Render
 		RVERT_STATE_ACTIVE = 1
 	};
 
+	enum RVERTEX_ATTRIBUTE
+	{
+		RVERT_ATTRI_SHADE_FLAT = 1,
+		RVERT_ATTRI_SHADE_GOURAUD = 2,
+		RVERT_ATTRI_SHADE_PHONG = 4,
+		RVERT_ATTRI_SHADE_NORMMAP = 8 ,
+		RVERT_ATTRI_SHADE_WIREFRAME = 16 ,
+		RVERT_ATTRI_SHADE_WITH_TEXTURE = 32
+	};
+
 	class RVertex
 	{
 	public:
@@ -25,8 +35,12 @@ namespace Render
 		~RVertex();
 
 		bool TestStateBit( const unsigned int bit );
-		void SetStateBit( const unsigned int bit );
-		void ClearStateBits( void ){ m_uiState = 0; }
+		inline void SetStateBit( const unsigned int bit ){ m_uiState|= bit; }
+		inline void ClearStateBits( void ){ m_uiState = 0; }
+
+		inline bool TestAttriBit( const unsigned int bit ) const { return ( 0 != ( m_uiAttri&bit ) ); }
+		inline void SetAttriBit( const unsigned int bit ){ m_uiAttri |= bit; }
+		inline void ClearAttriBits( void ) { m_uiAttri = 0; }
 
 		void CopyFromVertex( const Vertex& v );
 		RVertex& operator=( const RVertex& rhs );
@@ -42,12 +56,15 @@ namespace Render
 		RVertex& operator/=( const Real rhs );
 
 		Math::Vec3 m_v3Pos;				///>顶点位置
+		Real			   m_invZ;					///>Z值倒数
+		Math::Vec3 m_v3PosInCam;     ///>在相机空间中的顶点位置
 		Math::Vec3 m_v3Normal;			///>顶点法线
 		Math::Vec2 m_v2Texcoord;		///>顶点纹理坐标
 		Math::Vec3 m_v3Tangent;		///>顶点Tangent向量
 		Math::Vec3 m_v3Binormal;		///>顶点Binormal向量
 		Math::Vec4 m_v4Color;				///>顶点颜色
-		unsigned int m_uiState;
+		unsigned int m_uiState;			
+		unsigned int m_uiAttri;				///>渲染顶点属性
 	};
 
 	RVertex operator*( const Real lhs , const RVertex& rhs );

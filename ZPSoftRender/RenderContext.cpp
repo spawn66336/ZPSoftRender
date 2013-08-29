@@ -14,7 +14,7 @@ m_enableDepthTest(false),
 m_enableLighting(false),
 m_pCurrMaterial( NULL ),
 m_colorFrameBuf( 0 , 0 , 4 ),
-m_zFrameBuf( 0 , 0 , 1 )
+m_zFrameBuf( 0 , 0 , 4 )
 {
 }
 
@@ -178,7 +178,7 @@ void RenderContext::ClearBuffer( unsigned int flag )
 {
 	if( flag & COLOR_BUFFER_FLAG )
 	{
-		Math::BGRA8888_t rgba = Math::MathUtil::ColorVecToRGBA8888( m_clearColor );
+		Math::BGRA8888_t rgba = Math::MathUtil::ColorVecToBGRA8888( m_clearColor );
 		m_colorFrameBuf.Clear( &rgba );
 	}
 
@@ -216,14 +216,16 @@ Resource::Material* RenderContext::GetCurrMaterial( void ) const
 	return m_pCurrMaterial;
 }
 
-void RenderContext::SetPerspectiveProjection( const Real fov , const Real near , const Real far )
+void RenderContext::SetPerspectiveProjection( const Real fov , const Real n , const Real f )
 {
 	Real d = 1.0f * Math::MathUtil::Tan( Math::MathUtil::DegreesToRadians( fov/2.0f ) );
+
+
 	m_currCamToProjMat = Math::Matrix4(
 			d ,		 0.0f , 0.0f , 0.0f ,
 			0.0f , d*m_aspect , 0.0f , 0.0f ,
-			0.0f , 0.0f , 1.0f , 1.0f ,
-			0.0f , 0.0f , 0.0f , 0.0f 
+			0.0f , 0.0f , -n/( f - n ) , 1.0f ,
+			0.0f , 0.0f , n*f/( f - n ) , 0.0f 
 		);
 }
 
