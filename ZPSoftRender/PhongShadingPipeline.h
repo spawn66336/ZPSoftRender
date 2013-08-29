@@ -12,6 +12,10 @@ namespace Render
 	public:
 		PhongShadingPipeline(void);
 		virtual ~PhongShadingPipeline(void);
+
+		virtual void RunLightingStage( void );
+
+		virtual void RunRasterizationStage( void ); 
 	};
 
 }// namespace Render

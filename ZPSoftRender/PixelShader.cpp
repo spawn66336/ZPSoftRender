@@ -2,6 +2,7 @@
 #include "RenderList.h"
 #include "Texture2D.h"
 #include "Material.h"
+#include "Light.h"
 
 namespace Render
 {
@@ -40,8 +41,37 @@ namespace Render
 
 		if( GetShadeModel() == PHONG_MODEL )
 		{ 
-			
-			return Math::Vec4();
+			Math::Vec4 v4FinalColor;
+			Math::Vec3 v3Normal = v.m_v3Normal;
+			v3Normal *= fProjCorrectionFactor;
+
+			lightTable_t::iterator itLight = m_lights.begin();
+			while( itLight != m_lights.end() )
+			{
+				Math::Vec4 v4LightPos =  (*itLight)->GetPosInCamera();
+
+
+				 Math::Vec3 v3Viewer = -(v.m_v3PosInCam); 
+				 v3Viewer.Normalize();
+				 Math::Vec3 v3LightDir = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3PosInCam; 
+				 v3LightDir.Normalize();
+
+				 Math::Vec3 v3H = ( v3Viewer + v3LightDir ).NormalisedCopy();
+
+				 Real fSpecFactor = v3Normal.DotProduct( v3H );
+				 fSpecFactor = fSpecFactor > 0.0f ? fSpecFactor : 0.0f;
+				 fSpecFactor = Math::MathUtil::Pow( fSpecFactor , m_pMaterial->GetShininess() );
+
+				 Real fDiffFactor = v3Normal.DotProduct( v3LightDir );
+				 fDiffFactor = fDiffFactor > 0.0f ? fDiffFactor : 0.0f;
+
+				 v4FinalColor += fSpecFactor*( m_pMaterial->GetSpecular()* (*itLight)->Specular() ) + 
+					 fDiffFactor*( v4TexDiffColor * (*itLight)->Diffuse() );
+				
+
+				++itLight;
+			}
+			return v4FinalColor;
 		}
 
 		if( GetShadeModel() == NORMMAP_MODEL )

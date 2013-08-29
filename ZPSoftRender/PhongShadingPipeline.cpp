@@ -14,4 +14,14 @@ namespace Render
 	{
 	}
 
+	void PhongShadingPipeline::RunLightingStage( void )
+	{
+		PrepareForPerPixelLightingInCameraSpace();
+	}
+
+	void PhongShadingPipeline::RunRasterizationStage( void )
+	{
+		DrawTrianglesToFrameBuffer();
+	}
+
 }//namespace Render

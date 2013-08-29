@@ -218,6 +218,12 @@ namespace Render
 			{
 				pVerts[uiVert].m_v4Color *= fInvZ;
 			}
+
+			if( m_pixelShader.GetShadeModel() == PHONG_MODEL ||
+				m_pixelShader.GetShadeModel() == NORMMAP_MODEL )
+			{
+				pVerts[uiVert].m_v3Normal *= fInvZ;
+			}
 			
 		}
 	}
