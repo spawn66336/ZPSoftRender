@@ -39,6 +39,8 @@
 			static Real Pow( const Real x , const Real y );
 			static bool IsNaN( const Real val ); 
 			static Real Ceil( const Real x );
+			static inline Real Floor( const Real x ){ return floor(x); }
+			static inline Real Fract( const Real x ){ return x - Floor(x); }
 
 			static inline Real DegreesToRadians(Real deg) { return deg * fDeg2Rad; }
 			static inline Real RadiansToDegrees(Real rad) { return rad * fRad2Deg; }

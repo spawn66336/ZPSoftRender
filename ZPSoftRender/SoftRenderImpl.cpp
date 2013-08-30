@@ -56,12 +56,15 @@ void SoftRenderImpl::BeginDraw( Camera* pCam )
 }
 
 void SoftRenderImpl::EndDraw( void )
-{ 
+{  
+	
 }
 
 void SoftRenderImpl::SwapBuffers( void )
 {
 	m_pRenderContext->SwapBuffers();
+
+	PrintRenderInfo();
 }
 
 void SoftRenderImpl::SetClearColor( const Math::Vec4& color )
@@ -159,6 +162,34 @@ void SoftRenderImpl::LoadIdentity()
 void SoftRenderImpl::MultMatrix( const Math::Matrix4 &mat )
 {
 	m_pRenderContext->MultMatrix( mat );
+}
+
+void SoftRenderImpl::PrintRenderInfo( void )
+{
+	String strShadingModel = "";
+
+	switch( m_shadeModel )
+	{
+	case WIREFRAME_MODEL:
+		strShadingModel = "WireFrame";
+		break;
+	case FLAT_MODEL:
+		strShadingModel = "Flat Shading";
+		break;
+	case GOURAUD_MODEL:
+		strShadingModel = "Gouraud Shading";
+		break;
+	case PHONG_MODEL:
+		strShadingModel = "Phong Shading";
+		break;
+	case NORMMAP_MODEL:
+		strShadingModel = "Normal Map Shading";
+		break;
+	default:
+		break;
+	}
+
+	m_pRenderContext->DrawText( 10 , 10 , strShadingModel );
 }
 
 

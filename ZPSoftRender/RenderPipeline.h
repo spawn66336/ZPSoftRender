@@ -45,6 +45,11 @@ namespace Render
 		*/
 		void RemoveBackFaceInCameraSpace( void );
 
+		/**
+		* @brief 在相机空间中对面列表进行视锥体剪裁
+		*/
+		void ClipFacesInCameraSpace( void );
+
 		void CalcLightInCameraSpace( void );
 
 		void CalcPerVertexLightInCameraSpace( void );

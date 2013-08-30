@@ -160,6 +160,12 @@
       <Filter>源文件\Render</Filter>
     </ClCompile>
     <ClCompile Include="PixelShader.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -313,6 +319,12 @@
     </ClInclude>
     <ClInclude Include="PixelShader.h">
       <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
 	#include "Vec4.h"
 	#include "Matrix3.h"
 	#include "Matrix4.h"
+	#include "Plane.h"
 
 
 #endif //ZP_MATHDEPENDENCY

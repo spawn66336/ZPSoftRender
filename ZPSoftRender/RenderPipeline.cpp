@@ -49,7 +49,8 @@ namespace Render
 	{
 		InitRVerts();
 		TransformFromLocalSpaceToCameraSpace();
-		RemoveBackFaceInCameraSpace();
+		RemoveBackFaceInCameraSpace(); 
+		ClipFacesInCameraSpace();
 	}
 
 	void RenderPipeline::RunLightingStage( void )
@@ -73,7 +74,7 @@ namespace Render
 	void RenderPipeline::InitRVerts( void )
 	{
 		RVertex* pVerts = m_renderList.GetRTransVerts();
-		for( unsigned int uiVert = 0 ; uiVert < m_renderList.VertCount()  ; uiVert++ )
+		for( unsigned int uiVert = 0 ; uiVert < m_renderList.RTransVertCount()  ; uiVert++ )
 		{ 
 			pVerts[uiVert].ClearAttriBits();
 			switch( m_pixelShader.GetShadeModel() )
@@ -114,7 +115,42 @@ namespace Render
 			pVerts[uiVert].m_v3Pos = Math::Vec3( v4Pos.x , v4Pos.y , v4Pos.z );
 			//将相机空间中的顶点保存一份，用于逐像素光照使用
 			pVerts[uiVert].m_v3PosInCam = pVerts[uiVert].m_v3Pos;
-			pVerts[uiVert].m_v3Normal = pVerts[uiVert].m_v3Normal * normalMatrix; 
+			pVerts[uiVert].m_v3Normal = pVerts[uiVert].m_v3Normal * normalMatrix;
+
+			if( m_pixelShader.GetShadeModel() == NORMMAP_MODEL )
+			{
+				pVerts[uiVert].m_v3Tangent = pVerts[uiVert].m_v3Tangent * normalMatrix;
+				pVerts[uiVert].m_v3Binormal = pVerts[uiVert].m_v3Binormal * normalMatrix;
+			}
+		}
+	}
+	
+	void RenderPipeline::ClipFacesInCameraSpace( void )
+	{
+		RFace* pFace = m_renderList.GetFaceList();
+		RVertex* pVerts = m_renderList.GetRTransVerts();
+
+		while( NULL != pFace )
+		{
+			if( !pFace->IsActive() )
+			{
+				pFace = pFace->m_pNext;
+				continue;
+			}
+
+			unsigned int uiVertIndx0 = pFace->m_uiIndices[0];
+			unsigned int uiVertIndx1 = pFace->m_uiIndices[1];
+			unsigned int uiVertIndx2 = pFace->m_uiIndices[2];
+
+			if( m_pRenderContext->GetFrustum().IsOutSide( 
+				pVerts[uiVertIndx0].m_v3Pos , 
+				pVerts[uiVertIndx1].m_v3Pos ,
+				pVerts[uiVertIndx2].m_v3Pos ) )
+			{
+				pFace->SetStateBit( RFACE_STATE_CLIPED );
+			}
+			 
+			pFace = pFace->m_pNext;
 		}
 	}
 
@@ -158,7 +194,7 @@ namespace Render
 
 		RVertex* pVerts = m_renderList.GetRTransVerts();
 
-		for( unsigned int uiVert = 0 ; uiVert < m_renderList.VertCount() ; uiVert++ )
+		for( unsigned int uiVert = 0 ; uiVert < m_renderList.RTransVertCount() ; uiVert++ )
 		{
 			//若当前顶点已被剔除则变换下一个顶点
 			if( !pVerts[uiVert].TestStateBit( RVERT_STATE_ACTIVE ) )
@@ -166,7 +202,7 @@ namespace Render
 				continue;
 			}
 
-			Math::Vec4 v4Pos( m_renderList.GetRTransVerts()[uiVert].m_v3Pos );
+			Math::Vec4 v4Pos( pVerts[uiVert].m_v3Pos );
 			v4Pos = v4Pos * m_pRenderContext->GetCurrProjectionMatrix();
 			pVerts[uiVert].m_v3Pos = Math::Vec3( v4Pos.x , v4Pos.y , v4Pos.z );
 
@@ -185,7 +221,7 @@ namespace Render
 	void RenderPipeline::TransformFromProjectionSpaceToScreenSpace( void )
 	{
 		RVertex* pVerts = m_renderList.GetRTransVerts();
-		for( unsigned int uiVert = 0 ; uiVert < m_renderList.VertCount() ; uiVert++ )
+		for( unsigned int uiVert = 0 ; uiVert < m_renderList.RTransVertCount() ; uiVert++ )
 		{
 			//若当前顶点已被剔除则变换下一个顶点
 			if( !pVerts[uiVert].TestStateBit( RVERT_STATE_ACTIVE ) )
@@ -204,7 +240,7 @@ namespace Render
 	{
 		RVertex* pVerts = m_renderList.GetRTransVerts();
 
-		for( unsigned int uiVert = 0 ; uiVert < m_renderList.VertCount() ; uiVert++ )
+		for( unsigned int uiVert = 0 ; uiVert < m_renderList.RTransVertCount() ; uiVert++ )
 		{
 			//若当前顶点已被剔除则变换下一个顶点
 			if( !pVerts[uiVert].TestStateBit( RVERT_STATE_ACTIVE ) )
@@ -225,6 +261,11 @@ namespace Render
 				pVerts[uiVert].m_v3Normal *= fInvZ;
 			}
 			
+			if( m_pixelShader.GetShadeModel() == NORMMAP_MODEL )
+			{
+				pVerts[uiVert].m_v3Tangent *= fInvZ;
+				pVerts[uiVert].m_v3Binormal *= fInvZ;
+			}
 		}
 	}
 
@@ -237,7 +278,7 @@ namespace Render
 
 		while( NULL != pFace )
 		{
-			if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
+			if( !pFace->IsActive() )
 			{
 				pFace = pFace->m_pNext;
 				continue;
@@ -269,7 +310,7 @@ namespace Render
 		
 		while( NULL != pFace )
 		{
-			if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
+			if( !pFace->IsActive() )
 			{
 				pFace = pFace->m_pNext;
 				continue;
@@ -320,7 +361,7 @@ namespace Render
 			Math::Vec4 v4LightPos = ( pLight->Position() ) * m_pRenderContext->GetCurrWorldToCamMatrix(); 
 			RVertex* pVerts = m_renderList.GetRTransVerts();
 
-			for( unsigned int uiVert = 0 ; uiVert < m_renderList.VertCount() ; uiVert++ )
+			for( unsigned int uiVert = 0 ; uiVert < m_renderList.RTransVertCount() ; uiVert++ )
 			{
 				RVertex& v = pVerts[uiVert];
 
@@ -384,7 +425,7 @@ namespace Render
 
 			while( NULL != pFace )
 			{
-				if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
+				if( !pFace->IsActive() )
 				{  
 					pFace = pFace->m_pNext;
 					continue;
@@ -449,7 +490,7 @@ namespace Render
 
 		while( NULL != pFace )
 		{
-			if( pFace->TestStateBit( RFACE_STATE_BACKFACE ) )
+			if( !pFace->IsActive() )
 			{
 				pFace = pFace->m_pNext;
 				continue;

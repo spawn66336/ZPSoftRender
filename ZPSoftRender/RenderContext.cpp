@@ -218,8 +218,9 @@ Resource::Material* RenderContext::GetCurrMaterial( void ) const
 
 void RenderContext::SetPerspectiveProjection( const Real fov , const Real n , const Real f )
 {
-	Real d = 1.0f * Math::MathUtil::Tan( Math::MathUtil::DegreesToRadians( fov/2.0f ) );
+	Real d = 1.0f * Math::MathUtil::Tan( Math::MathUtil::DegreesToRadians( fov * 0.5f ) );
 
+	m_frustum.Set( fov , m_aspect , n , f );
 
 	m_currCamToProjMat = Math::Matrix4(
 			d ,		 0.0f , 0.0f , 0.0f ,
@@ -233,5 +234,14 @@ void RenderContext::SetWorldToCameraMatrix( const Math::Matrix4& mat )
 {
 	m_currWorldToCamMat = mat;
 }
+
+void RenderContext::DrawText( const int x , const int y , const String& str )
+{ 
+	::SetBkColor( m_hDC , RGB(0,0,0) );
+	::SetTextColor( m_hDC , RGB(150,150,150 ) );
+	::TextOutA( m_hDC , x , y , str.c_str() , str.length() );
+}
+
+ 
 
 }//namespace Render

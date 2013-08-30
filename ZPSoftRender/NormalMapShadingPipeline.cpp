@@ -14,4 +14,14 @@ NormalMapShadingPipeline::~NormalMapShadingPipeline(void)
 {
 }
 
+void NormalMapShadingPipeline::RunLightingStage( void )
+{
+	PrepareForPerPixelLightingInCameraSpace();
+}
+
+void NormalMapShadingPipeline::RunRasterizationStage( void )
+{
+	DrawTrianglesToFrameBuffer();
+}
+
 }//namespace Render

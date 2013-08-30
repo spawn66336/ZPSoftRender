@@ -42,6 +42,10 @@ namespace Render
 
 	protected:
 
+		void PrintRenderInfo( void );
+
+	protected:
+
 		RenderContext* m_pRenderContext;
 		SHADE_MODEL m_shadeModel;			///>着色模型
 		RenderPipeline* m_pRenderPipe;			///>渲染管线

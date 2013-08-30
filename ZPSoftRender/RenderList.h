@@ -83,9 +83,19 @@ namespace Render
 		RFace( const RFace& face );
 		~RFace();
 
-		bool TestStateBit( const unsigned int bit );
+		inline bool TestStateBit( const unsigned int bit ) const	
+		{
+			return ( 0 != ( m_uiState&bit) );
+		}
 		void SetStateBit( const unsigned int bit );
 		void ClearStateBits( void ){ m_uiState = 0; }
+		inline bool IsActive( void ) const 
+		{
+			return ( 
+						  !TestStateBit( RFACE_STATE_CLIPED ) && 
+						  !TestStateBit( RFACE_STATE_BACKFACE ) 
+					  );
+		}
 
 		RFace& operator=( const RFace& rhs );
 
@@ -112,6 +122,17 @@ namespace Render
 
 		inline unsigned int FaceCount(void) const { return m_uiFaceCount; }
 
+		inline unsigned int RTransVertCount( void ) const { return m_uiTransVertCount; }
+
+		inline unsigned int RTransVertCapacity( void ) const { return m_uiTransVertsCapacity; }
+
+		/**
+		* @brief 向变换过的顶点列表中加入新顶点
+		* @param vert 待加入顶点
+		* @return 返回新加入顶点的索引
+		*/
+		unsigned int AddTransVert( const RVertex& vert );
+
 		inline RVertex* GetRVerts( void ) const { return m_pRVerts; }
 
 		inline RVertex* GetRTransVerts( void ) const { return m_pRTransVerts; }
@@ -119,10 +140,13 @@ namespace Render
 		inline RFace*    GetFaceList( void ) const { return m_pFace; }
 		 
 	protected:
-		unsigned int m_uiVertCount; ///>顶点数
 		unsigned int m_uiFaceCount; ///>面数
 
-		RVertex* m_pRVerts;				  ///>顶点列表
+		unsigned int m_uiVertCount;   ///>原始顶点数
+		RVertex* m_pRVerts;				  ///>原始顶点列表
+
+		unsigned int m_uiTransVertCount;  ///>变换后的顶点列表中实际的顶点数
+		unsigned int m_uiTransVertsCapacity; ///>变换后的顶点列表所能容纳的顶点数
 		RVertex* m_pRTransVerts;      ///>变换后的顶点列表
 		RFace*    m_pFace;				  ///>面链表头指针
 	};

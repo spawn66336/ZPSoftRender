@@ -96,7 +96,9 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
     <ClCompile Include="ColorFrameBuffer.cpp" />
     <ClCompile Include="DepthFrameBuffer.cpp" />
     <ClCompile Include="FlatShadingPipeline.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="RasterProcessor.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="FreeImageTextureLoader.cpp" />
@@ -137,7 +139,9 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
     <ClInclude Include="ColorFrameBuffer.h" />
     <ClInclude Include="DepthFrameBuffer.h" />
     <ClInclude Include="FlatShadingPipeline.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="RasterProcessor.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="FreeImageTextureLoader.h" />

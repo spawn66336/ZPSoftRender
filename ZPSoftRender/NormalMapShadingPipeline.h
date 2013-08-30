@@ -11,6 +11,10 @@ namespace Render
 	public:
 		NormalMapShadingPipeline(void);
 		virtual ~NormalMapShadingPipeline(void);
+
+		virtual void RunLightingStage( void );
+
+		virtual void RunRasterizationStage( void ); 
 	};
 
 }//namespace Render

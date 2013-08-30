@@ -56,10 +56,7 @@ CModelViewerView::~CModelViewerView()
 }
 
 BOOL CModelViewerView::PreCreateWindow(CREATESTRUCT& cs)
-{
-	// TODO: 在此处通过修改
-	//  CREATESTRUCT cs 来修改窗口类或样式
-
+{ 
 	return CView::PreCreateWindow(cs);
 }
 
@@ -72,7 +69,10 @@ void CModelViewerView::OnDraw(CDC* /*pDC*/)
 	if (!pDoc)
 		return; 
 
-	m_pEngine->RenderOneFrame();
+	if( NULL != m_pEngine )
+	{
+		m_pEngine->RenderOneFrame();
+	}
 }
 
 

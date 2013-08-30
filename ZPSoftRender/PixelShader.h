@@ -15,6 +15,11 @@ namespace Render
 {
 	class RVertex;
 
+	enum TEXTURE2D_SAMPLER_WRAP_TYPE
+	{
+		WRAP_CLAMP = 1,
+		WRAP_REPEAT = 2
+	};
 
 	class Texture2DSampler
 	{
@@ -28,10 +33,15 @@ namespace Render
 
 		Math::Vec4 Sample( Math::Vec2& v2Texcoord );
 
+		unsigned int GetWrapType( void ) const { return m_uiWrapType; }
+
+		void SetWrapType( const unsigned int type ){ m_uiWrapType = type; }
+
 	protected: 
 		Resource::Texture2D* m_pTexture;
 		unsigned int m_uiBytesPerPixel;
-		unsigned int m_uiLineOffset; 
+		unsigned int m_uiLineOffset;
+		unsigned int m_uiWrapType;
 	};
 
 	class PixelShader
@@ -59,6 +69,7 @@ namespace Render
 		typedef std::vector<Light*> lightTable_t; 
 		lightTable_t m_lights;
 		Texture2DSampler	m_diffuseTextureSampler;
+		Texture2DSampler	m_normTextureSampler;
 	};
 
 }//namespace Render;

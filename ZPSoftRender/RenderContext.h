@@ -4,6 +4,7 @@
 #include "ZPDependency.h"
 #include "ZPMathDependency.h"
 #include "FrameBuffer.h"
+#include "Frustum.h"
 
 namespace Resource
 {
@@ -61,6 +62,10 @@ namespace Render
 		virtual void LoadIdentity();
 		virtual void MultMatrix( const Math::Matrix4 &mat);
 
+		virtual const Math::Frustum& GetFrustum( void ) const { return m_frustum; }
+
+		virtual void DrawText( const int x , const int y , const String& str );
+
 		virtual const Math::Matrix4& GetCurrModelViewMatrix( void ) const { return m_currLocalToCamMat; }
 		virtual const Math::Matrix4& GetCurrWorldToCamMatrix( void ) const { return m_currWorldToCamMat; }
 		virtual const Math::Matrix4& GetCurrProjectionMatrix( void ) const { return m_currCamToProjMat; }
@@ -88,6 +93,8 @@ namespace Render
 		
 		typedef std::stack<Math::Matrix4> matrixStack_t;
 		matrixStack_t m_modelViewMatrixStack;	///>模型视图矩阵栈
+		
+		Math::Frustum  m_frustum;				///>视椎体
 
 		FrameBuffer m_colorFrameBuf;
 		FrameBuffer m_zFrameBuf;

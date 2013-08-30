@@ -256,12 +256,8 @@ namespace Render
 		m_v4Color = rhs.m_v4Color;
 		return *this;
 	}
+	 
 
- 
-	bool RFace::TestStateBit( const unsigned int bit )
-	{
-		return ( 0 != ( m_uiState&bit) );
-	}
 
 	void RFace::SetStateBit( const unsigned int bit )
 	{
@@ -272,6 +268,8 @@ namespace Render
 	m_uiVertCount(0),
 	m_uiFaceCount(0),
 	m_pRVerts(NULL),
+	m_uiTransVertCount(0),
+	m_uiTransVertsCapacity(0),
 	m_pRTransVerts(NULL),
 	m_pFace(NULL)
 	{
@@ -287,6 +285,8 @@ namespace Render
 		m_uiVertCount = 0;
 		m_uiFaceCount = 0;
 		m_pRVerts = NULL;
+		m_uiTransVertCount = 0;
+		m_uiTransVertsCapacity = 0;
 		m_pRTransVerts = NULL;
 		m_pFace = NULL;
 	}
@@ -306,31 +306,42 @@ namespace Render
 		this->Clear();
 
 		VertexBuffer& vertexBufRef = primitive.VertexBuf();
+		//通过索引数计算面数
+		unsigned int uiFaceCount = primitive.IndicesCount() / 3;
 		m_uiVertCount = vertexBufRef.Count();
+		m_uiTransVertCount = m_uiVertCount;
+
+		//为剪裁留出额外顶点空间（假设每个面都会被平面截取生成两个新的顶点）
+		m_uiTransVertsCapacity = m_uiVertCount + m_uiFaceCount*2;
 
 		//在帧栈分配器上分配 无需释放内存
 		void* pVertBuf = FrameStackAllocator::GetInstance()->Alloc( sizeof(RVertex)*m_uiVertCount );
-		void* pTransVertBuf = FrameStackAllocator::GetInstance()->Alloc( sizeof(RVertex)*m_uiVertCount );
+		void* pTransVertBuf = FrameStackAllocator::GetInstance()->Alloc( sizeof(RVertex)*m_uiTransVertsCapacity );
 
 		ZP_ASSERT( NULL != pVertBuf );
 		ZP_ASSERT( NULL != pTransVertBuf );
 
 		m_pRVerts = (RVertex*)pVertBuf; 
 		//对所有顶点调用 placement new
+		//拷贝原始顶点
 		for( unsigned int uiVert = 0 ; uiVert < m_uiVertCount ; uiVert++ )
 		{
 			 new ( (void*)(&m_pRVerts[uiVert] ) ) RVertex( vertexBufRef.Pointer()[uiVert] );
 		}
 
+		
 		m_pRTransVerts = (RVertex*)pTransVertBuf;
 		for( unsigned int uiVert = 0 ; uiVert < m_uiVertCount ; uiVert++ )
 		{
 			new ( (void*)(&m_pRTransVerts[uiVert] ) ) RVertex( vertexBufRef.Pointer()[uiVert] );
 		}
 
+		//初始化顶点所留的后备空间
+		for( unsigned int uiVert = m_uiVertCount ; uiVert < m_uiTransVertsCapacity ; uiVert++ )
+		{
+			new ( (void*)(&m_pRTransVerts[uiVert] ) ) RVertex();
+		}
 
-		//通过索引数计算顶点
-		unsigned int uiFaceCount = primitive.IndicesCount() / 3;
 		for( unsigned int uiFace = 0 ; uiFace < uiFaceCount ; uiFace++ )
 		{
 			RFace newFace;
@@ -343,6 +354,13 @@ namespace Render
 			this->AddFace( newFace );
 		}
 
+	}
+
+	unsigned int RenderList::AddTransVert( const RVertex& vert )
+	{
+		ZP_ASSERT( m_uiTransVertCount < m_uiTransVertsCapacity );
+		m_pRTransVerts[ m_uiTransVertCount ] = vert;
+		return m_uiTransVertCount++;
 	}
 
 
