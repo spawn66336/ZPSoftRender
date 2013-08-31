@@ -49,7 +49,7 @@ void SoftRenderImpl::BeginDraw( Camera* pCam )
 	this->SetClearColor( Math::Vec4( 0.0f , 0.0f , 0.0f ,1.0f ) );
 	this->ClearBuffer( COLOR_BUFFER_FLAG | DEPTH_BUFFER_FLAG ); 
 
-	m_pRenderContext->SetPerspectiveProjection( pCam->GetFov() , 1.0f , 9999.0f );
+	m_pRenderContext->SetPerspectiveProjection( pCam->GetFov() , 8.0f , 9999.0f );
 	m_pRenderContext->SetWorldToCameraMatrix( pCam->GetCameraMatrix() );
 	m_pRenderContext->LoadIdentity();
 	m_pRenderContext->LoadMatrix( pCam->GetCameraMatrix() );
@@ -171,25 +171,35 @@ void SoftRenderImpl::PrintRenderInfo( void )
 	switch( m_shadeModel )
 	{
 	case WIREFRAME_MODEL:
-		strShadingModel = "WireFrame";
+		strShadingModel = "线框渲染";
 		break;
 	case FLAT_MODEL:
-		strShadingModel = "Flat Shading";
+		strShadingModel = "Flat 着色";
 		break;
 	case GOURAUD_MODEL:
-		strShadingModel = "Gouraud Shading";
+		strShadingModel = "Gouraud 着色";
 		break;
 	case PHONG_MODEL:
-		strShadingModel = "Phong Shading";
+		strShadingModel = "Phong 着色";
 		break;
 	case NORMMAP_MODEL:
-		strShadingModel = "Normal Map Shading";
+		strShadingModel = "法线贴图着色";
 		break;
 	default:
 		break;
 	}
 
-	m_pRenderContext->DrawText( 10 , 10 , strShadingModel );
+	int x = 10 , y = 10;
+	int dy = 20;
+	m_pRenderContext->DrawText( x , y , strShadingModel );
+	y += dy;
+	m_pRenderContext->DrawText( x , y , "按 'C' 键切换模型");
+	y += dy;
+	m_pRenderContext->DrawText( x , y , "按 'L' 键切换着色模式");
+	y += dy;
+	m_pRenderContext->DrawText( x , y , "WSAD + 鼠标 控制摄像机");
+	y += dy;
+	m_pRenderContext->DrawText( x , y , "方向键 控制模型旋转");
 }
 
 

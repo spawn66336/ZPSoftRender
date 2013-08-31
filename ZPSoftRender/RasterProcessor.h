@@ -60,6 +60,8 @@ namespace Render
 
 		unsigned int Calc2DPointOutCode( const int x , const int y ); 
 
+		bool IsOutOfScreen( const Math::Vec2& p0 , const Math::Vec2& p1 , const Math::Vec2& p2 );
+
 		void DrawLineMidPoint( const Math::Vec2& p0 , const Math::Vec2& p1 , const Math::Vec4& color  );
 
 		void DrawVLine( const int x , const int y0 , const int y1 ,  Math::BGRA8888_t color  );

@@ -65,6 +65,16 @@ public:
 	afx_msg void OnResetCamera();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnFrameShading();
+	afx_msg void OnFlatShading();
+	afx_msg void OnGouraudShading();
+	afx_msg void OnPhongShading();
+	afx_msg void OnBumpShading();
+	afx_msg void OnResetModel();
+	afx_msg void OnNcMouseLeave();
+	afx_msg void OnNcLButtonUp(UINT nHitTest, CPoint point);
+	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
+	afx_msg LRESULT OnNcHitTest(CPoint point);
 };
 
 #ifndef _DEBUG  // ModelViewerView.cpp 中的调试版本

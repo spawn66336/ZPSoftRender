@@ -5,7 +5,7 @@ namespace Resource
 
 	Material::Material(void):
 	m_ambient( 0.1f , 0.1f, 0.1f , 1.0f ),
-	m_diffuse( 0.5f , 0.5f , 0.5f , 1.0f ),
+	m_diffuse( 0.75f , 0.75f , 0.75f , 1.0f ),
 	m_specular( 1.0f , 1.0f , 1.0f , 1.0f ),
 	m_shininess( 128.0f )
 	{ 

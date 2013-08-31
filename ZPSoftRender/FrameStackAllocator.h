@@ -8,7 +8,7 @@
 namespace Render
 { 
 
-	const unsigned int MAX_FRAMESTACK_ALLOCATOR_SIZE = 1024*1024*100;
+	const unsigned int MAX_FRAMESTACK_ALLOCATOR_SIZE = 1024*1024*10;
 
 	class FrameStackAllocator : public Util::SingletonT<FrameStackAllocator>
 	{

@@ -6,6 +6,7 @@
 #include "ZPMathDependency.h"
 #include "Material.h"
 #include "IRender.h"
+#include "Plane.h"
 
 namespace Render
 {
@@ -138,18 +139,157 @@ namespace Render
 				continue;
 			}
 
-			unsigned int uiVertIndx0 = pFace->m_uiIndices[0];
-			unsigned int uiVertIndx1 = pFace->m_uiIndices[1];
-			unsigned int uiVertIndx2 = pFace->m_uiIndices[2];
+			unsigned int* pIndices =  pFace->m_uiIndices; 
 
 			if( m_pRenderContext->GetFrustum().IsOutSide( 
-				pVerts[uiVertIndx0].m_v3Pos , 
-				pVerts[uiVertIndx1].m_v3Pos ,
-				pVerts[uiVertIndx2].m_v3Pos ) )
+				pVerts[pIndices[0]].m_v3Pos , 
+				pVerts[pIndices[1]].m_v3Pos ,
+				pVerts[pIndices[2]].m_v3Pos ) )
 			{
 				pFace->SetStateBit( RFACE_STATE_CLIPED );
+				pFace = pFace->m_pNext;
+				continue;
 			}
-			 
+
+			Math::Plane nearClipPlane = m_pRenderContext->GetFrustum().GetNearClipPlane();
+
+			//若该三角面没有与近平面相交 则无需分割
+			if( nearClipPlane.IsFrontSide( 
+				pVerts[pIndices[0]].m_v3Pos , 
+				pVerts[pIndices[1]].m_v3Pos ,
+				pVerts[pIndices[2]].m_v3Pos ) )
+			{
+				pFace = pFace->m_pNext;
+				continue;
+			}
+
+			int iFrontSideVertCount = 0;
+			int iClassifyCodes[3] = {0};
+			
+			//对三角面的三个顶点分类
+			for( int iVert = 0 ; iVert < 3 ; iVert++ )
+			{
+				iClassifyCodes[iVert] = 
+					nearClipPlane.ClassifyPoint( pVerts[pIndices[iVert]].m_v3Pos ) ;
+				if( Math::FRONT_SIDE == iClassifyCodes[iVert] )
+				{
+					iFrontSideVertCount++;
+				}
+			}
+
+			ZP_ASSERT( 0 != iFrontSideVertCount  );
+
+			if( iFrontSideVertCount == 1 )
+			{//情况1只有一个顶点在平面正面
+
+				int j = 0;
+				unsigned int uiNewIndices[3] = {0}; 
+
+				//分别对三条边剪裁
+				for( int iLine = 0 ; iLine < 3 ; iLine++ )
+				{
+					int iP0 = iLine;
+					int iP1 = ( iLine + 1 )%3; 
+					 
+					if(  iClassifyCodes[iP0] > Math::ON_THE_PLANE  )
+					{
+						uiNewIndices[ j++] = pIndices[iP0] ;  
+					} 
+
+					if( iClassifyCodes[iP0] < Math::ON_THE_PLANE )
+					{
+						pVerts[ pIndices[iP0] ].UnSetStateBit( RVERT_STATE_ACTIVE ); 
+					}
+					
+					if( iClassifyCodes[iP1] == Math::ON_THE_PLANE )
+					{
+						continue;
+					}
+
+					if( iClassifyCodes[iP0] != iClassifyCodes[iP1] )
+					{
+						Real t = 0.0f;
+						nearClipPlane.ClipLineSegment( 
+								pVerts[ pIndices[iP0] ].m_v3Pos , 
+								pVerts[ pIndices[iP1] ].m_v3Pos , 
+								t
+							); 
+
+						RVertex rvNewVert = pVerts[ pIndices[iP0] ] + ( pVerts[ pIndices[iP1] ] - pVerts[ pIndices[iP0]] ) * t;
+						rvNewVert.m_uiAttri =  pVerts[ pIndices[iP0] ].m_uiAttri;
+						rvNewVert.m_uiState = RVERT_STATE_ACTIVE;
+
+						unsigned int uiNewIndex = 
+							m_renderList.AddTransVert( rvNewVert );
+
+						uiNewIndices[j++] = uiNewIndex;
+					}
+
+				}//for( int iLine = 0 ; iLine < 3 ; iLine++ )
+				 
+				for( int iVert = 0 ; iVert < 3 ; iVert++ )
+				{
+					pIndices[iVert] = uiNewIndices[iVert];
+				}
+
+			}else{ //情况2 只有两个顶点在平面正面
+				 
+				RFace* pNewFace = (RFace*)FrameStackAllocator::GetInstance()->Alloc( sizeof(RFace) );
+				new ( static_cast<void*>(pNewFace) ) RFace( *pFace );
+				ZP_ASSERT( NULL != pNewFace ); 
+
+				int j = 0;
+				unsigned int uiNewIndices[4] = {0};
+
+				for( int iLine = 0 ; iLine < 3 ; iLine++ )
+				{
+					int iP0 = iLine;
+					int iP1 = ( iLine + 1 )%3; 
+
+					if( iClassifyCodes[iP0] < Math::ON_THE_PLANE )
+					{
+						pVerts[ pIndices[iP0] ].UnSetStateBit( RVERT_STATE_ACTIVE ); 
+					}
+					
+					if( iClassifyCodes[iP0] > Math::ON_THE_PLANE  )
+					{
+						uiNewIndices[j++] = pIndices[iP0];
+					}
+
+
+					if( iClassifyCodes[iP0] != iClassifyCodes[iP1] )
+					{
+						Real t = 0.0f;
+						nearClipPlane.ClipLineSegment( 
+							pVerts[ pIndices[iP0] ].m_v3Pos , 
+							pVerts[ pIndices[iP1] ].m_v3Pos , 
+							t
+							);
+
+						//加入分割后的新生成的顶点并加入列表中
+						RVertex rvNewVert = pVerts[ pIndices[iP0] ] + ( pVerts[ pIndices[iP1] ] - pVerts[ pIndices[iP0]] ) * t ;
+						rvNewVert.m_uiAttri =  pVerts[ pIndices[iP0] ].m_uiAttri;
+						rvNewVert.m_uiState = RVERT_STATE_ACTIVE;
+
+						unsigned int uiNewIndex = 
+							m_renderList.AddTransVert( rvNewVert );
+						 
+						uiNewIndices[j++] = uiNewIndex;
+					}
+
+				}//for( int iLine = 0 ; iLine < 3 ; iLine++ )
+
+				pIndices[0] = uiNewIndices[0];
+				pIndices[1] = uiNewIndices[1];
+				pIndices[2] = uiNewIndices[2];
+
+				pNewFace->m_uiIndices[0] = uiNewIndices[3];
+				pNewFace->m_uiIndices[1] = uiNewIndices[0];
+				pNewFace->m_uiIndices[2] = uiNewIndices[2];
+
+				m_renderList.AddFace( *pNewFace );
+			}
+
 			pFace = pFace->m_pNext;
 		}
 	}

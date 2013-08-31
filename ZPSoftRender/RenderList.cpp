@@ -312,7 +312,7 @@ namespace Render
 		m_uiTransVertCount = m_uiVertCount;
 
 		//为剪裁留出额外顶点空间（假设每个面都会被平面截取生成两个新的顶点）
-		m_uiTransVertsCapacity = m_uiVertCount + m_uiFaceCount*2;
+		m_uiTransVertsCapacity = m_uiVertCount + uiFaceCount*2;
 
 		//在帧栈分配器上分配 无需释放内存
 		void* pVertBuf = FrameStackAllocator::GetInstance()->Alloc( sizeof(RVertex)*m_uiVertCount );
@@ -337,7 +337,7 @@ namespace Render
 		}
 
 		//初始化顶点所留的后备空间
-		for( unsigned int uiVert = m_uiVertCount ; uiVert < m_uiTransVertsCapacity ; uiVert++ )
+		for( unsigned int uiVert = m_uiVertCount ; uiVert < m_uiTransVertsCapacity - m_uiVertCount ; uiVert++ )
 		{
 			new ( (void*)(&m_pRTransVerts[uiVert] ) ) RVertex();
 		}

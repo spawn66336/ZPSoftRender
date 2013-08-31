@@ -247,7 +247,15 @@ namespace Render
 	void RasterProcessor::DrawTriangle2D( const RVertex& v0 , const RVertex& v1 , const RVertex& v2 , PixelShader& shader )
 	{
 		RVertex rvVert0 = v0 , rvVert1 = v1 , rvVert2 = v2;
-
+		
+		//若三角面完全在屏幕之外
+		if( IsOutOfScreen( 
+			Math::Vec2( v0.m_v3Pos.x , v0.m_v3Pos.y ) , 
+			Math::Vec2( v1.m_v3Pos.x , v1.m_v3Pos.y ) , 
+			Math::Vec2( v2.m_v3Pos.x , v2.m_v3Pos.y ) ) )
+		{
+			return;
+		}
 
 		{ //对顶点按y由小到大排序
 
@@ -379,6 +387,34 @@ namespace Render
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
 		}
+	}
+
+	bool RasterProcessor::IsOutOfScreen( const Math::Vec2& p0 , const Math::Vec2& p1 , const Math::Vec2& p2 )
+	{
+		if( p0.x < 0.0f && p1.x < 0.0f && p2.x < 0.0f )
+		{
+			return true;
+		}
+
+		if( p0.x > static_cast<Real>( BufferWidth()-1 ) &&
+			p1.x > static_cast<Real>( BufferWidth()-1 ) &&
+			p2.x > static_cast<Real>( BufferWidth()-1 ) )
+		{
+			return true;
+		}
+
+		if( p0.y < 0.0f && p1.y < 0.0f && p2.y < 0.0f )
+		{
+			return true;
+		}
+
+		if( p0.y > static_cast<Real>( BufferHeight()-1 ) &&
+			p1.y > static_cast<Real>( BufferHeight()-1 ) &&
+			p2.y > static_cast<Real>( BufferHeight()-1 ) )
+		{
+			return true;
+		}
+		return false;
 	}
 
 	 

@@ -163,10 +163,10 @@
       <Filter>源文件\Render</Filter>
     </ClCompile>
     <ClCompile Include="Plane.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Math</Filter>
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

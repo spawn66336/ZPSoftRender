@@ -37,6 +37,16 @@ BEGIN_MESSAGE_MAP(CModelViewerView, CView)
 	ON_COMMAND(IDM_RESET_CAMERA, &CModelViewerView::OnResetCamera)
 	ON_WM_CHAR()
 	ON_WM_ERASEBKGND()
+	ON_COMMAND(IDM_FRAME_SHADING, &CModelViewerView::OnFrameShading)
+	ON_COMMAND(IDM_FLAT_SHADING, &CModelViewerView::OnFlatShading)
+	ON_COMMAND(IDM_GOURAUD_SHADING, &CModelViewerView::OnGouraudShading)
+	ON_COMMAND(IDM_PHONG_SHADING, &CModelViewerView::OnPhongShading)
+	ON_COMMAND(IDM_BUMP_SHADING, &CModelViewerView::OnBumpShading)
+	ON_COMMAND(IDM_RESET_MODEL, &CModelViewerView::OnResetModel)
+	ON_WM_NCMOUSELEAVE()
+	ON_WM_NCLBUTTONUP()
+	ON_WM_NCMOUSEMOVE()
+	ON_WM_NCHITTEST()
 END_MESSAGE_MAP()
 
 // CModelViewerView 构造/析构
@@ -188,7 +198,7 @@ void CModelViewerView::OnSize(UINT nType, int cx, int cy)
 
 
 void CModelViewerView::OnMouseMove(UINT nFlags, CPoint point)
-{ 
+{  
 	if( m_pCamera )
 	{
 		if( TRUE == m_bDragFlag )
@@ -197,10 +207,10 @@ void CModelViewerView::OnMouseMove(UINT nFlags, CPoint point)
 			int dy = point.y - m_mousePoint.y;
 
 			m_pCamera->RotateWithUp( ((float)dx) / 1000.0f );
-			m_pCamera->RotateWithT( ((float)dy) / 1000.0f ); 
+			m_pCamera->RotateWithT( ((float)dy) / 1000.0f );  
 		}
 	} 
-	m_mousePoint = point;
+	m_mousePoint = point; 
 	CView::OnMouseMove(nFlags, point);
 }
 
@@ -238,12 +248,14 @@ void CModelViewerView::FrameStarted( void )
 	}
 
 	Real moveSpeed = 1.0f;
+	bool bMovingFlag = false;
 
 	//前进
 	if( GetKeyState('W')&0x80 ||
 		GetKeyState('w')&0x80)
 	{
 		m_pCamera->MoveAlongDir(moveSpeed);
+		bMovingFlag = true;
 	}
 
 	//后退
@@ -251,6 +263,7 @@ void CModelViewerView::FrameStarted( void )
 		GetKeyState('s')&0x80)
 	{
 		m_pCamera->MoveAlongDir(-moveSpeed);
+		bMovingFlag = true;
 	}
 
 	//左平移
@@ -258,6 +271,7 @@ void CModelViewerView::FrameStarted( void )
 		GetKeyState('a')&0x80)
 	{
 		m_pCamera->MoveAlongT(-moveSpeed);
+		bMovingFlag = true;
 	}
 
 	//右平移
@@ -265,6 +279,7 @@ void CModelViewerView::FrameStarted( void )
 		GetKeyState('d')&0x80)
 	{
 		m_pCamera->MoveAlongT(moveSpeed);
+		bMovingFlag = true;
 	}
 
 	if( GetKeyState('Q')&0x80 ||
@@ -272,6 +287,7 @@ void CModelViewerView::FrameStarted( void )
 		)
 	{
 		m_pCamera->RotateWithDir( 0.01f );
+		bMovingFlag = true;
 	}
 
 	if( GetKeyState('E')&0x80 ||
@@ -279,7 +295,39 @@ void CModelViewerView::FrameStarted( void )
 		)
 	{
 		m_pCamera->RotateWithDir( -0.01f );
+		bMovingFlag = true;
 	}
+
+	if( GetKeyState( VK_UP ) & 0x80 )
+	{
+		m_pEngine->RotateMeshWithXAxis( 0.01f );
+		bMovingFlag = true;
+	}
+
+	if( GetKeyState( VK_DOWN ) & 0x80 )
+	{
+		m_pEngine->RotateMeshWithXAxis( -0.01f );
+		bMovingFlag = true;
+	}
+
+	if( GetKeyState( VK_LEFT ) & 0x80 )
+	{
+		m_pEngine->RotateMeshWithYAxis( 0.01f );
+		bMovingFlag = true;
+	}
+
+	if( GetKeyState( VK_RIGHT ) & 0x80 )
+	{
+		m_pEngine->RotateMeshWithYAxis( -0.01f );
+		bMovingFlag = true;
+	}
+
+	if( TRUE == m_bDragFlag )
+	{
+		bMovingFlag = true;
+	}
+
+	m_pEngine->SetMovingFlag( bMovingFlag );
 }
 
 void CModelViewerView::FrameEnded( void )
@@ -294,7 +342,7 @@ void CModelViewerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 		nChar == 'l'
 		)
 	{
-		m_pEngine->SwitchShadeMode();
+		m_pEngine->SwitchShadeModel();
 	}
 
 	if( nChar == 'C' ||
@@ -311,4 +359,70 @@ BOOL CModelViewerView::OnEraseBkgnd(CDC* pDC)
 {
 	return TRUE;
 	//return __super::OnEraseBkgnd(pDC);
+}
+
+
+void CModelViewerView::OnFrameShading()
+{ 
+	m_pEngine->SetShadeModel( Render::WIREFRAME_MODEL );
+}
+
+
+void CModelViewerView::OnFlatShading()
+{ 
+	m_pEngine->SetShadeModel( Render::FLAT_MODEL );
+}
+
+
+void CModelViewerView::OnGouraudShading()
+{ 
+	m_pEngine->SetShadeModel( Render::GOURAUD_MODEL );
+}
+
+
+void CModelViewerView::OnPhongShading()
+{ 
+	m_pEngine->SetShadeModel( Render::PHONG_MODEL );
+}
+
+
+void CModelViewerView::OnBumpShading()
+{ 
+	m_pEngine->SetShadeModel( Render::NORMMAP_MODEL );
+}
+
+
+void CModelViewerView::OnResetModel()
+{
+	m_pEngine->ResetMesh();
+}
+
+
+void CModelViewerView::OnNcMouseLeave()
+{
+	// 该功能要求使用 Windows 2000 或更高版本。
+	// 符号 _WIN32_WINNT 和 WINVER 必须 >= 0x0500。
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	m_bDragFlag = FALSE;
+	__super::OnNcMouseLeave();
+}
+
+
+void CModelViewerView::OnNcLButtonUp(UINT nHitTest, CPoint point)
+{ 
+	m_bDragFlag = FALSE;
+	__super::OnNcLButtonUp(nHitTest, point);
+}
+
+
+void CModelViewerView::OnNcMouseMove(UINT nHitTest, CPoint point)
+{ 
+	m_bDragFlag = FALSE;
+	__super::OnNcMouseMove(nHitTest, point);
+}
+
+
+LRESULT CModelViewerView::OnNcHitTest(CPoint point)
+{ 
+	return __super::OnNcHitTest(point);
 }

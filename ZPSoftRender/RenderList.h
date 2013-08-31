@@ -36,10 +36,12 @@ namespace Render
 
 		bool TestStateBit( const unsigned int bit );
 		inline void SetStateBit( const unsigned int bit ){ m_uiState|= bit; }
+		inline void UnSetStateBit( const unsigned int bit ){ m_uiState &= ~bit; }
 		inline void ClearStateBits( void ){ m_uiState = 0; }
 
 		inline bool TestAttriBit( const unsigned int bit ) const { return ( 0 != ( m_uiAttri&bit ) ); }
 		inline void SetAttriBit( const unsigned int bit ){ m_uiAttri |= bit; }
+		inline void UnSetAttriBit( const unsigned int bit ){ m_uiAttri &= ~bit; }
 		inline void ClearAttriBits( void ) { m_uiAttri = 0; }
 
 		void CopyFromVertex( const Vertex& v );

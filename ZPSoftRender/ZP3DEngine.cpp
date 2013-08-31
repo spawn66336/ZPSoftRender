@@ -11,11 +11,12 @@
 #include "FrameStackAllocator.h"
 
 ZP3DEngine::ZP3DEngine(void):
+m_bIsMoving(false),
 m_pRenderer(NULL),
 m_pCamera(NULL),
 m_pFrameListener(NULL)
 {
-	m_uiShadeMode = Render::WIREFRAME_MODEL;
+	m_uiShadeModel = Render::WIREFRAME_MODEL;
 }
 
 ZP3DEngine::~ZP3DEngine(void)
@@ -31,6 +32,8 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 	Resource::TextureManager::CreateInstance();
 	Resource::MaterialManager::CreateInstance();
 	Resource::MeshManager::CreateInstance();
+
+	m_meshMatrix = Math::Matrix4::IDENTITY;
 
 	//m_pRenderer = new Render::GLRenderImpl;
 	m_pRenderer = new Render::SoftRenderImpl;
@@ -91,10 +94,17 @@ void ZP3DEngine::RenderOneFrame( void )
 		m_pFrameListener->FrameStarted();
 	}
 
-	m_pRenderer->SetShadingModel( (Render::SHADE_MODEL)m_uiShadeMode );
+	//摄像机在移动时为了不卡顿切换至线框渲染
+	if( m_bIsMoving )
+	{
+		m_pRenderer->SetShadingModel( Render::WIREFRAME_MODEL );
+	}else{
+		m_pRenderer->SetShadingModel( (Render::SHADE_MODEL)m_uiShadeModel );
+	}
+
 	m_pRenderer->BeginDraw( m_pCamera ); 
 	
-		Resource::MeshManager::GetInstance()->DrawActiveMesh( m_pRenderer , Math::Matrix4::IDENTITY );
+		Resource::MeshManager::GetInstance()->DrawActiveMesh( m_pRenderer , m_meshMatrix );
 
 	m_pRenderer->EndDraw();
 	m_pRenderer->SwapBuffers();
@@ -162,14 +172,49 @@ void ZP3DEngine::RegisterFrameListener( IFrameListener* listener )
 	m_pFrameListener = listener;
 }
 
+
+void ZP3DEngine::ResetMesh( void )
+{
+	m_meshMatrix = Math::Matrix4::IDENTITY;
+}
+
+
 void ZP3DEngine::SwitchMesh( void )
 {
 	Resource::MeshManager::GetInstance()->SetNextMeshActive();
 }
 
-void ZP3DEngine::SwitchShadeMode( void )
+void ZP3DEngine::SwitchShadeModel( void )
 {
-	m_uiShadeMode = ( m_uiShadeMode+1 )%5;
+	m_uiShadeModel = ( m_uiShadeModel+1 )%5;
+}
+
+void ZP3DEngine::SetShadeModel( const Render::SHADE_MODEL model )
+{
+	m_uiShadeModel = model;
+}
+
+void ZP3DEngine::RotateMeshWithXAxis( const Real theta )
+{
+	m_meshMatrix = m_meshMatrix * Math::Matrix4::MakeRotateWithAxisMatrix( 
+		Math::Vec3( 1.0f , 0.0f ,0.0f ) , theta );
+}
+
+void ZP3DEngine::RotateMeshWithYAxis( const Real theta )
+{
+	m_meshMatrix = m_meshMatrix * Math::Matrix4::MakeRotateWithAxisMatrix( 
+		Math::Vec3( 0.0f , 1.0f ,0.0f ) , theta );
+}
+
+void ZP3DEngine::RotateMeshWithZAxis( const Real theta )
+{
+	m_meshMatrix = m_meshMatrix * Math::Matrix4::MakeRotateWithAxisMatrix( 
+		Math::Vec3( 0.0f , 0.0f , 1.0f ) , theta );
+}
+
+void ZP3DEngine::SetMovingFlag( const bool flag /*= true */ )
+{
+	m_bIsMoving = flag;
 }
 
 

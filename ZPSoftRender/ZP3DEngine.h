@@ -2,6 +2,7 @@
 #define ZP_ZP3DENGINE
  
 #include "ZPDependency.h"
+#include "IRender.h"
 
 class Camera;
 
@@ -36,9 +37,17 @@ public:
 	virtual Camera* GetCamera( void );
 	virtual void RenderOneFrame( void );
 
+	virtual void ResetMesh( void );
+	virtual void RotateMeshWithXAxis( const Real theta );
+	virtual void RotateMeshWithYAxis( const Real theta );
+	virtual void RotateMeshWithZAxis( const Real theta );
+
 	virtual void SwitchMesh( void );
-	virtual void SwitchShadeMode( void );
+	virtual void SwitchShadeModel( void );
+	virtual void SetShadeModel( const Render::SHADE_MODEL model );
 	virtual void RegisterFrameListener( IFrameListener* listener );
+
+	virtual void SetMovingFlag( const bool flag = true );
 
 protected:
 
@@ -49,7 +58,9 @@ protected:
 	Render::IRender* m_pRenderer;
 	Camera* m_pCamera;
 	IFrameListener* m_pFrameListener;
-	unsigned int m_uiShadeMode;
+	unsigned int m_uiShadeModel;
+	Math::Matrix4 m_meshMatrix; 
+	bool					 m_bIsMoving;				///>当前用户是否对场景进行移动
 };
 
 #endif// ZP_ZP3DENGINE
