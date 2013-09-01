@@ -180,6 +180,7 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="ZP3DEngine.h" />
     <ClInclude Include="ZPDependency.h" />
+    <ClInclude Include="ZPEngineConfig.h" />
     <ClInclude Include="ZPMathDependency.h" />
     <ClInclude Include="ZPPlatform.h" />
     <ClInclude Include="ZPPredefine.h" />

@@ -298,6 +298,7 @@ namespace Render
 	{
 		//遍历面列表剔除背向面
 		RFace* pFace = m_renderList.GetFaceList();
+		RVertex* pVerts = m_renderList.GetRTransVerts();
 
 		while( NULL != pFace )
 		{
@@ -305,8 +306,8 @@ namespace Render
 			unsigned int uiVertIndx1 = pFace->m_uiIndices[1];
 			unsigned int uiVertIndx2 = pFace->m_uiIndices[2];
 
-			Math::Vec3 v3U =m_renderList.GetRTransVerts()[uiVertIndx2].m_v3Pos - m_renderList.GetRTransVerts()[uiVertIndx0].m_v3Pos;
-			Math::Vec3 v3V = m_renderList.GetRTransVerts()[uiVertIndx1].m_v3Pos - m_renderList.GetRTransVerts()[uiVertIndx0].m_v3Pos;
+			Math::Vec3 v3U =pVerts[uiVertIndx2].m_v3Pos - pVerts[uiVertIndx0].m_v3Pos;
+			Math::Vec3 v3V = pVerts[uiVertIndx1].m_v3Pos - pVerts[uiVertIndx0].m_v3Pos;
 
 			//求出面法线
 			Math::Vec3 v3N = v3U.CrossProduct( v3V );
@@ -316,13 +317,13 @@ namespace Render
 			pFace->m_v3Normal.Normalize();
 
 			//若为背面
-			if( v3N.DotProduct( -m_renderList.GetRTransVerts()[uiVertIndx1].m_v3Pos ) <= 0.0f  )
+			if( pFace->m_v3Normal.DotProduct( -( pVerts[uiVertIndx1].m_v3Pos ) ) <= 0.0f  ) 
 			{
 				pFace->SetStateBit( RFACE_STATE_BACKFACE );
 			}else{
-				m_renderList.GetRTransVerts()[uiVertIndx0].SetStateBit( RVERT_STATE_ACTIVE );
-				m_renderList.GetRTransVerts()[uiVertIndx1].SetStateBit( RVERT_STATE_ACTIVE );
-				m_renderList.GetRTransVerts()[uiVertIndx2].SetStateBit( RVERT_STATE_ACTIVE );
+				pVerts[uiVertIndx0].SetStateBit( RVERT_STATE_ACTIVE );
+				pVerts[uiVertIndx1].SetStateBit( RVERT_STATE_ACTIVE );
+				pVerts[uiVertIndx2].SetStateBit( RVERT_STATE_ACTIVE );
 			}
 
 			pFace = pFace->m_pNext;
@@ -406,7 +407,10 @@ namespace Render
 				pVerts[uiVert].m_v3Tangent *= fInvZ;
 				pVerts[uiVert].m_v3Binormal *= fInvZ;
 			}
-		}
+
+			m_pRenderContext->IncCurrRenderVertexCount();
+
+		}//for( unsigned int uiVert = 0 ; uiVert < m_renderList.RTransVertCount() ; uiVert++ )
 	}
 
 
@@ -415,14 +419,14 @@ namespace Render
 		RFace* pFace = m_renderList.GetFaceList();
 		Math::BGRA8888_t lineColor = 
 			Math::MathUtil::ColorVecToBGRA8888( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
-
+		  
 		while( NULL != pFace )
 		{
 			if( !pFace->IsActive() )
 			{
 				pFace = pFace->m_pNext;
 				continue;
-			}
+			} 
 
 			unsigned int uiVertIndices[3];  
 			uiVertIndices[0] = pFace->m_uiIndices[0];
@@ -437,8 +441,11 @@ namespace Render
 				Math::Vec2 v2P1(  m_renderList.GetRTransVerts()[uiEndIndx].m_v3Pos.x ,  m_renderList.GetRTransVerts()[uiEndIndx].m_v3Pos.y );
 				m_rasterProcessor.DrawLineMidPoint( v2P0 , v2P1 , Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
 			} 
+
+			m_pRenderContext->IncCurrRenderFaceCount();
 			pFace = pFace->m_pNext;
 		}
+		 
 	}
 
 	void RenderPipeline::DrawFacesSolidTrianglesToFrameBuffer( void )
@@ -447,7 +454,7 @@ namespace Render
 		RVertex* pVerts = m_renderList.GetRTransVerts();
 
 		m_pixelShader.SetShadeModel( FLAT_MODEL );
-		
+		 
 		while( NULL != pFace )
 		{
 			if( !pFace->IsActive() )
@@ -470,8 +477,10 @@ namespace Render
 
 			m_rasterProcessor.DrawTriangle2D( pVerts[uiVertIndices[0]] , pVerts[uiVertIndices[1]] , pVerts[uiVertIndices[2]] , m_pixelShader );
 
+			m_pRenderContext->IncCurrRenderFaceCount();
 			pFace = pFace->m_pNext;
 		}
+		 
 	}
 
 
@@ -625,8 +634,7 @@ namespace Render
 
 	void RenderPipeline::DrawTrianglesToFrameBuffer( void )
 	{
-		RFace* pFace = m_renderList.GetFaceList();
-
+		RFace* pFace = m_renderList.GetFaceList(); 
 
 		while( NULL != pFace )
 		{
@@ -645,9 +653,11 @@ namespace Render
 				m_renderList.GetRTransVerts()[uiVertIndices[0]] , 
 				m_renderList.GetRTransVerts()[uiVertIndices[1]] ,
 				m_renderList.GetRTransVerts()[uiVertIndices[2]] , m_pixelShader );
-
+			 
+			m_pRenderContext->IncCurrRenderFaceCount();
 			pFace = pFace->m_pNext;
 		}
+		 
 	}
 
 

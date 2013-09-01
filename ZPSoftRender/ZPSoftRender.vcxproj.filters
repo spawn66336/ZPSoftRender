@@ -326,5 +326,8 @@
     <ClInclude Include="Frustum.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ZPEngineConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

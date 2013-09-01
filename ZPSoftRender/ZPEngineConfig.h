@@ -1,0 +1,7 @@
+#ifndef ZP_ENGINECONFIG
+#define ZP_ENGINECONFIG
+
+//#define ZP_GL_RENDERER
+#define ZP_SOFT_RENDERER
+
+#endif //ZP_ENGINECONFIG

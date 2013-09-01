@@ -247,6 +247,11 @@ void CModelViewerView::FrameStarted( void )
 		return;
 	}
 
+	if( this != GetFocus() )
+	{
+		return;
+	}
+
 	Real moveSpeed = 1.0f;
 	bool bMovingFlag = false;
 
@@ -298,6 +303,8 @@ void CModelViewerView::FrameStarted( void )
 		bMovingFlag = true;
 	}
 
+	 
+
 	if( GetKeyState( VK_UP ) & 0x80 )
 	{
 		m_pEngine->RotateMeshWithXAxis( 0.01f );
@@ -337,19 +344,33 @@ void CModelViewerView::FrameEnded( void )
 void CModelViewerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 { 
 
+	if( m_pEngine )
+	{ 
 
-	if( nChar == 'L' ||
-		nChar == 'l'
-		)
-	{
-		m_pEngine->SwitchShadeModel();
+		if( nChar == 'L' ||
+			nChar == 'l'
+			)
+		{
+			m_pEngine->SwitchShadeModel();
+		}
+
+		if( nChar == 'C' ||
+			nChar == 'c'
+			)
+		{
+			m_pEngine->SwitchMesh();
+		}
+
 	}
 
-	if( nChar == 'C' ||
-		nChar == 'c'
+	if( nChar == 'R'  ||
+		nChar == 'r'
 		)
 	{
-		m_pEngine->SwitchMesh();
+		if( m_pCamera )
+		{
+			m_pCamera->Reset();
+		}
 	}
 	__super::OnChar(nChar, nRepCnt, nFlags);
 }

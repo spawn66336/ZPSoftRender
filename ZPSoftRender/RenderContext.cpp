@@ -8,13 +8,23 @@ namespace Render
 RenderContext::RenderContext(void):
 m_hWnd(NULL),
 m_hDC(NULL),
+m_hBackDC( NULL ),
+m_hOldBitmap( NULL ),
+m_hBackBuffer(NULL),
 m_aspect(1.0f),
 m_enableTexture2D(false),	
 m_enableDepthTest(false),		
 m_enableLighting(false),
 m_pCurrMaterial( NULL ),
 m_colorFrameBuf( 0 , 0 , 4 ),
-m_zFrameBuf( 0 , 0 , 4 )
+m_zFrameBuf( 0 , 0 , 4 ),
+m_iCurrRenderVertexCount(0),
+m_iCurrRenderFaceCount(0),
+m_iCurrFrameMS(0),
+m_iFrameCount(0),
+m_iTotalTicks(0),
+m_uiTickTag(0),
+m_fFPS(0.0f)
 {
 }
 
@@ -28,12 +38,25 @@ void RenderContext::Init( const winHandle_t hwnd )
 {
 	ZP_ASSERT( NULL != hwnd );
 	m_hWnd = hwnd;
+	m_hDC = ::GetDC( m_hWnd ); 
+	m_hBackDC = ::CreateCompatibleDC( m_hDC );
 	this->Resize();
-	m_hDC = ::GetDC( m_hWnd );
 }
 
 void RenderContext::Destroy( void )
 {
+	if( NULL != m_hBackBuffer )
+	{
+		::DeleteObject( m_hBackBuffer );
+		m_hBackBuffer = NULL;
+	}
+
+	if( NULL != m_hBackDC )
+	{
+		::DeleteDC( m_hBackDC );
+		m_hBackDC = NULL;
+	}
+
 	::ReleaseDC( m_hWnd , m_hDC );
 	m_hDC = NULL;
 	m_hWnd = NULL;
@@ -54,6 +77,18 @@ void RenderContext::Resize( void )
 
 	m_colorFrameBuf.Resize( iWndWidth , iWndHeight );
 	m_zFrameBuf.Resize( iWndWidth , iWndHeight );
+
+	if( NULL != m_hBackBuffer )
+	{
+		::DeleteObject( m_hBackBuffer );
+		m_hBackBuffer = NULL;
+	}
+
+	m_hBackBuffer = 
+		::CreateCompatibleBitmap( m_hDC , 
+		static_cast<int>( m_colorFrameBuf.Width() ) ,  
+		static_cast<int>( m_colorFrameBuf.Height() ) );
+
 
 	//更新透视坐标到屏幕坐标变换矩阵
 	Real alpha = 0.5f * (Real)iWndWidth - 0.5f;
@@ -190,21 +225,47 @@ void RenderContext::ClearBuffer( unsigned int flag )
 }
 
 void RenderContext::SwapBuffers( void )
+{  
+	::BitBlt( m_hDC , 0 , 0 , m_colorFrameBuf.Width() , m_colorFrameBuf.Height() , 
+			   m_hBackDC , 0 , 0, SRCCOPY );
+
+	SelectObject( m_hBackDC , m_hOldBitmap ); 
+
+	m_iCurrFrameMS = static_cast<int>( ::GetTickCount() - m_uiTickTag );
+	m_iTotalTicks += m_iCurrFrameMS;
+	IncFrameCounter();
+
+	if( m_iFrameCount >= 10 )
+	{
+		m_fFPS = 1000.0f / ( static_cast<Real>( m_iTotalTicks ) / static_cast<Real>( m_iFrameCount ) );
+
+		if( m_fFPS > 500.0f )
+		{
+			m_fFPS = 500.0f;
+		}
+
+		m_iTotalTicks = 0;
+		m_iFrameCount = 0;
+	}
+	
+}
+
+
+void RenderContext::CopyColorBufferToBackBuffer( void )
 { 
-	int iResult = 0;  
-	::SetStretchBltMode( m_hDC , COLORONCOLOR );
+	int iResult = 0;   
+	 
+	::SetStretchBltMode( m_hBackDC , COLORONCOLOR );
 	BITMAPINFO bitmapInfo;
 	m_colorFrameBuf.FillBitmapInfo( bitmapInfo ); 
 
 	iResult = ::SetDIBitsToDevice( 
-								m_hDC , 0 , 0 , m_colorFrameBuf.Width() , m_colorFrameBuf.Height() ,
-								0 , 0 , 0 , m_colorFrameBuf.Height() , 
-								m_colorFrameBuf.Pixels() , &bitmapInfo , DIB_RGB_COLORS 
-								); 
-
-	DWORD dwLastErr = ::GetLastError();
-	 
+			m_hBackDC , 0 , 0 , m_colorFrameBuf.Width() , m_colorFrameBuf.Height() ,
+			0 , 0 , 0 , m_colorFrameBuf.Height() , 
+			m_colorFrameBuf.Pixels() , &bitmapInfo , DIB_RGB_COLORS 
+		); 
 }
+
 
 void RenderContext::SetCurrMaterial(  Resource::Material* pMat )
 {
@@ -237,9 +298,21 @@ void RenderContext::SetWorldToCameraMatrix( const Math::Matrix4& mat )
 
 void RenderContext::DrawText( const int x , const int y , const String& str )
 { 
-	::SetBkColor( m_hDC , RGB(0,0,0) );
-	::SetTextColor( m_hDC , RGB(150,150,150 ) );
-	::TextOutA( m_hDC , x , y , str.c_str() , str.length() );
+	::SetBkColor( m_hBackDC , RGB(0,0,0) );
+	::SetTextColor( m_hBackDC , RGB(150,150,150 ) );
+	::TextOutA( m_hBackDC , x , y , str.c_str() , str.length() );
+}
+
+void RenderContext::PrepareBackBuffer( void )
+{
+	m_hOldBitmap =  static_cast<HBITMAP>( ::SelectObject( m_hBackDC , m_hBackBuffer ) );
+	m_uiTickTag = ::GetTickCount();
+}
+
+void RenderContext::ClearAllCounters( void )
+{ 
+	m_iCurrRenderVertexCount = 0;
+	m_iCurrRenderFaceCount = 0;
 }
 
  

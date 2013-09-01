@@ -16,7 +16,7 @@ m_pRenderer(NULL),
 m_pCamera(NULL),
 m_pFrameListener(NULL)
 {
-	m_uiShadeModel = Render::WIREFRAME_MODEL;
+	m_uiShadeModel = Render::NORMMAP_MODEL;
 }
 
 ZP3DEngine::~ZP3DEngine(void)
@@ -35,8 +35,12 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 
 	m_meshMatrix = Math::Matrix4::IDENTITY;
 
-	//m_pRenderer = new Render::GLRenderImpl;
+#	if defined( ZP_GL_RENDERER ) 
+	m_pRenderer = new Render::GLRenderImpl;
+#	elif defined( ZP_SOFT_RENDERER )
 	m_pRenderer = new Render::SoftRenderImpl;
+#endif
+
 	m_pRenderer->Init( hwnd );
 	m_pRenderer->SetClearColor( Math::Vec4( 0.0f,0.0f,0.0f,1.0f) );
 	m_pRenderer->EnableLight( true );

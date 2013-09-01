@@ -11,7 +11,7 @@ namespace Render
 SoftRenderImpl::SoftRenderImpl(void):
 m_pRenderContext(NULL),
 m_pRenderPipe(NULL),
-m_shadeModel( WIREFRAME_MODEL )
+m_shadeModel( NORMMAP_MODEL )
 {
 	m_pRenderContext = new RenderContext;
 } 
@@ -53,18 +53,20 @@ void SoftRenderImpl::BeginDraw( Camera* pCam )
 	m_pRenderContext->SetWorldToCameraMatrix( pCam->GetCameraMatrix() );
 	m_pRenderContext->LoadIdentity();
 	m_pRenderContext->LoadMatrix( pCam->GetCameraMatrix() );
+	m_pRenderContext->PrepareBackBuffer();
+	m_pRenderContext->ClearAllCounters();
 }
 
 void SoftRenderImpl::EndDraw( void )
-{  
-	
+{   
+	m_pRenderContext->CopyColorBufferToBackBuffer();
+	PrintRenderInfo();
 }
 
 void SoftRenderImpl::SwapBuffers( void )
 {
 	m_pRenderContext->SwapBuffers();
 
-	PrintRenderInfo();
 }
 
 void SoftRenderImpl::SetClearColor( const Math::Vec4& color )
@@ -197,9 +199,49 @@ void SoftRenderImpl::PrintRenderInfo( void )
 	y += dy;
 	m_pRenderContext->DrawText( x , y , "按 'L' 键切换着色模式");
 	y += dy;
+	m_pRenderContext->DrawText( x , y , "按 'R' 键复位摄像机");
+	y += dy;
+	m_pRenderContext->DrawText( x , y , "按 'Q' 'E' 键摄像机摇摆");
+	y += dy;
 	m_pRenderContext->DrawText( x , y , "WSAD + 鼠标 控制摄像机");
 	y += dy;
 	m_pRenderContext->DrawText( x , y , "方向键 控制模型旋转");
+
+	String strFaceCount;
+	std::ostringstream   ostr;   
+	ostr<<"渲染面数:"<<
+		m_pRenderContext->GetCurrRenderFaceCount();
+	strFaceCount = ostr.str();
+
+	y += 2*dy;
+	m_pRenderContext->DrawText( x , y , strFaceCount );
+
+	String strVertCount;
+	ostr.str("");
+	ostr<<"渲染顶点数:"<<
+		m_pRenderContext->GetCurrRenderVertexCount();
+	strVertCount = ostr.str();
+
+	y += dy;
+	m_pRenderContext->DrawText( x , y , strVertCount );
+
+	String strFMS;
+	ostr.str("");
+	ostr<<"当前帧用时:"<<
+		m_pRenderContext->GetCurrFrameMS();
+	strFMS = ostr.str();
+	y += dy;
+	m_pRenderContext->DrawText( x , y , strFMS );
+
+	String strFPS;
+	ostr.str("");
+	ostr<<"FPS:"<<
+		m_pRenderContext->GetFPS();
+	strFPS = ostr.str();
+	y += dy;
+	m_pRenderContext->DrawText( x , y , strFPS );
+
+
 }
 
 
