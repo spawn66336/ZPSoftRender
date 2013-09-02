@@ -56,6 +56,8 @@ protected:
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
+public:
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
 
 

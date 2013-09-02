@@ -230,6 +230,7 @@ namespace Render
 		}
 
 		Real dt = 1.0f / static_cast<Real>( xe - xs  );
+		//Real dt = 1.0f / ( v1.m_v3Pos.x - v0.m_v3Pos.x );
 		Real t = 0.0f;
 
 		for( int x = xs ; x <= xe ; x++ )
@@ -335,12 +336,12 @@ namespace Render
 		RVertex rvRightErr = rvDVertRight * fErrFactor;
 		Real fLeftErr = rvLeftErr.m_v3Pos.x;
 		Real fRightErr = rvRightErr.m_v3Pos.x;
-
+		 
 		for( int y = static_cast<int>(fYStart) ; y <= static_cast<int>(fYEnd) ; y++ )
 		{
 			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x + fLeftErr);
 			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  + fRightErr ) - 1;
-
+			 
 			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
 				rvVertStart + rvLeftErr , rvVertEnd + rvRightErr , shader );
 

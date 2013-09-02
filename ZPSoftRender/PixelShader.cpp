@@ -60,9 +60,9 @@ namespace Render
 		if( bNormmapShading )
 		{
 			Math::Vec4 v4FinalColor;
-			Math::Vec3 v3Normal = v.m_v3Normal * fProjCorrectionFactor;
-			Math::Vec3 v3Tangent = v.m_v3Tangent * fProjCorrectionFactor;
-			Math::Vec3 v3Binormal = v.m_v3Binormal * fProjCorrectionFactor;
+			Math::Vec3 v3Normal = v.m_v3Normal /** fProjCorrectionFactor*/;
+			Math::Vec3 v3Tangent = v.m_v3Tangent /** fProjCorrectionFactor*/;
+			Math::Vec3 v3Binormal = v.m_v3Binormal /** fProjCorrectionFactor*/;
 
 			lightTable_t::iterator itLight = m_lights.begin();
 			while( itLight != m_lights.end() )
@@ -117,15 +117,14 @@ namespace Render
 		{ 
 			Math::Vec4 v4FinalColor;
 			Math::Vec3 v3Normal = v.m_v3Normal;
-			v3Normal *= fProjCorrectionFactor;
+			/*v3Normal *= fProjCorrectionFactor;*/
 			v3Normal.Normalize();
 
 			lightTable_t::iterator itLight = m_lights.begin();
 			while( itLight != m_lights.end() )
 			{
 				Math::Vec4 v4LightPos =  (*itLight)->GetPosInCamera();
-
-
+				 
 				 Math::Vec3 v3Viewer = -(v.m_v3PosInCam); 
 				 v3Viewer.Normalize();
 				 Math::Vec3 v3LightDir = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3PosInCam; 
@@ -197,42 +196,72 @@ namespace Render
 	{
 		if( NULL != m_pTexture )
 		{
-			int x = 0 , y = 0;
+			int iu = 0 , iv = 0;
+			Math::Vec2 v2FinalUV;
+			CalcTexcoord( v2Texcoord , v2FinalUV , iu , iv ); 
 
-			if( m_uiWrapType == WRAP_CLAMP )
-			{
-
-				Real u = Math::MathUtil::Clamp( v2Texcoord.x , 0.0f , 1.0f );
-				Real v = Math::MathUtil::Clamp( v2Texcoord.y , 0.0f , 1.0f );  
-				 x = static_cast<int>( static_cast<Real>( m_pTexture->Width() - 1 ) * u );
-				 y = static_cast<int>( static_cast<Real>( m_pTexture->Height() - 1 ) * v );
-			}else if( m_uiWrapType == WRAP_REPEAT ){
-
-				Real u = Math::MathUtil::Fract( v2Texcoord.x );
-				Real v = Math::MathUtil::Fract( v2Texcoord.y );
-
-				if( u < 0.0f ) 
-				{
-					u += 1.0f;
-				}
-
-				if( v < 0.0f )
-				{
-					v += 1.0f;
-				}
-
-				x = static_cast<int>( static_cast<Real>( m_pTexture->Width() - 1 ) * u );
-				y = static_cast<int>( static_cast<Real>( m_pTexture->Height() - 1 ) * v );
-
-				x %= (int)( m_pTexture->Width() );
-				y %= (int)( m_pTexture->Height() );
-			}
-
+			Real du = v2FinalUV.x - static_cast<Real>( static_cast<int>( v2FinalUV.x ) );
+			Real dv = v2FinalUV.y - static_cast<Real>( static_cast<int>( v2FinalUV.y ) );
+			Real one_mius_du = 1.0f - du;
+			Real one_mius_dv = 1.0f - dv;
+			int one_plus_x = ( 1+iu ) % static_cast<int>( m_pTexture->Width() );
+			int one_plus_y = ( 1+iv ) % static_cast<int>( m_pTexture->Height() );
+			 
 			Math::RGBA8888_t color = 0;
-			memcpy( &color , &m_pTexture->Pixels()[y*m_uiLineOffset + x*m_uiBytesPerPixel] , m_uiBytesPerPixel );
-			return Math::MathUtil::RGBA8888ToVec4( color );
+			memcpy( &color , &m_pTexture->Pixels()[iv*m_uiLineOffset + iu*m_uiBytesPerPixel] , m_uiBytesPerPixel );
+			Math::Vec4 v4Color0 = Math::MathUtil::RGBA8888ToVec4( color );
+			memcpy( &color , &m_pTexture->Pixels()[iv*m_uiLineOffset + one_plus_x*m_uiBytesPerPixel] , m_uiBytesPerPixel );
+			Math::Vec4 v4Color1 = Math::MathUtil::RGBA8888ToVec4( color );
+			memcpy( &color , &m_pTexture->Pixels()[one_plus_y*m_uiLineOffset + one_plus_x*m_uiBytesPerPixel] , m_uiBytesPerPixel );
+			Math::Vec4 v4Color2 = Math::MathUtil::RGBA8888ToVec4( color );
+			memcpy( &color , &m_pTexture->Pixels()[one_plus_y*m_uiLineOffset + iu*m_uiBytesPerPixel] , m_uiBytesPerPixel );
+			Math::Vec4 v4Color3 = Math::MathUtil::RGBA8888ToVec4( color );
+
+			return one_mius_du*one_mius_dv*v4Color0 + 
+					   du*one_mius_dv*v4Color1 + 
+				       du*dv*v4Color2 + 
+				       one_mius_du*dv*v4Color3;
 		}
 		return Math::Vec4(1.0f,1.0f,1.0f,1.0f);
+	}
+
+	void Texture2DSampler::CalcTexcoord( Math::Vec2& v2Texcoord , Math::Vec2& v2FinalUV , int& iu , int& iv )
+	{
+		if( m_uiWrapType == WRAP_CLAMP )
+		{
+
+			Real u = Math::MathUtil::Clamp( v2Texcoord.x , 0.0f , 1.0f );
+			Real v = Math::MathUtil::Clamp( v2Texcoord.y , 0.0f , 1.0f );  
+
+			v2FinalUV.x = static_cast<Real>( m_pTexture->Width() - 1 ) * u;
+			v2FinalUV.y = static_cast<Real>( m_pTexture->Height() - 1 ) * v;
+
+			iu = static_cast<int>( v2FinalUV.x );
+			iv = static_cast<int>( v2FinalUV.y );
+		}else if( m_uiWrapType == WRAP_REPEAT ){
+
+			Real u = Math::MathUtil::Fract( v2Texcoord.x );
+			Real v = Math::MathUtil::Fract( v2Texcoord.y );
+
+			if( u < 0.0f ) 
+			{
+				u += 1.0f;
+			}
+
+			if( v < 0.0f )
+			{
+				v += 1.0f;
+			}
+
+			v2FinalUV.x = static_cast<Real>( m_pTexture->Width() - 1 ) * u;
+			v2FinalUV.y = static_cast<Real>( m_pTexture->Height() - 1 ) * v;
+
+			iu = static_cast<int>( v2FinalUV.x );
+			iv = static_cast<int>( v2FinalUV.y );
+
+			iu %= (int)( m_pTexture->Width() );
+			iv %= (int)( m_pTexture->Height() );
+		}
 	}
 
 

@@ -188,7 +188,9 @@ int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CModelViewerView::OnSize(UINT nType, int cx, int cy)
 {
+	
 	CView::OnSize(nType, cx, cy);
+	
 
 	if( m_pEngine )
 	{
@@ -334,6 +336,8 @@ void CModelViewerView::FrameStarted( void )
 		bMovingFlag = true;
 	}
 
+	//禁用掉拖动时变为线框渲染
+	bMovingFlag = false;
 	m_pEngine->SetMovingFlag( bMovingFlag );
 }
 

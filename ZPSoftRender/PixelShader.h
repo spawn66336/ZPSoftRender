@@ -37,6 +37,8 @@ namespace Render
 
 		void SetWrapType( const unsigned int type ){ m_uiWrapType = type; }
 
+		void CalcTexcoord( Math::Vec2& v2Texcoord  , Math::Vec2& v2FinalUV , int& iu , int& iv );
+
 	protected: 
 		Resource::Texture2D* m_pTexture;
 		unsigned int m_uiBytesPerPixel;

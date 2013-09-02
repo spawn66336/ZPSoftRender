@@ -26,6 +26,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_SETTINGCHANGE()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -402,4 +403,33 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
 	m_wndOutput.UpdateFonts();
+}
+
+
+void CMainFrame::OnSize(UINT nType, int cx, int cy)
+{
+	BOOL bIsSizeOutOfBound = FALSE;
+
+	if( cx > 800 )
+	{
+		cx = 800;
+		bIsSizeOutOfBound = TRUE;
+	}
+
+	if( cy > 600 )
+	{
+		cy = 600;
+		bIsSizeOutOfBound = TRUE;
+	}
+
+	if( bIsSizeOutOfBound )
+	{
+		CRect rect;
+		GetClientRect( &rect );
+		SetWindowPos( &wndTopMost , 0 , 0 , cx , cy , SWP_NOMOVE ); 
+		return;
+	}
+
+	CFrameWndEx::OnSize(nType, cx, cy);
+	 
 }
