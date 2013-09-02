@@ -60,23 +60,23 @@ namespace Render
 		if( bNormmapShading )
 		{
 			Math::Vec4 v4FinalColor;
-			Math::Vec3 v3Normal = v.m_v3Normal /** fProjCorrectionFactor*/;
-			Math::Vec3 v3Tangent = v.m_v3Tangent /** fProjCorrectionFactor*/;
-			Math::Vec3 v3Binormal = v.m_v3Binormal /** fProjCorrectionFactor*/;
+			Math::Vec3 v3Normal = v.m_v3Normal * fProjCorrectionFactor;
+			Math::Vec3 v3Tangent = v.m_v3Tangent * fProjCorrectionFactor;
+			Math::Vec3 v3Binormal = v.m_v3Binormal * fProjCorrectionFactor;
 
 			lightTable_t::iterator itLight = m_lights.begin();
 			while( itLight != m_lights.end() )
 			{
 				Math::Vec4 v4LightPos =  (*itLight)->GetPosInCamera(); 
 
-				Math::Vec3 View = -(v.m_v3PosInCam); 
+				Math::Vec3 View = -(v.m_v3PosInCam* fProjCorrectionFactor ); 
 				Math::Vec3 v3Viewer;
 				v3Viewer.x = View.DotProduct( v3Tangent );
 				v3Viewer.y = View.DotProduct( v3Binormal );
 				v3Viewer.z = View.DotProduct( v3Normal );
 				v3Viewer.Normalize(); 
 				  
-				Math::Vec3 LightVec = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3PosInCam;
+				Math::Vec3 LightVec = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3PosInCam* fProjCorrectionFactor;
 				Math::Vec3 v3LightDir;
 				v3LightDir.x = LightVec.DotProduct( v3Tangent );
 				v3LightDir.y = LightVec.DotProduct( v3Binormal );
@@ -117,7 +117,7 @@ namespace Render
 		{ 
 			Math::Vec4 v4FinalColor;
 			Math::Vec3 v3Normal = v.m_v3Normal;
-			/*v3Normal *= fProjCorrectionFactor;*/
+			v3Normal *= fProjCorrectionFactor;
 			v3Normal.Normalize();
 
 			lightTable_t::iterator itLight = m_lights.begin();
@@ -125,9 +125,9 @@ namespace Render
 			{
 				Math::Vec4 v4LightPos =  (*itLight)->GetPosInCamera();
 				 
-				 Math::Vec3 v3Viewer = -(v.m_v3PosInCam); 
+				 Math::Vec3 v3Viewer = -( v.m_v3PosInCam * fProjCorrectionFactor); 
 				 v3Viewer.Normalize();
-				 Math::Vec3 v3LightDir = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3PosInCam; 
+				 Math::Vec3 v3LightDir = Math::Vec3( v4LightPos.x , v4LightPos.y , v4LightPos.z ) - v.m_v3PosInCam* fProjCorrectionFactor; 
 				 v3LightDir.Normalize();
 
 				 Math::Vec3 v3H = ( v3Viewer + v3LightDir ).NormalisedCopy();

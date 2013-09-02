@@ -396,9 +396,10 @@ namespace Render
 				pVerts[uiVert].m_v4Color *= fInvZ;
 			}
 
-		/*	if( m_pixelShader.GetShadeModel() == PHONG_MODEL ||
+			if( m_pixelShader.GetShadeModel() == PHONG_MODEL ||
 				m_pixelShader.GetShadeModel() == NORMMAP_MODEL )
 			{
+				pVerts[uiVert].m_v3PosInCam *= fInvZ;
 				pVerts[uiVert].m_v3Normal *= fInvZ;
 			}
 			
@@ -406,7 +407,7 @@ namespace Render
 			{
 				pVerts[uiVert].m_v3Tangent *= fInvZ;
 				pVerts[uiVert].m_v3Binormal *= fInvZ;
-			}*/
+			}
 
 			m_pRenderContext->IncCurrRenderVertexCount();
 
@@ -475,7 +476,11 @@ namespace Render
 			Math::Vec2 v2P1( pVerts[uiVertIndices[1]].m_v3Pos.x , pVerts[uiVertIndices[1]].m_v3Pos.y );
 			Math::Vec2 v2P2( pVerts[uiVertIndices[2]].m_v3Pos.x , pVerts[uiVertIndices[2]].m_v3Pos.y ); 
 
-			m_rasterProcessor.DrawTriangle2D( pVerts[uiVertIndices[0]] , pVerts[uiVertIndices[1]] , pVerts[uiVertIndices[2]] , m_pixelShader );
+			m_rasterProcessor.DrawTriangle2D( 
+				pVerts[uiVertIndices[0]] , 
+				pVerts[uiVertIndices[1]] , 
+				pVerts[uiVertIndices[2]] , 
+				m_pixelShader );
 
 			m_pRenderContext->IncCurrRenderFaceCount();
 			pFace = pFace->m_pNext;
@@ -635,6 +640,7 @@ namespace Render
 	void RenderPipeline::DrawTrianglesToFrameBuffer( void )
 	{
 		RFace* pFace = m_renderList.GetFaceList(); 
+		RVertex* pVerts = m_renderList.GetRTransVerts();
 
 		while( NULL != pFace )
 		{
@@ -650,9 +656,9 @@ namespace Render
 			uiVertIndices[2] = pFace->m_uiIndices[2];
 
 			m_rasterProcessor.DrawTriangle2D( 
-				m_renderList.GetRTransVerts()[uiVertIndices[0]] , 
-				m_renderList.GetRTransVerts()[uiVertIndices[1]] ,
-				m_renderList.GetRTransVerts()[uiVertIndices[2]] , m_pixelShader );
+				pVerts[uiVertIndices[0]] , 
+				pVerts[uiVertIndices[1]] ,
+				pVerts[uiVertIndices[2]] , m_pixelShader );
 			 
 			m_pRenderContext->IncCurrRenderFaceCount();
 			pFace = pFace->m_pNext;

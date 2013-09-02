@@ -323,27 +323,22 @@ namespace Render
 
 		RVertex rvDVertLeft = ( rvVert1 - rvVert0 ) * fInvDet;
 		RVertex rvDVertRight = ( rvVert2 - rvVert0 ) * fInvDet;
-		 
-		RVertex rvVertStart = rvVert0;
-		RVertex rvVertEnd = rvVert0; 
 
 		Real fYStart =  Math::MathUtil::Ceil( rvVert0.m_v3Pos.y );
 		Real fYEnd   =  Math::MathUtil::Ceil( rvVert1.m_v3Pos.y ) - 1;
 
 		Real fErrFactor = ( fYStart - rvVert0.m_v3Pos.y );
-		
-		RVertex rvLeftErr = rvDVertLeft * fErrFactor;
-		RVertex rvRightErr = rvDVertRight * fErrFactor;
-		Real fLeftErr = rvLeftErr.m_v3Pos.x;
-		Real fRightErr = rvRightErr.m_v3Pos.x;
+		  
+		RVertex rvVertStart = rvVert0 + rvDVertLeft * fErrFactor;
+		RVertex rvVertEnd = rvVert0  + rvDVertRight * fErrFactor;  
 		 
 		for( int y = static_cast<int>(fYStart) ; y <= static_cast<int>(fYEnd) ; y++ )
 		{
-			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x + fLeftErr);
-			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  + fRightErr ) - 1;
+			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x );
+			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x ) - 1;
 			 
 			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
-				rvVertStart + rvLeftErr , rvVertEnd + rvRightErr , shader );
+									rvVertStart  , rvVertEnd  , shader );
 
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
@@ -363,27 +358,24 @@ namespace Render
 		Real fInvDet = 1.0f / ( rvVert2.m_v3Pos.y - rvVert0.m_v3Pos.y ); 
 
 		RVertex rvDVertLeft = ( rvVert2 - rvVert0 ) * fInvDet;
-		RVertex rvDVertRight = ( rvVert2 - rvVert1 ) * fInvDet; 
-
-		RVertex rvVertStart = rvVert0;
-		RVertex rvVertEnd = rvVert1; 
+		RVertex rvDVertRight = ( rvVert2 - rvVert1 ) * fInvDet;  
 
 		Real fYStart =  Math::MathUtil::Ceil( rvVert0.m_v3Pos.y );
 		Real fYEnd   =  Math::MathUtil::Ceil( rvVert2.m_v3Pos.y ) - 1;
 
-		Real fErrFactor = ( fYStart - rvVert0.m_v3Pos.y ); 
-		RVertex rvLeftErr = rvDVertLeft * fErrFactor;
-		RVertex rvRightErr = rvDVertRight * fErrFactor;
-		Real fLeftErr = rvLeftErr.m_v3Pos.x;
-		Real fRightErr = rvRightErr.m_v3Pos.x;
+		Real fErrFactor = ( fYStart - rvVert0.m_v3Pos.y );  
+
+		RVertex rvVertStart = rvVert0 + rvDVertLeft * fErrFactor;
+		RVertex rvVertEnd = rvVert1 + rvDVertRight * fErrFactor; 
+		 
 
 		for( int y = static_cast<int>( fYStart ) ; y <= static_cast<int>( fYEnd ) ; y++ )
-		{
-			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x + fLeftErr );
-			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  + fRightErr ) - 1;
+		{ 
+			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x );
+			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  ) - 1;
 
 			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
-				rvVertStart + rvLeftErr , rvVertEnd + rvRightErr, shader );
+				rvVertStart   , rvVertEnd  , shader );
 
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
