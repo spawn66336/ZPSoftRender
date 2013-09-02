@@ -336,9 +336,16 @@ namespace Render
 		{
 			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x );
 			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x ) - 1;
+
+			Real fInvOriginLen = 1.0f /(  rvVertEnd.m_v3Pos.x - rvVertStart.m_v3Pos.x );
+			Real fT1 = ( fXStart - rvVertStart.m_v3Pos.x ) * fInvOriginLen;
+			Real fT2 = ( fXEnd - rvVertStart.m_v3Pos.x ) * fInvOriginLen;
+			
+			RVertex rvAttriStart = rvVertStart + ( rvVertEnd - rvVertStart )*fT1;
+			RVertex rvAttriEnd = rvVertStart + ( rvVertEnd - rvVertStart )*fT2;
 			 
 			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
-									rvVertStart  , rvVertEnd  , shader );
+									rvAttriStart  , rvAttriEnd  , shader );
 
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
@@ -374,8 +381,15 @@ namespace Render
 			Real fXStart = Math::MathUtil::Ceil( rvVertStart.m_v3Pos.x );
 			Real fXEnd	= Math::MathUtil::Ceil( rvVertEnd.m_v3Pos.x  ) - 1;
 
+			Real fInvOriginLen = 1.0f /(  rvVertEnd.m_v3Pos.x - rvVertStart.m_v3Pos.x );
+			Real fT1 = ( fXStart - rvVertStart.m_v3Pos.x ) * fInvOriginLen;
+			Real fT2 = ( fXEnd - rvVertStart.m_v3Pos.x ) * fInvOriginLen;
+
+			RVertex rvAttriStart = rvVertStart + ( rvVertEnd - rvVertStart )*fT1;
+			RVertex rvAttriEnd = rvVertStart + ( rvVertEnd - rvVertStart )*fT2;
+
 			DrawScanLine(  y , static_cast<int>( fXStart ) , static_cast<int>( fXEnd ) , 
-				rvVertStart   , rvVertEnd  , shader );
+				rvAttriStart   , rvAttriEnd  , shader );
 
 			rvVertStart += rvDVertLeft;
 			rvVertEnd += rvDVertRight; 
