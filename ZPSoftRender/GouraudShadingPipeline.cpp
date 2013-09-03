@@ -17,7 +17,7 @@ GouraudShadingPipeline::~GouraudShadingPipeline(void)
  
 void GouraudShadingPipeline::RunLightingStage( void )
 {
-	CalcPerVertexLightInCameraSpace();
+	CalcPerVertexLightingInCameraSpace();
 }
 
 void GouraudShadingPipeline::RunRasterizationStage( void )

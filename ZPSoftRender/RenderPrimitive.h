@@ -31,8 +31,7 @@ namespace Render
 
 		void PrimitiveType( const PRIMITIVE_TYPE type ){ m_primType = type; }
 		 
-		void Clear(void);
-		  
+		void Clear(void); 
 
 		unsigned int* Indices(void);
 

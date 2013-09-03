@@ -16,7 +16,7 @@ namespace Render
 
 	void FlatShadingPipeline::RunLightingStage( void )
 	{
-		CalcLightInCameraSpace();
+		CalcPerFaceLightingInCameraSpace();
 	}
 
 

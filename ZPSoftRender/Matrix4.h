@@ -42,18 +42,48 @@ namespace Math
 
 		~Matrix4(void){}
 
+		/**
+		* @brief 获得行向量
+		* @param iRow 行索引
+		* @return 返回索引处行向量
+		*/
 		Vec4 GetRow( const int iRow ) const;
 
+		/**
+		* @brief 获得列向量
+		* @param iCol 列索引
+		* @return 返回索引处列向量
+		*/
 		Vec4 GetColumn( const int iCol ) const;
 
+		/**
+		* @brief 设置行向量
+		* @param iRow 行索引
+		* @param vec 待设置行向量
+		*/
 		void SetRow( const int iRow , const Vec4& vec  );
 
+		/**
+		* @brief 设置列向量
+		* @param iCol 列索引
+		* @param vec 待设置列向量
+		*/
 		void SetColumn( const int iCol , const Vec4& vec );
 
+		/**
+		* @brief 获得矩阵的旋转3x3矩阵
+		*/
 		Matrix3 GetRotatePart( void ) const;
 
+		/**
+		* @brief 获得矩阵的平移向量
+		*/
 		Vec3 GetTranslationPart( void ) const;
 
+		/**
+		* @brief 对矩阵进行转置
+		* @return 返回转置后的矩阵
+		*/
 		inline Matrix4 Transpose(void) const
 		{
 			return Matrix4(
@@ -64,7 +94,9 @@ namespace Math
 			);
 		}
 
-
+		/**
+		* @brief 对传入的矩阵进行右乘
+		*/
 		inline Matrix4 Concat( const Matrix4& m2 ) const
 		{
 			Matrix4 rs;

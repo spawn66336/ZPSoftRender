@@ -111,12 +111,6 @@
     <ClCompile Include="FrameBuffer.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
-    <ClCompile Include="ColorFrameBuffer.cpp">
-      <Filter>源文件\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthFrameBuffer.cpp">
-      <Filter>源文件\Render</Filter>
-    </ClCompile>
     <ClCompile Include="RenderPipelineFactory.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
@@ -266,12 +260,6 @@
     <ClInclude Include="FrameBuffer.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
-    <ClInclude Include="ColorFrameBuffer.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthFrameBuffer.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
     <ClInclude Include="RenderPipelineFactory.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
@@ -323,11 +311,11 @@
     <ClInclude Include="Plane.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Frustum.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ZPEngineConfig.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>头文件\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -65,7 +65,7 @@ namespace Render
 		Math::Vec3 m_v3Tangent;		///>顶点Tangent向量
 		Math::Vec3 m_v3Binormal;		///>顶点Binormal向量
 		Math::Vec4 m_v4Color;				///>顶点颜色
-		unsigned int m_uiState;			
+		unsigned int m_uiState;			///>渲染顶点的状态
 		unsigned int m_uiAttri;				///>渲染顶点属性
 	};
 
@@ -114,19 +114,59 @@ namespace Render
 		RenderList(void);
 		~RenderList(void);
 
+		/**
+		* @brief 拷贝渲染几何体到渲染列表
+		* @param  primitive 待拷贝的渲染几何体
+		* @remark 从渲染几何体拷贝顶点与面到渲染列表，渲染列表会根据
+		*				  传入的渲染几何体分配空间，此空间的分配全部来自帧
+		*				  帧栈分配器所以无需释放。
+		*/
 		void CopyFromRenderPrimitive( RenderPrimitive& primitive );
 
-		void AddFace( const RFace& face );
 
+
+		/**
+		* @brief 清空渲染列表
+		* @remark 由于渲染列表中所有内容都来自帧栈分配器
+		*				  所以此函数并不会真释放分配空间而是将自身
+		*				  的指针与计数器清零
+		*/
 		void Clear( void );
 
+		/**
+		* @brief 原始顶点列表中顶点数
+		*/
 		inline unsigned int VertCount(void) const { return m_uiVertCount; }
 
+		/**
+		* @brief 面数
+		*/
 		inline unsigned int FaceCount(void) const { return m_uiFaceCount; }
 
+		/**
+		* @brief 返回变换后的顶点列表中顶点数
+		*/
 		inline unsigned int RTransVertCount( void ) const { return m_uiTransVertCount; }
 
+		/**
+		* @brief 变换后的顶点列表的总容量
+		*/
 		inline unsigned int RTransVertCapacity( void ) const { return m_uiTransVertsCapacity; }
+
+		/**
+		* @brief 获得原始顶点列表
+		*/
+		inline RVertex* GetRVerts( void ) const { return m_pRVerts; }
+
+		/**
+		* @brief 获得变换后的顶点列表
+		*/
+		inline RVertex* GetRTransVerts( void ) const { return m_pRTransVerts; }
+
+		/**
+		* @brief 获得面列表
+		*/
+		inline RFace*   GetFaceList( void ) const { return m_pFace; }
 
 		/**
 		* @brief 向变换过的顶点列表中加入新顶点
@@ -135,18 +175,18 @@ namespace Render
 		*/
 		unsigned int AddTransVert( const RVertex& vert );
 
-		inline RVertex* GetRVerts( void ) const { return m_pRVerts; }
-
-		inline RVertex* GetRTransVerts( void ) const { return m_pRTransVerts; }
-
-		inline RFace*    GetFaceList( void ) const { return m_pFace; }
+				/**
+		* @brief 将面加入到渲染列表中
+		* @param face 待加入的面
+		* @remark 此函数会在帧栈分配器中分配一个面对象并将
+		*				 其加入面列表
+		*/
+		void AddFace( const RFace& face );
 		 
 	protected:
-		unsigned int m_uiFaceCount; ///>面数
-
+		unsigned int m_uiFaceCount; ///>面数 
 		unsigned int m_uiVertCount;   ///>原始顶点数
-		RVertex* m_pRVerts;				  ///>原始顶点列表
-
+		RVertex* m_pRVerts;				  ///>原始顶点列表 
 		unsigned int m_uiTransVertCount;  ///>变换后的顶点列表中实际的顶点数
 		unsigned int m_uiTransVertsCapacity; ///>变换后的顶点列表所能容纳的顶点数
 		RVertex* m_pRTransVerts;      ///>变换后的顶点列表

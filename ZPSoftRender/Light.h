@@ -32,13 +32,13 @@ namespace Render
 		inline void SetPosInCamera( const Math::Vec4& pos ){ m_v4PosInCam = pos; }
 
 	protected:
-		String m_name;
-		bool    m_active;
-		Math::Vec4   m_v4Ambient;
-		Math::Vec4	m_v4Diffuse;
-		Math::Vec4   m_v4Specular;
-		Math::Vec4   m_v4Pos;
-		Math::Vec4   m_v4PosInCam;
+		String m_name;						///>光源名称
+		bool    m_active;						///>当前光源是否为可用
+		Math::Vec4   m_v4Ambient;		///>光源的环境光项
+		Math::Vec4	m_v4Diffuse;		///>光源的漫反射光项
+		Math::Vec4   m_v4Specular;		///>光源的镜面高光项
+		Math::Vec4   m_v4Pos;				///>光源的位置
+		Math::Vec4   m_v4PosInCam;	///>光源在相机空间中的位置
 	};
 
 }//namespace Render

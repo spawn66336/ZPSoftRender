@@ -337,7 +337,7 @@ void CModelViewerView::FrameStarted( void )
 	}
 
 	//禁用掉拖动时变为线框渲染
-	//bMovingFlag = false;
+	bMovingFlag = false;
 	m_pEngine->SetMovingFlag( bMovingFlag );
 }
 

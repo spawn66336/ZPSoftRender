@@ -229,14 +229,13 @@ namespace Render
 			return;
 		}
 
-		Real dt = 1.0f / static_cast<Real>( xe - xs  );
-		//Real dt = 1.0f / ( v1.m_v3Pos.x - v0.m_v3Pos.x );
+		Real dt = 1.0f / static_cast<Real>( xe - xs  ); 
 		Real t = 0.0f;
 
 		for( int x = xs ; x <= xe ; x++ )
 		{ 
 			RVertex rvIVert = v0 * ( 1.0f - t ) + v1 * t;
-			if( ZTest( x , y , rvIVert.m_invZ  ) )
+			if( DepthTest( x , y , rvIVert.m_invZ  ) )
 			{
 				Math::BGRA8888_t uiPixel = Math::MathUtil::ColorVecToBGRA8888( shader.Run( rvIVert ) ); 
 				WritePixel( x , y , uiPixel );

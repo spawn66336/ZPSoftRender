@@ -5,7 +5,9 @@
 
 namespace Math
 {
-	 
+	 /**
+	 * @brief 视椎体
+	 */
 	class Frustum
 	{
 	public:
@@ -27,16 +29,16 @@ namespace Math
 
 	protected:
 
-		Real m_fov;
-		Real m_aspect;
-		Real m_near;
-		Real m_far;
-		Math::Plane m_nearClipPlane;
-		Math::Plane m_farClipPlane;
-		Math::Plane m_leftClipPlane;
-		Math::Plane m_rightClipPlane;
-		Math::Plane m_topClipPlane;
-		Math::Plane m_bottomClipPlane;
+		Real m_fov;									///>视椎体张角（以角度计）
+		Real m_aspect;								///>视口宽高比
+		Real m_near;									///>近平面距离
+		Real m_far;									///>远平面距离
+		Math::Plane m_nearClipPlane;		///>近剪裁平面
+		Math::Plane m_farClipPlane;			///>远剪裁平面
+		Math::Plane m_leftClipPlane;			///>左剪裁平面
+		Math::Plane m_rightClipPlane;		///>右剪裁平面
+		Math::Plane m_topClipPlane;			///>顶剪裁平面
+		Math::Plane m_bottomClipPlane;	///>底剪裁平面
 	};
 
 }//namespace Math

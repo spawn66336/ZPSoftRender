@@ -26,6 +26,7 @@ namespace Render
 
 	void RenderPipeline::DrawElements( RenderPrimitive& renderPrimitive )
 	{ 
+		//ÇåÀíÖ¡Õ»·ÖÅäÆ÷
 		FrameStackAllocator::GetInstance()->Clear();
 
 		if( NULL == m_pRenderContext )
@@ -489,7 +490,7 @@ namespace Render
 	}
 
 
-	void RenderPipeline::CalcPerVertexLightInCameraSpace( void )
+	void RenderPipeline::CalcPerVertexLightingInCameraSpace( void )
 	{
 		if( !m_pRenderContext->IsLightingEnable() )
 		{
@@ -547,7 +548,7 @@ namespace Render
 	}
 
 
-	void RenderPipeline::CalcLightInCameraSpace( void )
+	void RenderPipeline::CalcPerFaceLightingInCameraSpace( void )
 	{
 		if( !m_pRenderContext->IsLightingEnable() )
 		{
