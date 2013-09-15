@@ -88,6 +88,20 @@ namespace Math
 		return rs;
 	}
 
+	Math::Matrix4 Matrix4::MakeD3DProjectionMatrix( const Real fov , const Real aspect , const Real n , const Real f )
+	{
+		Matrix4 projMat; 
+		Real d = 1.0f * Math::MathUtil::Tan( Math::MathUtil::DegreesToRadians( fov * 0.5f ) ); 
+		projMat = Math::Matrix4(
+			d ,	0.0f , 0.0f , 0.0f ,
+			0.0f , d*aspect , 0.0f , 0.0f ,
+			0.0f , 0.0f , f/( f - n ) , 1.0f ,
+			0.0f , 0.0f ,-n*f/( f - n ) , 0.0f 
+			);
+		//return projMat.Transpose(); 
+		return projMat;
+	}
+
  
 
 }//namespace Math

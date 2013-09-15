@@ -75,6 +75,7 @@ public:
 	afx_msg void OnNcLButtonUp(UINT nHitTest, CPoint point);
 	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
 	afx_msg LRESULT OnNcHitTest(CPoint point);
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 };
 
 #ifndef _DEBUG  // ModelViewerView.cpp 中的调试版本

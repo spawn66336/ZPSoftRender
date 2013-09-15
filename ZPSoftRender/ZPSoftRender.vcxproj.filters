@@ -162,6 +162,9 @@
     <ClCompile Include="Frustum.cpp">
       <Filter>源文件\Math</Filter>
     </ClCompile>
+    <ClCompile Include="D3DRenderImpl.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>头文件\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRenderImpl.h">
+      <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

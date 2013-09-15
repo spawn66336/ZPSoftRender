@@ -9,6 +9,7 @@
 #include "RenderPipelineFactory.h"
 #include "SoftRenderImpl.h"
 #include "FrameStackAllocator.h"
+#include "D3DRenderImpl.h"
 
 ZP3DEngine::ZP3DEngine(void):
 m_bIsMoving(false),
@@ -39,20 +40,30 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 	m_pRenderer = new Render::GLRenderImpl;
 #	elif defined( ZP_SOFT_RENDERER )
 	m_pRenderer = new Render::SoftRenderImpl;
+#  elif defined( ZP_DX_RENDERER )
+	m_pRenderer = new Render::D3DRenderImpl;
 #endif
 
 	m_pRenderer->Init( hwnd );
 	m_pRenderer->SetClearColor( Math::Vec4( 0.0f,0.0f,0.0f,1.0f) );
 	m_pRenderer->EnableLight( true );
 	Render::Light* pLight = m_pRenderer->CreateLight( "Light0" );
-	pLight->SetActive( true );
-	pLight->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
-	pLight->SetPosition( Math::Vec4( 100.0f , 100.0f , 100.0f , 1.0f ) );
+
+	if( NULL != pLight )
+	{ 
+		pLight->SetActive( true );
+		pLight->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
+		pLight->SetPosition( Math::Vec4( 100.0f , 100.0f , 100.0f , 1.0f ) ); 
+	}
 	
 	Render::Light* pLight1 = m_pRenderer->CreateLight( "Light1" );
-	pLight1->SetActive( true );
-	pLight1->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
-	pLight1->SetPosition( Math::Vec4( 100.0f , 100.0f , -100.0f , 1.0f ) );
+
+	if( NULL != pLight1 )
+	{ 
+		pLight1->SetActive( true );
+		pLight1->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
+		pLight1->SetPosition( Math::Vec4( 100.0f , 100.0f , -100.0f , 1.0f ) ); 
+	}
 	
 	m_pCamera = new Camera;
 }

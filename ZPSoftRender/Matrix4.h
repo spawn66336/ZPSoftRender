@@ -201,6 +201,8 @@ namespace Math
 	*/
 	static Matrix4 MakeRotateWithAxisMatrix( const Vec3& axis , const Real theta );
 
+	static Matrix4 MakeD3DProjectionMatrix(  const Real fov , const Real aspect , const Real n , const Real f );
+
 		static const Matrix4 ZERO;
 		static const Matrix4 IDENTITY;
 

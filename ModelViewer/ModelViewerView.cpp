@@ -47,6 +47,7 @@ BEGIN_MESSAGE_MAP(CModelViewerView, CView)
 	ON_WM_NCLBUTTONUP()
 	ON_WM_NCMOUSEMOVE()
 	ON_WM_NCHITTEST()
+	ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 // CModelViewerView 构造/析构
@@ -170,7 +171,6 @@ int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	// TODO:  在此添加您专用的创建代码
 
 	//初始化引擎
 	if( NULL == m_pEngine )
@@ -181,6 +181,8 @@ int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_pCamera = m_pEngine->GetCamera();
 		m_pEngine->RegisterFrameListener( this );
 	}
+
+
 
 	return 0;
 }
@@ -450,4 +452,11 @@ void CModelViewerView::OnNcMouseMove(UINT nHitTest, CPoint point)
 LRESULT CModelViewerView::OnNcHitTest(CPoint point)
 { 
 	return __super::OnNcHitTest(point);
+}
+
+
+void CModelViewerView::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+	__super::OnShowWindow(bShow, nStatus);
+
 }

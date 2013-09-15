@@ -4,13 +4,14 @@ namespace Render
 {
 
 
-Vertex::Vertex(void)
-{
-}
-
 Vertex::Vertex( const Vertex& v )
 { 
 	this->operator=( v );
+}
+
+Vertex::Vertex( void )
+{
+
 }
 
 

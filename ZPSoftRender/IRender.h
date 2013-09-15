@@ -60,6 +60,8 @@ public:
 	*/
 	virtual void Init( const winHandle_t hwnd ) = 0;
 
+	 
+
 	/**
 	* @brief 销毁渲染器对渲染器申请的资源进行清除
 	* @remark 需要在窗体销毁前调用
