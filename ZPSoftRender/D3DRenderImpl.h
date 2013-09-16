@@ -11,8 +11,7 @@ namespace Render
 
 	typedef struct{
 		Math::Vec3 pos;
-		Math::Vec3 norm;
-		unsigned int diffuse;
+		Math::Vec3 norm; 
 		Math::Vec2 tex;
 	}d3dRenderVert_t;
 
@@ -60,6 +59,12 @@ namespace Render
 		void _DestroyHelperVB( void );
 		void _DrawHelper( void );
 		void _PrepareRender( RenderPrimitive& renderPrimitive );
+		void _OnDeviceLost( void );
+		void _OnDeviceReset( void );
+		void _ApplyRenderState( void );
+		void _ApplyShadeModel( void );
+		void _ApplyAllLights( void );
+		void _DestroyTextureCache( void );
 	protected: 
 		D3DPRESENT_PARAMETERS m_d3dParams;
 		IDirect3D9* m_pD3D9;
@@ -75,14 +80,19 @@ namespace Render
 		HWND m_hWnd; 
 		Real		m_fAspect;
 		unsigned int m_uiClearFlag;
-		Math::Vec4 m_v4ClearColor;			
+		Math::Vec4 m_v4ClearColor;
+		bool	m_bEnableLighting;
+		bool m_bEnableTexture;
+		bool m_bEnableDepthTest;
+		SHADE_MODEL m_shadeModel;
 
 		Math::Matrix4 m_m4ProjMat;		//投影矩阵
 		Math::Matrix4 m_m4ViewMat;
 		Math::Matrix4 m_m4WorldMat; 
 		typedef std::stack<Math::Matrix4> matrixStack_t; 
 		matrixStack_t m_worldMatrixStack;
-
+		typedef std::map< unsigned int , IDirect3DTexture9*> textureList_t;
+		textureList_t m_textureCache;
 		typedef std::map<String,Light*> lightTable_t; 
 		lightTable_t m_lights;						///>光源列表
 	};
