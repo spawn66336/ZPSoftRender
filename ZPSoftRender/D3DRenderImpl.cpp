@@ -19,6 +19,8 @@ m_pD3DHelperVB(NULL),
 m_pD3DHelperIB(NULL),
 m_pVS(NULL),
 m_pPS(NULL),
+m_pD3DVSConstantTab(NULL),
+m_pD3DPSConstantTab(NULL),
 m_uiFVF(0),
 m_hWnd(NULL),
 m_fAspect(1.0f),
@@ -101,33 +103,18 @@ void D3DRenderImpl::Destroy()
 
 	//销毁纹理 
 	_DestroyTextureCache();
-	 
-	//销毁顶点着色器
-	if( m_pVS )
-	{
-		m_pVS->Release();
-		m_pVS = NULL;
-	}
 
+	ZP_SAFE_RELEASE( m_pD3DVSConstantTab );
+	ZP_SAFE_RELEASE( m_pD3DPSConstantTab ); 
+	//销毁顶点着色器
+	ZP_SAFE_RELEASE( m_pVS );
 	//销毁像素着色器
-	if( m_pPS )
-	{
-		m_pPS->Release();
-		m_pPS = NULL;
-	}
+	 ZP_SAFE_RELEASE( m_pPS );
+ 
 
 	//释放D3D9设备
-	if( m_pD3D9Device )
-	{
-		m_pD3D9Device->Release();
-		m_pD3D9Device = NULL;
-	}
-
-	if( m_pD3D9 )
-	{
-		m_pD3D9->Release();
-		m_pD3D9 = NULL;
-	}
+	 ZP_SAFE_RELEASE( m_pD3D9Device ); 
+	 ZP_SAFE_RELEASE( m_pD3D9 ); 
 	//销毁COM
 	CoUninitialize();
 }
@@ -173,7 +160,7 @@ void D3DRenderImpl::BeginDraw( Camera* pCam )
 }
 
 void D3DRenderImpl::EndDraw( void )
-{   
+{    
 	_DrawHelper();
 	m_pD3D9Device->EndScene();
 }
@@ -203,68 +190,11 @@ void D3DRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 	HRESULT hRes = 0; 
 	Resource::Texture2D* pDiffuseTex = pMaterial->GetTexture( DIFFUSE_CH ); 
 	 
-	if(NULL != pDiffuseTex )
-	{ 
+	_CommitTexture( pDiffuseTex , DIFFUSE_CH );
 
-		IDirect3DTexture9* pD3DDiffTexture = NULL;
-		unsigned int uiDiffTexHandle = pDiffuseTex->GetTextureHandle();
-		pD3DDiffTexture = (IDirect3DTexture9*)uiDiffTexHandle;
+	Resource::Texture2D* pNormTex = pMaterial->GetTexture( BUMPMAP_CH );
 
-		if( 0 != uiDiffTexHandle )
-		{
-			textureList_t::iterator itTex = m_textureCache.find( uiDiffTexHandle );
-			if( itTex == m_textureCache.end() )
-			{
-				pD3DDiffTexture = NULL;
-				uiDiffTexHandle = 0;
-			}
-		}
-		 
-		if( NULL == pD3DDiffTexture )
-		{ 
-				hRes = m_pD3D9Device->CreateTexture( 
-				pDiffuseTex->Width() , pDiffuseTex->Height() , 1 ,  
-				D3DUSAGE_DYNAMIC ,  D3DFMT_A8R8G8B8  , D3DPOOL_DEFAULT , &pD3DDiffTexture , NULL );
-				ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
-		
-				D3DLOCKED_RECT lockedRect; 
-				memset( &lockedRect , 0 , sizeof( lockedRect ) );
-				hRes = pD3DDiffTexture->LockRect( 0 , &lockedRect , NULL , D3DLOCK_DISCARD );
-				ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
-			
-				unsigned char* pDiffBuf = (unsigned char*)lockedRect.pBits;
-				for( int y = 0 ; y < pDiffuseTex->Height() ; y++ )
-				{
-					for( int x = 0 ; x < pDiffuseTex->Width() ; x++ )
-					{
-						int offset = lockedRect.Pitch*y + x*4;
-
-						pDiffBuf[offset]	 =  pDiffuseTex->Pixels()[offset+2];
-						pDiffBuf[offset+1] =  pDiffuseTex->Pixels()[offset+1];
-						pDiffBuf[offset+2] =  pDiffuseTex->Pixels()[offset];
-						pDiffBuf[offset+3] =  pDiffuseTex->Pixels()[offset+3];
-					}//for( int x = 0 ; x < pDiffuseTex->Width() ; x++ )
-				}//for( int y = 0 ; y < pDiffuseTex->Height() ; y++ )
-			
-				pD3DDiffTexture->UnlockRect( 0 );  
-				uiDiffTexHandle = *( reinterpret_cast<unsigned int*>(&pD3DDiffTexture) );
-				pDiffuseTex->SetTextureHandle( uiDiffTexHandle ); 
-				m_textureCache.insert( std::make_pair( uiDiffTexHandle , pD3DDiffTexture ) );
-
-		}//if( NULL == pD3DDiffTexture )
-
-		m_pD3D9Device->SetTexture( 0 , pD3DDiffTexture );
-		//m_pD3D9Device->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE );
-		//m_pD3D9Device->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
-		//m_pD3D9Device->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
-		//m_pD3D9Device->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_DISABLE ); 
-		m_pD3D9Device->SetSamplerState( 0  , D3DSAMP_ADDRESSU , D3DTADDRESS_WRAP ); 
-		m_pD3D9Device->SetSamplerState( 0 , D3DSAMP_ADDRESSV , D3DTADDRESS_WRAP );
-		m_pD3D9Device->SetSamplerState( 0 , D3DSAMP_MINFILTER ,  D3DTEXF_LINEAR );
-		m_pD3D9Device->SetSamplerState( 0 , D3DSAMP_MAGFILTER ,  D3DTEXF_LINEAR );
-	
-	}//	if(NULL != pDiffuseTex )
-
+	_CommitTexture( pNormTex , BUMPMAP_CH );
 
 	//应用材质
 	D3DMATERIAL9 d3d9Material;
@@ -272,14 +202,76 @@ void D3DRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 	memcpy( &d3d9Material.Ambient , &pMaterial->GetAmbient() , sizeof(D3DCOLORVALUE) );
 	memcpy( &d3d9Material.Diffuse , &pMaterial->GetDiffuse() , sizeof(D3DCOLORVALUE) );
 	memcpy( &d3d9Material.Specular , &pMaterial->GetSpecular() , sizeof(D3DCOLORVALUE) );
-	d3d9Material.Power = pMaterial->GetShininess(); 
-	//m_pD3D9Device->SetRenderState( D3DRS_AMBIENTMATERIALSOURCE , D3DMCS_MATERIAL);
-	//m_pD3D9Device->SetRenderState( D3DRS_DIFFUSEMATERIALSOURCE , D3DMCS_MATERIAL );
-	//m_pD3D9Device->SetRenderState( D3DRS_SPECULARMATERIALSOURCE  , D3DMCS_MATERIAL );
-	//m_pD3D9Device->SetRenderState( D3DRS_COLORVERTEX   , FALSE );
+	d3d9Material.Power = pMaterial->GetShininess();  
 
 	m_pD3D9Device->SetMaterial( & d3d9Material );
 }
+
+
+void D3DRenderImpl::_CommitTexture( Resource::Texture2D* pTexture  , const int tex_ch )
+{
+
+	HRESULT hRes = 0; 
+
+	if(NULL != pTexture )
+	{ 
+
+		IDirect3DTexture9* pD3DTexture = NULL;
+		unsigned int uiTexHandle = pTexture->GetTextureHandle();
+		pD3DTexture = (IDirect3DTexture9*)uiTexHandle;
+
+		if( 0 != uiTexHandle )
+		{
+			textureList_t::iterator itTex = m_textureCache.find( uiTexHandle );
+			if( itTex == m_textureCache.end() )
+			{
+				pD3DTexture = NULL;
+				uiTexHandle = 0;
+			}
+		}
+
+		if( NULL == pD3DTexture )
+		{ 
+			hRes = m_pD3D9Device->CreateTexture( 
+				pTexture->Width() , pTexture->Height() , 1 ,  
+				D3DUSAGE_DYNAMIC ,  D3DFMT_A8R8G8B8  , D3DPOOL_DEFAULT , &pD3DTexture , NULL );
+			ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
+
+			D3DLOCKED_RECT lockedRect; 
+			memset( &lockedRect , 0 , sizeof( lockedRect ) );
+			hRes = pD3DTexture->LockRect( 0 , &lockedRect , NULL , D3DLOCK_DISCARD );
+			ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
+
+			unsigned char* pDiffBuf = (unsigned char*)lockedRect.pBits;
+			for( int y = 0 ; y < pTexture->Height() ; y++ )
+			{
+				for( int x = 0 ; x < pTexture->Width() ; x++ )
+				{
+					int offset = lockedRect.Pitch*y + x*4;
+
+					pDiffBuf[offset]	 =  pTexture->Pixels()[offset+2];
+					pDiffBuf[offset+1] =  pTexture->Pixels()[offset+1];
+					pDiffBuf[offset+2] =  pTexture->Pixels()[offset];
+					pDiffBuf[offset+3] =  pTexture->Pixels()[offset+3];
+				}//for( int x = 0 ; x < pTexture->Width() ; x++ )
+			}//for( int y = 0 ; y < pTexture->Height() ; y++ )
+
+			pD3DTexture->UnlockRect( 0 );  
+			uiTexHandle = *( reinterpret_cast<unsigned int*>(&pD3DTexture) );
+			pTexture->SetTextureHandle( uiTexHandle ); 
+			m_textureCache.insert( std::make_pair( uiTexHandle , pD3DTexture ) );
+
+		}//if( NULL == pD3DTexture )
+
+		m_pD3D9Device->SetTexture( tex_ch , pD3DTexture ); 
+		m_pD3D9Device->SetSamplerState( tex_ch  , D3DSAMP_ADDRESSU , D3DTADDRESS_WRAP ); 
+		m_pD3D9Device->SetSamplerState( tex_ch , D3DSAMP_ADDRESSV , D3DTADDRESS_WRAP );
+		m_pD3D9Device->SetSamplerState( tex_ch , D3DSAMP_MINFILTER ,  D3DTEXF_LINEAR );
+		m_pD3D9Device->SetSamplerState( tex_ch , D3DSAMP_MAGFILTER ,  D3DTEXF_LINEAR );
+
+	}//	if(NULL != pTexture )
+}
+
 
 void D3DRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 {
@@ -294,12 +286,14 @@ void D3DRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 
 	_PrepareRender( renderPrimitive );
 	 
+
+	_ApplyShaders();
 	m_pD3D9Device->SetTransform( D3DTS_WORLD ,  (D3DMATRIX*)( m_m4WorldMat.m ) );
 	m_pD3D9Device->SetStreamSource( 0 , m_pD3DVB , 0 , sizeof(d3dRenderVert_t)  );
 	m_pD3D9Device->SetFVF( m_uiFVF );
 	m_pD3D9Device->SetIndices( m_pD3DIB ); 
 	m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount );
-	
+	_UnapplyShaders();
 }
 
 void D3DRenderImpl::EnableTexture2D( bool enable )
@@ -436,17 +430,8 @@ void D3DRenderImpl::_DestroyVB( void )
 {
 	_DestroyHelperVB();
 	 
-	if( NULL != m_pD3DVB )
-	{
-		m_pD3DVB->Release();
-		m_pD3DVB = NULL;
-	}
-
-	if( NULL != m_pD3DIB )
-	{
-		m_pD3DIB->Release();
-		m_pD3DIB = NULL;
-	}
+	ZP_SAFE_RELEASE( m_pD3DVB ); 
+	ZP_SAFE_RELEASE( m_pD3DIB ); 
 }
 
 void D3DRenderImpl::_InitHelperVB( void )
@@ -485,17 +470,8 @@ void D3DRenderImpl::_InitHelperVB( void )
 
 void D3DRenderImpl::_DestroyHelperVB( void )
 {
-	if( NULL != m_pD3DHelperVB )
-	{
-		m_pD3DHelperVB->Release();
-		m_pD3DHelperVB = NULL;
-	}
-
-	if( NULL != m_pD3DHelperIB )
-	{
-		m_pD3DHelperIB->Release();
-		m_pD3DHelperIB = NULL;
-	}
+	ZP_SAFE_RELEASE( m_pD3DHelperVB ); 
+	ZP_SAFE_RELEASE( m_pD3DHelperIB ); 
 }
 
 
@@ -550,8 +526,8 @@ void D3DRenderImpl::_DrawHelper( void )
 
 void D3DRenderImpl::_SetupMatrices( Camera* pCam )
 {  
-	Math::Matrix4 m4View = pCam->GetCameraMatrix(); 
-	m_pD3D9Device->SetTransform(  D3DTS_VIEW , (D3DMATRIX*)( m4View.m ) );
+	m_m4ViewMat = pCam->GetCameraMatrix(); 
+	m_pD3D9Device->SetTransform(  D3DTS_VIEW , (D3DMATRIX*)( m_m4ViewMat.m ) );
 
 	m_m4ProjMat = 
 		Math::Matrix4::MakeD3DProjectionMatrix( 60.0f , m_fAspect , 2.0f , 1000.0f );  
@@ -668,25 +644,26 @@ bool D3DRenderImpl::_LoadVertexShader( const String& filename , IDirect3DVertexS
 	LPD3DXBUFFER pErrMsg = NULL;
 
 	HRESULT hRes = D3DXCompileShaderFromFileA( 
-		filename.c_str() , NULL , NULL , "main" , strVSProfile.c_str() , 0 , &pShaderData , &pErrMsg , NULL  );
+		filename.c_str() , NULL , NULL , "main" , strVSProfile.c_str() , 0 , &pShaderData , &pErrMsg , &m_pD3DVSConstantTab  );
 
 	if( TRUE == FAILED(hRes) )
 	{
+		String strErrMsg = (char*)pErrMsg->GetBufferPointer();
 		return false;
 	}
 
-	HRESULT hRes = m_pD3D9Device->CreateVertexShader( 
+	 hRes = m_pD3D9Device->CreateVertexShader( 
 		(DWORD*)pShaderData->GetBufferPointer() , ppVS );
 
 	if( TRUE == FAILED(hRes) )
 	{
-		pErrMsg->Release();
-		pShaderData->Release();
+		ZP_SAFE_RELEASE( pErrMsg );
+		ZP_SAFE_RELEASE( pShaderData );
 		return false;
 	}
 
-	pErrMsg->Release();
-	pShaderData->Release();
+	ZP_SAFE_RELEASE( pErrMsg );
+	ZP_SAFE_RELEASE( pShaderData );
 	return true;
 }
 
@@ -705,26 +682,43 @@ bool D3DRenderImpl::_LoadPixelShader( const String& filename , IDirect3DPixelSha
 	LPD3DXBUFFER pErrMsg = NULL;
 
 	HRESULT hRes = D3DXCompileShaderFromFileA( 
-		filename.c_str() , NULL , NULL , "main" , strPSProfile.c_str() , 0 , &pShaderData , &pErrMsg , NULL  );
+		filename.c_str() , NULL , NULL , "main" , strPSProfile.c_str() , 0 , &pShaderData , &pErrMsg , &m_pD3DPSConstantTab  );
 
 	if( TRUE == FAILED(hRes) )
 	{
+		String strErrMsg = (char*)pErrMsg->GetBufferPointer();
 		return false;
 	}
 
-	HRESULT hRes = m_pD3D9Device->CreatePixelShader(
+	 hRes = m_pD3D9Device->CreatePixelShader(
 		(DWORD*)pShaderData->GetBufferPointer() , ppPS );
 
 	if( TRUE == FAILED(hRes) )
 	{
-		pErrMsg->Release();
-		pShaderData->Release();
+		ZP_SAFE_RELEASE( pErrMsg );
+		ZP_SAFE_RELEASE( pShaderData );
 		return false;
 	}
 
-	pErrMsg->Release();
-	pShaderData->Release();
+	ZP_SAFE_RELEASE( pErrMsg );
+	ZP_SAFE_RELEASE( pShaderData );
 	return true;
+}
+
+void D3DRenderImpl::_ApplyShaders( void )
+{ 
+	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
+	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
+	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
+	m_pD3D9Device->SetVertexShader( m_pVS );
+	m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "diffuseTex" , 0 );
+	m_pD3D9Device->SetPixelShader( m_pPS );
+}
+
+void D3DRenderImpl::_UnapplyShaders( void )
+{
+	m_pD3D9Device->SetVertexShader( NULL );
+	m_pD3D9Device->SetPixelShader( NULL );
 }
 
 

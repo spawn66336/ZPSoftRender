@@ -3,8 +3,15 @@
 
 #include "IRender.h"
 #include <d3d9.h>
+#include "d3dx9shader.h"
 
 class Camera;
+
+
+namespace Resource
+{ 
+	class Texture2D;
+}
 
 namespace Render
 { 
@@ -53,6 +60,9 @@ namespace Render
 
 	protected: 
 		void _SetupMatrices( Camera* pCam );
+		void _ApplyShaders( void );
+		void _UnapplyShaders( void );
+		void _CommitTexture( Resource::Texture2D* pTexture , const int tex_ch );
 		void _InitVB( void );
 		void _DestroyVB( void ); 
 		void _InitHelperVB( void );
@@ -77,8 +87,11 @@ namespace Render
 		LPDIRECT3DVERTEXBUFFER9 m_pD3DHelperVB;
 		LPDIRECT3DINDEXBUFFER9 m_pD3DHelperIB;
 
-		IDirect3DVertexShader9* m_pVS;		//顶点着色器
+		IDirect3DVertexShader9* m_pVS;		//顶点着色器  
+		LPD3DXCONSTANTTABLE  m_pD3DVSConstantTab; 
 		IDirect3DPixelShader9* m_pPS;		//像素着色器
+		LPD3DXCONSTANTTABLE  m_pD3DPSConstantTab; 
+		
 
 		D3DVIEWPORT9 m_viewPort;
 		unsigned int m_uiFVF;

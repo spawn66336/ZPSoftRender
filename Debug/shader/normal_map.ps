@@ -1,0 +1,24 @@
+
+
+sampler2D diffuseTex;
+sampler2D normalTex;
+
+struct PS_INPUT
+{
+	float3 f3Norm : NORMAL0;
+	float2 f2Tex : TEXCOORD0;
+};
+
+struct PS_OUTPUT
+{ 
+	float4 f4Color : COLOR0; 
+};
+
+PS_OUTPUT main( PS_INPUT input )
+{
+	PS_OUTPUT output;
+	
+	output.f4Color = tex2D( diffuseTex , input.f2Tex );
+	
+	return output;
+}

@@ -32,6 +32,8 @@
 #define ZP_SAFE_NEW_BUFFER( x , t , size ) do{ if( NULL != (x) ){ delete[] (x); (x) = NULL; } if( 0 != size ){ (x) = new t[size]; ZP_ASSERT(x); } }while(0)
 #define ZP_SAFE_DELETE_BUFFER( x ) do{ if( NULL != (x) ){ delete[] (x); (x) = NULL; } }while(0)
 
+#define ZP_SAFE_RELEASE( x ) do{ if( NULL != (x) ){ (x)->Release(); (x) = NULL; } }while(0)
+
 typedef std::string String;
 
 typedef float Real; 
