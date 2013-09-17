@@ -17,6 +17,8 @@ m_pD3DVB(NULL),
 m_pD3DIB(NULL),
 m_pD3DHelperVB(NULL),
 m_pD3DHelperIB(NULL),
+m_pVS(NULL),
+m_pPS(NULL),
 m_uiFVF(0),
 m_hWnd(NULL),
 m_fAspect(1.0f),
@@ -82,7 +84,12 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 
 	//初始化视口
 	m_pD3D9Device->GetViewport( &m_viewPort);
-	
+	 
+	bool bRes = _LoadVertexShader( ".\\shader\\normal_map.vs" , &m_pVS );
+	ZP_ASSERT( bRes ); 
+	bRes = _LoadPixelShader( ".\\shader\\normal_map.ps" , &m_pPS );
+	ZP_ASSERT( bRes );
+
 	//创建顶点缓冲区
 	_InitVB();
 }
@@ -94,6 +101,20 @@ void D3DRenderImpl::Destroy()
 
 	//销毁纹理 
 	_DestroyTextureCache();
+	 
+	//销毁顶点着色器
+	if( m_pVS )
+	{
+		m_pVS->Release();
+		m_pVS = NULL;
+	}
+
+	//销毁像素着色器
+	if( m_pPS )
+	{
+		m_pPS->Release();
+		m_pPS = NULL;
+	}
 
 	//释放D3D9设备
 	if( m_pD3D9Device )
@@ -630,6 +651,80 @@ void D3DRenderImpl::_ApplyAllLights( void )
 			++itLight;
 		}
 	}
+}
+
+bool D3DRenderImpl::_LoadVertexShader( const String& filename , IDirect3DVertexShader9 ** ppVS )
+{ 
+	String strVSProfile = "vs_3_0";
+	String strSupportVSProfiles = D3DXGetVertexShaderProfile( m_pD3D9Device );
+
+	//若当前设备不支持所需要的顶点着色器
+	if( String::npos == strSupportVSProfiles.find( strVSProfile ) )
+	{
+		return false;
+	}
+
+	LPD3DXBUFFER pShaderData = NULL;
+	LPD3DXBUFFER pErrMsg = NULL;
+
+	HRESULT hRes = D3DXCompileShaderFromFileA( 
+		filename.c_str() , NULL , NULL , "main" , strVSProfile.c_str() , 0 , &pShaderData , &pErrMsg , NULL  );
+
+	if( TRUE == FAILED(hRes) )
+	{
+		return false;
+	}
+
+	HRESULT hRes = m_pD3D9Device->CreateVertexShader( 
+		(DWORD*)pShaderData->GetBufferPointer() , ppVS );
+
+	if( TRUE == FAILED(hRes) )
+	{
+		pErrMsg->Release();
+		pShaderData->Release();
+		return false;
+	}
+
+	pErrMsg->Release();
+	pShaderData->Release();
+	return true;
+}
+
+bool D3DRenderImpl::_LoadPixelShader( const String& filename , IDirect3DPixelShader9 ** ppPS )
+{
+	String strPSProfile = "ps_3_0";
+	String strSupportPSProfiles = D3DXGetPixelShaderProfile( m_pD3D9Device );
+
+	//若当前设备不支持所需要的像素着色器
+	if( String::npos == strSupportPSProfiles.find( strPSProfile ) )
+	{
+		return false;
+	}
+
+	LPD3DXBUFFER pShaderData = NULL;
+	LPD3DXBUFFER pErrMsg = NULL;
+
+	HRESULT hRes = D3DXCompileShaderFromFileA( 
+		filename.c_str() , NULL , NULL , "main" , strPSProfile.c_str() , 0 , &pShaderData , &pErrMsg , NULL  );
+
+	if( TRUE == FAILED(hRes) )
+	{
+		return false;
+	}
+
+	HRESULT hRes = m_pD3D9Device->CreatePixelShader(
+		(DWORD*)pShaderData->GetBufferPointer() , ppPS );
+
+	if( TRUE == FAILED(hRes) )
+	{
+		pErrMsg->Release();
+		pShaderData->Release();
+		return false;
+	}
+
+	pErrMsg->Release();
+	pShaderData->Release();
+	return true;
 }
 
 

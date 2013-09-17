@@ -65,6 +65,8 @@ namespace Render
 		void _ApplyShadeModel( void );
 		void _ApplyAllLights( void );
 		void _DestroyTextureCache( void );
+		bool _LoadVertexShader( const String& filename , IDirect3DVertexShader9 ** ppVS );
+		bool _LoadPixelShader( const String& filename , IDirect3DPixelShader9 ** ppPS );
 	protected: 
 		D3DPRESENT_PARAMETERS m_d3dParams;
 		IDirect3D9* m_pD3D9;
@@ -74,6 +76,9 @@ namespace Render
 
 		LPDIRECT3DVERTEXBUFFER9 m_pD3DHelperVB;
 		LPDIRECT3DINDEXBUFFER9 m_pD3DHelperIB;
+
+		IDirect3DVertexShader9* m_pVS;		//顶点着色器
+		IDirect3DPixelShader9* m_pPS;		//像素着色器
 
 		D3DVIEWPORT9 m_viewPort;
 		unsigned int m_uiFVF;
