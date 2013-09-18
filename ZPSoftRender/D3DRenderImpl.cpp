@@ -188,12 +188,10 @@ void D3DRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 	}
 
 	HRESULT hRes = 0; 
-	Resource::Texture2D* pDiffuseTex = pMaterial->GetTexture( DIFFUSE_CH ); 
-	 
+	Resource::Texture2D* pDiffuseTex = pMaterial->GetTexture( DIFFUSE_CH );  
 	_CommitTexture( pDiffuseTex , DIFFUSE_CH );
 
-	Resource::Texture2D* pNormTex = pMaterial->GetTexture( BUMPMAP_CH );
-
+	Resource::Texture2D* pNormTex = pMaterial->GetTexture( BUMPMAP_CH ); 
 	_CommitTexture( pNormTex , BUMPMAP_CH );
 
 	//应用材质
@@ -205,6 +203,18 @@ void D3DRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 	d3d9Material.Power = pMaterial->GetShininess();  
 
 	m_pD3D9Device->SetMaterial( & d3d9Material );
+
+	 
+	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
+	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
+	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
+	m_pD3DVSConstantTab->SetValue( m_pD3D9Device , "f3LightPos"  , &(m_currLight.Position) , sizeof(m_currLight.Position) );
+	m_pD3D9Device->SetVertexShader( m_pVS );
+
+	m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "diffuseTex" , DIFFUSE_CH );
+	m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "normalTex" , BUMPMAP_CH );
+	m_pD3DPSConstantTab->SetValue( m_pD3D9Device , "g_Material" , &d3d9Material , sizeof(d3d9Material) );
+	m_pD3D9Device->SetPixelShader( m_pPS );
 }
 
 
@@ -285,15 +295,13 @@ void D3DRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 	unsigned int uiFaceCount = uiIndexCount / 3;
 
 	_PrepareRender( renderPrimitive );
-	 
-
-	_ApplyShaders();
-	m_pD3D9Device->SetTransform( D3DTS_WORLD ,  (D3DMATRIX*)( m_m4WorldMat.m ) );
+	  
+	//m_pD3D9Device->SetTransform( D3DTS_WORLD ,  (D3DMATRIX*)( m_m4WorldMat.m ) );
 	m_pD3D9Device->SetStreamSource( 0 , m_pD3DVB , 0 , sizeof(d3dRenderVert_t)  );
 	m_pD3D9Device->SetFVF( m_uiFVF );
 	m_pD3D9Device->SetIndices( m_pD3DIB ); 
 	m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount );
-	_UnapplyShaders();
+ 
 }
 
 void D3DRenderImpl::EnableTexture2D( bool enable )
@@ -410,7 +418,9 @@ void D3DRenderImpl::_InitVB( void )
 	unsigned int uiVBLockSize = MAX_VERTEX_NUM*sizeof(d3dRenderVert_t);
 	unsigned int uiIBLockSize = MAX_INDICES_NUM*sizeof(unsigned short);
 
-	m_uiFVF =  D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX1|D3DFVF_TEXCOORDSIZE2(0);
+	m_uiFVF =  D3DFVF_XYZ|D3DFVF_NORMAL|
+		D3DFVF_TEX1|D3DFVF_TEX2|D3DFVF_TEX3|
+		D3DFVF_TEXCOORDSIZE2(0)|D3DFVF_TEXCOORDSIZE3(1)|D3DFVF_TEXCOORDSIZE3(2);
 
 	//创建足够大的顶点缓冲区
 	HRESULT hRes = m_pD3D9Device->CreateVertexBuffer( 
@@ -491,6 +501,8 @@ void D3DRenderImpl::_PrepareRender( RenderPrimitive& renderPrimitive )
 		((d3dRenderVert_t*)pBuf)[i].pos = renderPrimitive.VertexBuf().Pointer()[i].m_pos;
 		((d3dRenderVert_t*)pBuf)[i].norm = renderPrimitive.VertexBuf().Pointer()[i].m_norm; 
 		((d3dRenderVert_t*)pBuf)[i].tex = renderPrimitive.VertexBuf().Pointer()[i].m_texcoord;
+		((d3dRenderVert_t*)pBuf)[i].binorm = renderPrimitive.VertexBuf().Pointer()[i].m_binormal;
+		((d3dRenderVert_t*)pBuf)[i].tangent = renderPrimitive.VertexBuf().Pointer()[i].m_tangent;
 	}
 
 	m_pD3DVB->Unlock();
@@ -514,6 +526,8 @@ void D3DRenderImpl::_PrepareRender( RenderPrimitive& renderPrimitive )
 
 void D3DRenderImpl::_DrawHelper( void )
 {
+	_UnapplyShaders();
+
 	D3DXMATRIX worldMat;
 	D3DXMatrixIdentity( &worldMat ); 
 	m_pD3D9Device->SetRenderState( D3DRS_LIGHTING , FALSE);
@@ -596,31 +610,29 @@ void D3DRenderImpl::_ApplyShadeModel( void )
 void D3DRenderImpl::_ApplyAllLights( void )
 {
 	if( m_bEnableLighting )
-	{
-		 //m_pD3D9Device->SetRenderState( D3DRS_AMBIENT, 0x00202020 );
+	{ 
 
 		int iLightIndx = 0; 
 		lightTable_t::iterator itLight = m_lights.begin();
 		while( itLight != m_lights.end() )
 		{
 			Light* pLight = (*itLight).second;
-
-			D3DLIGHT9 d3dLight;
-			memset( &d3dLight , 0 , sizeof(d3dLight) ); 
-			 
+			  
 			if( pLight->IsActive() )
 			{
-				d3dLight.Type = D3DLIGHT_POINT;
-				memcpy( &d3dLight.Ambient , &( pLight->Ambient() ) , sizeof(D3DCOLORVALUE) );
-				memcpy( &d3dLight.Diffuse , &( pLight->Diffuse() ) , sizeof(D3DCOLORVALUE) );
-				memcpy( &d3dLight.Specular , &( pLight->Specular() ) , sizeof(D3DCOLORVALUE) );
-				memcpy( &d3dLight.Position , &( pLight->Position()) , sizeof(D3DVECTOR) );
-				d3dLight.Attenuation0 = 1.0f; 
-				d3dLight.Range = 1000.0f;
-				m_pD3D9Device->SetLight( iLightIndx, &d3dLight );  
-				m_pD3D9Device->LightEnable( iLightIndx, TRUE ); 
+				memset( &m_currLight , 0 , sizeof(m_currLight) ); 
+				m_currLight.Type = D3DLIGHT_POINT;
+				memcpy( &m_currLight.Ambient , &( pLight->Ambient() ) , sizeof(D3DCOLORVALUE) );
+				memcpy( &m_currLight.Diffuse , &( pLight->Diffuse() ) , sizeof(D3DCOLORVALUE) );
+				memcpy( &m_currLight.Specular , &( pLight->Specular() ) , sizeof(D3DCOLORVALUE) );
+				memcpy( &m_currLight.Position , &( pLight->Position()) , sizeof(D3DVECTOR) );
+				m_currLight.Attenuation0 = 1.0f; 
+				m_currLight.Range = 1000.0f;
+				break;
+				//m_pD3D9Device->SetLight( iLightIndx, &d3dLight );  
+				//m_pD3D9Device->LightEnable( iLightIndx, TRUE ); 
 			}else{
-				m_pD3D9Device->LightEnable( iLightIndx , FALSE );
+				/*m_pD3D9Device->LightEnable( iLightIndx , FALSE );*/
 			}
 
 			iLightIndx++;

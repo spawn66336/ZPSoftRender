@@ -1,12 +1,22 @@
 
-
 sampler2D diffuseTex;
 sampler2D normalTex;
+
+struct Material_t
+{ 
+	float4 f4Diff;
+	float4 f4Amb;
+	float4 f4Spec;
+	float4 f4Emis;
+	float  fPower;
+};
 
 struct PS_INPUT
 {
 	float3 f3Norm : NORMAL0;
-	float2 f2Tex : TEXCOORD0;
+	float2 f2Tex : TEXCOORD0; 
+	float3 f3LightDir : TEXCOORD1;
+	float3 f3ViewDir : TEXCOORD2;
 };
 
 struct PS_OUTPUT
@@ -14,11 +24,23 @@ struct PS_OUTPUT
 	float4 f4Color : COLOR0; 
 };
 
+uniform Material_t g_Material;
+
 PS_OUTPUT main( PS_INPUT input )
 {
 	PS_OUTPUT output;
 	
-	output.f4Color = tex2D( diffuseTex , input.f2Tex );
+	float3 f3Normal = normalize( ( tex2D( normalTex, input.f2Tex ).xyz * 2.0f ) - 1.0f );
+	float4 f4DiffColor = tex2D( diffuseTex , input.f2Tex );
+	float3 f3ViewDir = normalize( input.f3ViewDir );
+	float  fDiffFactor   = max( 0.0f , dot( f3Normal, normalize(input.f3LightDir) ) ); 
+	float3 f3H     = normalize( input.f3LightDir + input.f3ViewDir );
+	float  fSpecFactor    = max( 0.0f, dot( f3Normal , f3H ) );
 	
+    float4 f4TotalAmbient   = g_Material.f4Amb * f4DiffColor; 
+    float4 f4TotalDiffuse   = g_Material.f4Diff * fDiffFactor * f4DiffColor; 
+    float4 f4TotalSpecular  = g_Material.f4Spec * pow( fSpecFactor, g_Material.fPower );
+   
+	output.f4Color = saturate( f4TotalAmbient + f4TotalDiffuse + f4TotalSpecular );
 	return output;
 }

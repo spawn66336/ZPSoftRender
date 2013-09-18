@@ -98,14 +98,13 @@ namespace Resource
 
 			Resource::Material* pMaterial = pSubMesh->GetMaterial();
 
-			if( NULL != pMaterial )
-			{
-				pRenderer->ApplyMaterial( pMaterial );	
-			}
-			
 			pRenderer->PushMatrix(); 
 			pRenderer->MultMatrix( pSubMesh->GetMatrix() ); 
 
+			if( NULL != pMaterial )
+			{
+				pRenderer->ApplyMaterial( pMaterial );	
+			} 
 				pRenderer->DrawElements( pSubMesh->RenderData() );
 
 			pRenderer->PopMatrix();

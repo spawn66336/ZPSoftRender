@@ -20,6 +20,8 @@ namespace Render
 		Math::Vec3 pos;
 		Math::Vec3 norm; 
 		Math::Vec2 tex;
+		Math::Vec3 binorm;
+		Math::Vec3 tangent;
 	}d3dRenderVert_t;
 
 	typedef struct{
@@ -91,6 +93,7 @@ namespace Render
 		LPD3DXCONSTANTTABLE  m_pD3DVSConstantTab; 
 		IDirect3DPixelShader9* m_pPS;		//ÏñËØ×ÅÉ«Æ÷
 		LPD3DXCONSTANTTABLE  m_pD3DPSConstantTab; 
+		D3DLIGHT9 m_currLight;
 		
 
 		D3DVIEWPORT9 m_viewPort;
