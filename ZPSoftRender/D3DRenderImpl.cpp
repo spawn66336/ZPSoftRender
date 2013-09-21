@@ -540,6 +540,11 @@ void D3DRenderImpl::_DrawHelper( void )
 
 void D3DRenderImpl::_SetupMatrices( Camera* pCam )
 {  
+	if( NULL == pCam )
+	{
+		return;
+	}
+
 	m_m4ViewMat = pCam->GetCameraMatrix(); 
 	m_pD3D9Device->SetTransform(  D3DTS_VIEW , (D3DMATRIX*)( m_m4ViewMat.m ) );
 

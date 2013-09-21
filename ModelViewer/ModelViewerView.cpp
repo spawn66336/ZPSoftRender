@@ -62,8 +62,7 @@ CModelViewerView::CModelViewerView():
 
 CModelViewerView::~CModelViewerView()
 {
-	delete m_pEngine;
-	m_pEngine = NULL;
+	ZP_SAFE_DELETE( m_pEngine ); 
 }
 
 BOOL CModelViewerView::PreCreateWindow(CREATESTRUCT& cs)
@@ -172,18 +171,13 @@ int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 
-	//初始化引擎
-	if( NULL == m_pEngine )
-	{
-		m_pEngine = new ZP3DEngine;
-		m_pEngine->Init( this->GetSafeHwnd() );
-		m_pEngine->LoadResources();
-		m_pCamera = m_pEngine->GetCamera();
-		m_pEngine->RegisterFrameListener( this );
-	}
-
-
-
+	//初始化引擎 
+	m_pEngine = new ZP3DEngine;
+	m_pEngine->Init( this->GetSafeHwnd() );
+	m_pEngine->LoadResources();
+	m_pCamera = m_pEngine->GetCamera();
+	m_pEngine->RegisterFrameListener( this ); 
+	 
 	return 0;
 }
 

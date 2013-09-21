@@ -82,6 +82,8 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>.\vld\lib\Win32\;.\freeimage\;.\collada\lib\$(ConfigurationName)\;$(DXSDK_DIR)\lib\x86\</AdditionalLibraryDirectories>
       <AdditionalDependencies>vld.lib;opengl32.lib;glu32.lib;User32.lib;Gdi32.lib;FreeImage.lib;MathMLSolver.lib;OpenCOLLADABaseUtils.lib;OpenCOLLADAFramework.lib;OpenCOLLADASaxFrameworkLoader.lib;GeneratedSaxParser.lib;OpenCOLLADAStreamWriter.lib;pcre.lib;xml.lib;UTF.lib;d3d9.lib;D3dx9.lib;dxerr.lib;dxguid.lib;winmm.lib;comctl32.lib;Ole32.lib</AdditionalDependencies>
+      <MergeSections>
+      </MergeSections>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(TargetDir)\lib

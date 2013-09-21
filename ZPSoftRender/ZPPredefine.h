@@ -24,7 +24,7 @@
 #	if defined( ZP_DEBUG )
 #			define ZP_ASSERT(x) assert(x)
 #	else
-#			define ZP_ASSERT(x)
+#			define ZP_ASSERT(x) 
 #	endif
 
 #define ZP_SAFE_NEW( x , t ) do{ if( NULL != (x) ){ delete (x); (x) = NULL; } (x) = new t; ZP_ASSERT(x); }while(0)
