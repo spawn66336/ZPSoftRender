@@ -410,6 +410,8 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 {
 	BOOL bIsSizeOutOfBound = FALSE;
 
+	//只有软渲染器才用限定窗体宽高
+#ifdef ZP_SOFT_RENDERER
 	if( cx > 800 )
 	{
 		cx = 800;
@@ -429,6 +431,7 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 		SetWindowPos( &wndTopMost , 0 , 0 , cx , cy , SWP_NOMOVE ); 
 		return;
 	}
+#endif
 
 	CFrameWndEx::OnSize(nType, cx, cy);
 	 
