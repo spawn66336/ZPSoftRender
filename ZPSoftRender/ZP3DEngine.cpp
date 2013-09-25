@@ -53,7 +53,7 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 	{ 
 		pLight->SetActive( true );
 		pLight->SetDiffuse( Math::Vec4( 1.0f , 1.0f , 1.0f , 1.0f ) );
-		pLight->SetPosition( Math::Vec4( 100.0f , 100.0f , 100.0f , 1.0f ) ); 
+		pLight->SetPosition( Math::Vec4( -100.0f , -100.0f , -100.0f , 1.0f ) ); 
 	}
 	
 	Render::Light* pLight1 = m_pRenderer->CreateLight( "Light1" );

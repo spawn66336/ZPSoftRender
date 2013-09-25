@@ -27,13 +27,15 @@ VS_OUTPUT main( VS_INPUT input )
 	VS_OUTPUT output;
 	
 	//构造从本地空间到屏幕空间的变换矩阵
-	float4x4 worldViewProj = mul( mul( m4World , m4View ), m4Proj );  
+	float4x4 worldView = mul( m4World , m4View );
+	float4x4 worldViewProj = mul( worldView , m4Proj );  
 	
-	float4 f4ObjPosInView = mul( mul( input.f4Pos , m4World ) , m4View );
 	
- 	float3 f3NormalInView = normalize( mul( input.f3Norm , m4View ) );
-	float3 f3BinormalInView = normalize( mul( input.f3Binormal , m4View ) );
-	float3 f3TangentInView = normalize( mul( input.f3Tangent , m4View ) );
+	float4 f4ObjPosInView = mul( input.f4Pos , worldView );
+	
+ 	float3 f3NormalInView = normalize( mul( input.f3Norm , worldView ) );
+	float3 f3BinormalInView = normalize( mul( input.f3Binormal , worldView ) );
+	float3 f3TangentInView = normalize( mul( input.f3Tangent , worldView ) );
 	
 	//将光线变换到视觉空间内
 	float3 f3LightDirInView = f3LightPos - f4ObjPosInView.xyz;
