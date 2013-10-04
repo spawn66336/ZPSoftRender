@@ -21,6 +21,7 @@ m_pVS(NULL),
 m_pPS(NULL),
 m_pD3DVSConstantTab(NULL),
 m_pD3DPSConstantTab(NULL),
+m_pEffect(NULL),
 m_uiFVF(0),
 m_hWnd(NULL),
 m_fAspect(1.0f),
@@ -30,6 +31,7 @@ m_bEnableTexture(true),
 m_bEnableDepthTest(true),
 m_shadeModel(WIREFRAME_MODEL)
 {
+	memset( &m_material , 0 , sizeof( m_material ) );
 	memset( &m_d3dParams , 0 , sizeof( m_d3dParams ) );
 }
 
@@ -92,6 +94,12 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 	bRes = _LoadPixelShader( ".\\shader\\normal_map.ps" , &m_pPS );
 	ZP_ASSERT( bRes );
 
+	//初始化字体
+	_InitFont();
+
+	//初始化效果
+	_InitEffect();
+
 	//创建顶点缓冲区
 	_InitVB();
 }
@@ -101,16 +109,21 @@ void D3DRenderImpl::Destroy()
 	//销毁顶点缓冲区
 	_DestroyVB();
 
+	//销毁效果
+	_DestroyEffect();
+
+	//销毁字体
+	_DestroyFont();
+
 	//销毁纹理 
 	_DestroyTextureCache();
-
+	 
 	ZP_SAFE_RELEASE( m_pD3DVSConstantTab );
 	ZP_SAFE_RELEASE( m_pD3DPSConstantTab ); 
 	//销毁顶点着色器
 	ZP_SAFE_RELEASE( m_pVS );
 	//销毁像素着色器
-	 ZP_SAFE_RELEASE( m_pPS );
- 
+	ZP_SAFE_RELEASE( m_pPS );
 
 	//释放D3D9设备
 	 ZP_SAFE_RELEASE( m_pD3D9Device ); 
@@ -162,6 +175,30 @@ void D3DRenderImpl::BeginDraw( Camera* pCam )
 void D3DRenderImpl::EndDraw( void )
 {    
 	_DrawHelper();
+
+	String strShadeModel;
+	switch( m_shadeModel )
+	{
+	case 	WIREFRAME_MODEL:
+		strShadeModel = "线框渲染";
+		break;
+	case FLAT_MODEL:
+		strShadeModel = "Flat渲染";
+		break;
+	case GOURAUD_MODEL:
+		strShadeModel = "Gouraud渲染";
+		break;
+	case PHONG_MODEL:
+		strShadeModel = "Phong渲染";
+		break;
+	case NORMMAP_MODEL:
+		strShadeModel = "凹凸渲染";
+		break;
+	default:
+		break;
+	}
+	_DrawText( 0 , 0 , strShadeModel.c_str() );
+ 
 	m_pD3D9Device->EndScene();
 }
 
@@ -194,27 +231,24 @@ void D3DRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 	Resource::Texture2D* pNormTex = pMaterial->GetTexture( BUMPMAP_CH ); 
 	_CommitTexture( pNormTex , BUMPMAP_CH );
 
-	//应用材质
-	D3DMATERIAL9 d3d9Material;
-	memset( &d3d9Material , 0 , sizeof( d3d9Material ) ); 
-	memcpy( &d3d9Material.Ambient , &pMaterial->GetAmbient() , sizeof(D3DCOLORVALUE) );
-	memcpy( &d3d9Material.Diffuse , &pMaterial->GetDiffuse() , sizeof(D3DCOLORVALUE) );
-	memcpy( &d3d9Material.Specular , &pMaterial->GetSpecular() , sizeof(D3DCOLORVALUE) );
-	d3d9Material.Power = pMaterial->GetShininess();  
+	//应用材质 
+	memset( &m_material , 0 , sizeof( m_material ) ); 
+	memcpy( &m_material.Ambient , &pMaterial->GetAmbient() , sizeof(D3DCOLORVALUE) );
+	memcpy( &m_material.Diffuse , &pMaterial->GetDiffuse() , sizeof(D3DCOLORVALUE) );
+	memcpy( &m_material.Specular , &pMaterial->GetSpecular() , sizeof(D3DCOLORVALUE) );
+	m_material.Power = pMaterial->GetShininess();   
+	m_pD3D9Device->SetMaterial( & m_material ); 
+	//m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
+	//m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
+	//m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
+	//m_pD3DVSConstantTab->SetValue( m_pD3D9Device , "f3LightPos"  , &(m_currLight.Position) , sizeof(m_currLight.Position) );
+	//m_pD3D9Device->SetVertexShader( m_pVS );
 
-	m_pD3D9Device->SetMaterial( & d3d9Material );
-
-	 
-	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
-	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
-	m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
-	m_pD3DVSConstantTab->SetValue( m_pD3D9Device , "f3LightPos"  , &(m_currLight.Position) , sizeof(m_currLight.Position) );
-	m_pD3D9Device->SetVertexShader( m_pVS );
-
-	m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "diffuseTex" , DIFFUSE_CH );
-	m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "normalTex" , BUMPMAP_CH );
-	m_pD3DPSConstantTab->SetValue( m_pD3D9Device , "g_Material" , &d3d9Material , sizeof(d3d9Material) );
-	m_pD3D9Device->SetPixelShader( m_pPS );
+	//m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "diffuseTex" , DIFFUSE_CH );
+	//m_pD3DPSConstantTab->SetInt( m_pD3D9Device , "normalTex" , BUMPMAP_CH );
+	//m_pD3DPSConstantTab->SetValue( m_pD3D9Device , "g_Material" , &d3d9Material , sizeof(d3d9Material) );
+	//m_pD3D9Device->SetPixelShader( m_pPS ); 
+	
 }
 
 
@@ -290,18 +324,70 @@ void D3DRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 	{
 		return;
 	}
+
 	unsigned int uiVertCount = renderPrimitive.VertexBuf().Count();
 	unsigned int uiIndexCount = renderPrimitive.IndicesCount();
 	unsigned int uiFaceCount = uiIndexCount / 3;
 
 	_PrepareRender( renderPrimitive );
-	  
-	//m_pD3D9Device->SetTransform( D3DTS_WORLD ,  (D3DMATRIX*)( m_m4WorldMat.m ) );
+
 	m_pD3D9Device->SetStreamSource( 0 , m_pD3DVB , 0 , sizeof(d3dRenderVert_t)  );
 	m_pD3D9Device->SetFVF( m_uiFVF );
 	m_pD3D9Device->SetIndices( m_pD3DIB ); 
-	m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount );
- 
+
+	bool bUseEffect = false; 
+	String techniqueName = "NormalMapShading";
+	switch( m_shadeModel )
+	{
+	case WIREFRAME_MODEL:
+		break;
+	case FLAT_MODEL:
+		break;
+	case GOURAUD_MODEL: 
+		break;
+	case PHONG_MODEL:
+		techniqueName = "PhongShading";
+		bUseEffect = true;
+		break;
+	case NORMMAP_MODEL:
+		techniqueName = "NormalMapShading";
+		bUseEffect = true;
+		break;
+	default:
+		break;
+	}
+	
+	if( m_pEffect && bUseEffect )
+	{ 
+		UINT uiPassCount = 0;  
+		HRESULT hRes = m_pEffect->SetTechnique( techniqueName.c_str() );
+
+		m_pEffect->Begin( &uiPassCount ,  0 ); 
+
+		for( UINT uiPass = 0 ; uiPass < uiPassCount ; uiPass++ )
+		{ 
+			m_pEffect->BeginPass( uiPass );
+
+			m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
+			m_pEffect->SetMatrix( "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
+			m_pEffect->SetMatrix( "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
+			m_pEffect->SetValue( "f3LightPos"  , &(m_currLight.Position) , sizeof(m_currLight.Position) ); 
+			m_pEffect->SetInt(  "diffuseTex" , DIFFUSE_CH );
+			m_pEffect->SetInt(  "normalTex" , BUMPMAP_CH );
+			m_pEffect->SetValue( "g_Material" , (LPCVOID)&m_material , sizeof(m_material) );
+
+			m_pEffect->CommitChanges();
+
+			m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount ); 
+
+			m_pEffect->EndPass();
+		}
+		m_pEffect->End();
+	}else{  
+
+		m_pD3D9Device->SetTransform( D3DTS_WORLD , (D3DMATRIX*)( m_m4WorldMat.m ) ); 
+		m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount );
+	}
 }
 
 void D3DRenderImpl::EnableTexture2D( bool enable )
@@ -536,6 +622,8 @@ void D3DRenderImpl::_DrawHelper( void )
 	m_pD3D9Device->SetStreamSource( 0 , m_pD3DHelperVB , 0 , sizeof(d3dRenderVert2_t) );
 	m_pD3D9Device->SetFVF( D3DFVF_XYZ|D3DFVF_DIFFUSE ); 
 	m_pD3D9Device->DrawPrimitive( D3DPT_LINELIST , 0 , 3 ); 
+
+	
 }
 
 void D3DRenderImpl::_SetupMatrices( Camera* pCam )
@@ -548,19 +636,22 @@ void D3DRenderImpl::_SetupMatrices( Camera* pCam )
 	m_m4ViewMat = pCam->GetCameraMatrix(); 
 	m_pD3D9Device->SetTransform(  D3DTS_VIEW , (D3DMATRIX*)( m_m4ViewMat.m ) );
 
-	m_m4ProjMat = 
-		Math::Matrix4::MakeD3DProjectionMatrix( 60.0f , m_fAspect , 2.0f , 1000.0f );  
+	m_m4ProjMat = Math::Matrix4::MakeD3DProjectionMatrix( 60.0f , m_fAspect , 2.0f , 1000.0f );  
 	m_pD3D9Device->SetTransform(  D3DTS_PROJECTION ,  (D3DMATRIX*)( &m_m4ProjMat.m ) );   
 }
 
 void D3DRenderImpl::_OnDeviceReset( void )
-{
+{ 
+	m_pFont->OnResetDevice();
+	_InitEffect();
 	_InitVB(); 
 }
 
 void D3DRenderImpl::_OnDeviceLost( void )
 { 
 	_DestroyVB();   
+	_DestroyEffect();
+	m_pFont->OnLostDevice();
 	_DestroyTextureCache();
 }
 
@@ -632,12 +723,12 @@ void D3DRenderImpl::_ApplyAllLights( void )
 				memcpy( &m_currLight.Specular , &( pLight->Specular() ) , sizeof(D3DCOLORVALUE) );
 				memcpy( &m_currLight.Position , &( pLight->Position()) , sizeof(D3DVECTOR) );
 				m_currLight.Attenuation0 = 1.0f; 
-				m_currLight.Range = 1000.0f;
-				break;
-				//m_pD3D9Device->SetLight( iLightIndx, &d3dLight );  
-				//m_pD3D9Device->LightEnable( iLightIndx, TRUE ); 
+				m_currLight.Range = 1000.0f; 
+
+				m_pD3D9Device->SetLight( iLightIndx, &m_currLight );  
+				m_pD3D9Device->LightEnable( iLightIndx, TRUE ); 
 			}else{
-				/*m_pD3D9Device->LightEnable( iLightIndx , FALSE );*/
+				m_pD3D9Device->LightEnable( iLightIndx , FALSE );
 			}
 
 			iLightIndx++;
@@ -738,6 +829,73 @@ void D3DRenderImpl::_UnapplyShaders( void )
 	m_pD3D9Device->SetPixelShader( NULL );
 }
 
+void D3DRenderImpl::_InitEffect( void )
+{
+	DWORD dwFlags = 
+#ifdef ZP_DEBUG
+		D3DXSHADER_FORCE_VS_SOFTWARE_NOOPT|
+		D3DXSHADER_FORCE_PS_SOFTWARE_NOOPT|
+		D3DXSHADER_NO_PRESHADER
+#else
+		0
+#endif
+		; 
 
+	ID3DXBuffer* pBuf = NULL;
+
+	HRESULT hRes = 
+		D3DXCreateEffectFromFileA( 
+			m_pD3D9Device , 
+			".\\shader\\shader.fx" , 
+			NULL , 
+			NULL , 
+			0 ,
+			NULL ,
+			&m_pEffect ,
+			&pBuf
+		);
+	String errStr;
+	if( pBuf )
+	{
+		errStr = (char*)pBuf->GetBufferPointer();
+	}
+
+	ZP_ASSERT( SUCCEEDED( hRes ) );
+}
+
+void D3DRenderImpl::_DestroyEffect( void )
+{
+	ZP_SAFE_RELEASE( m_pEffect );
+}
+
+void D3DRenderImpl::_InitFont( void )
+{
+	D3DXFONT_DESCA fontDesc;
+	memset( &fontDesc , 0 , sizeof( fontDesc ) );
+	strcpy(fontDesc.FaceName, "Arial");
+	fontDesc.Height = 20;
+	fontDesc.CharSet = GB2312_CHARSET;
+
+	D3DXCreateFontIndirectA( m_pD3D9Device , &fontDesc , &m_pFont );
+	ZP_ASSERT( NULL != m_pFont );
+
+}
+
+void D3DRenderImpl::_DestroyFont( void )
+{
+	ZP_SAFE_RELEASE( m_pFont );
+}
+
+void D3DRenderImpl::_DrawText( const int x , const int y , const String& str )
+{
+	RECT  rect;
+	rect.left = x;
+	rect.top = y;
+	rect.right = x + 800;
+	rect.bottom = y + 600;
+	m_pFont->DrawTextA( NULL , str.c_str() , -1 , &rect , DT_TOP | DT_LEFT , D3DCOLOR_RGBA( 0, 255 , 0 , 255 ) );
+}
+
+ 
 
 }//namespace Render

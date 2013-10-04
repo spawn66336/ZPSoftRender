@@ -61,6 +61,7 @@ namespace Render
 		virtual void MultMatrix( const Math::Matrix4 &mat);
 
 	protected: 
+
 		void _SetupMatrices( Camera* pCam );
 		void _ApplyShaders( void );
 		void _UnapplyShaders( void );
@@ -77,8 +78,15 @@ namespace Render
 		void _ApplyShadeModel( void );
 		void _ApplyAllLights( void );
 		void _DestroyTextureCache( void );
+
+		void _DrawText( const int x , const int y , const String& str );
+		void _InitFont( void );
+		void _DestroyFont( void );
+		void _InitEffect( void ); 
+		void _DestroyEffect( void );
 		bool _LoadVertexShader( const String& filename , IDirect3DVertexShader9 ** ppVS );
 		bool _LoadPixelShader( const String& filename , IDirect3DPixelShader9 ** ppPS );
+
 	protected: 
 		D3DPRESENT_PARAMETERS m_d3dParams;
 		IDirect3D9* m_pD3D9;
@@ -86,15 +94,18 @@ namespace Render
 		LPDIRECT3DVERTEXBUFFER9 m_pD3DVB;
 		LPDIRECT3DINDEXBUFFER9 m_pD3DIB;
 
+
 		LPDIRECT3DVERTEXBUFFER9 m_pD3DHelperVB;
 		LPDIRECT3DINDEXBUFFER9 m_pD3DHelperIB;
 
-		IDirect3DVertexShader9* m_pVS;		//顶点着色器  
+		IDirect3DVertexShader9* m_pVS;		///>顶点着色器  
 		LPD3DXCONSTANTTABLE  m_pD3DVSConstantTab; 
-		IDirect3DPixelShader9* m_pPS;		//像素着色器
+		IDirect3DPixelShader9* m_pPS;		///>像素着色器
 		LPD3DXCONSTANTTABLE  m_pD3DPSConstantTab; 
 		D3DLIGHT9 m_currLight;
-		
+		D3DMATERIAL9 m_material;
+		LPD3DXEFFECT m_pEffect;
+		ID3DXFont* m_pFont;
 
 		D3DVIEWPORT9 m_viewPort;
 		unsigned int m_uiFVF;
@@ -107,11 +118,11 @@ namespace Render
 		bool m_bEnableDepthTest;
 		SHADE_MODEL m_shadeModel;
 
-		Math::Matrix4 m_m4ProjMat;		//投影矩阵
-		Math::Matrix4 m_m4ViewMat;
-		Math::Matrix4 m_m4WorldMat; 
+		Math::Matrix4 m_m4ProjMat;		///>投影矩阵
+		Math::Matrix4 m_m4ViewMat;     ///>世界到相机矩阵
+		Math::Matrix4 m_m4WorldMat;   ///>世界矩阵
 		typedef std::stack<Math::Matrix4> matrixStack_t; 
-		matrixStack_t m_worldMatrixStack;
+		matrixStack_t m_worldMatrixStack;	///>世界矩阵栈
 		typedef std::map< unsigned int , IDirect3DTexture9*> textureList_t;
 		textureList_t m_textureCache;
 		typedef std::map<String,Light*> lightTable_t; 
