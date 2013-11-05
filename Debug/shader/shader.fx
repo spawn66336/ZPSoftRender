@@ -1,4 +1,6 @@
 
+#include "global.fx"
+
 //顶点着色器输入
 struct VS_INPUT
 {
@@ -46,9 +48,7 @@ struct Material_t
 };
 
  
-uniform float4x4 m4World;
-uniform float4x4 m4View;
-uniform float4x4 m4Proj;
+
 uniform float3 f3LightPos;
 
 

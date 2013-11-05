@@ -21,6 +21,8 @@ m_pVS(NULL),
 m_pPS(NULL),
 m_pD3DVSConstantTab(NULL),
 m_pD3DPSConstantTab(NULL),
+m_pEffectPool(NULL),
+m_pGlobalConstEffect(NULL),
 m_pEffect(NULL),
 m_uiFVF(0),
 m_hWnd(NULL),
@@ -238,6 +240,11 @@ void D3DRenderImpl::ApplyMaterial( Resource::Material* pMaterial )
 	memcpy( &m_material.Specular , &pMaterial->GetSpecular() , sizeof(D3DCOLORVALUE) );
 	m_material.Power = pMaterial->GetShininess();   
 	m_pD3D9Device->SetMaterial( & m_material ); 
+
+	m_pGlobalConstEffect->SetMatrix( "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
+	m_pGlobalConstEffect->SetMatrix( "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
+	m_pGlobalConstEffect->SetMatrix( "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
+	
 	//m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
 	//m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
 	//m_pD3DVSConstantTab->SetMatrix( m_pD3D9Device , "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
@@ -362,24 +369,17 @@ void D3DRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 		UINT uiPassCount = 0;  
 		HRESULT hRes = m_pEffect->SetTechnique( techniqueName.c_str() );
 
+		m_pEffect->SetValue( "f3LightPos"  , &(m_currLight.Position) , sizeof(m_currLight.Position) ); 
+		m_pEffect->SetInt(  "diffuseTex" , DIFFUSE_CH );
+		m_pEffect->SetInt(  "normalTex" , BUMPMAP_CH );
+		m_pEffect->SetValue( "g_Material" , (LPCVOID)&m_material , sizeof(m_material) ); 
+
 		m_pEffect->Begin( &uiPassCount ,  0 ); 
 
 		for( UINT uiPass = 0 ; uiPass < uiPassCount ; uiPass++ )
 		{ 
-			m_pEffect->BeginPass( uiPass );
-
-			m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
-			m_pEffect->SetMatrix( "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
-			m_pEffect->SetMatrix( "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m );
-			m_pEffect->SetValue( "f3LightPos"  , &(m_currLight.Position) , sizeof(m_currLight.Position) ); 
-			m_pEffect->SetInt(  "diffuseTex" , DIFFUSE_CH );
-			m_pEffect->SetInt(  "normalTex" , BUMPMAP_CH );
-			m_pEffect->SetValue( "g_Material" , (LPCVOID)&m_material , sizeof(m_material) );
-
-			m_pEffect->CommitChanges();
-
-			m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount ); 
-
+			m_pEffect->BeginPass( uiPass );   
+					m_pD3D9Device->DrawIndexedPrimitive( D3DPT_TRIANGLELIST , 0 , 0 , uiVertCount  , 0 , uiFaceCount );  
 			m_pEffect->EndPass();
 		}
 		m_pEffect->End();
@@ -829,6 +829,47 @@ void D3DRenderImpl::_UnapplyShaders( void )
 	m_pD3D9Device->SetPixelShader( NULL );
 }
 
+class D3DIncludeCallback : public ID3DXInclude
+{
+	STDMETHOD(Open)(THIS_ D3DXINCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes)
+	{
+		String strPath = ".\\shader\\";
+		strPath.append( pFileName );
+		FILE* pFile = NULL;
+		if( 0 != fopen_s( &pFile , strPath.c_str() , "rb" ) )
+		{
+			return S_FALSE;
+		}
+		ZP_ASSERT( pFile != NULL );
+		
+		fseek( pFile , 0 , SEEK_END );
+		int iFileLen = ftell( pFile );
+		
+
+		void* pBuf = new char[iFileLen+1];
+		ZP_ASSERT( NULL != pBuf );
+		memset( pBuf , 0 , iFileLen+1);
+
+		fseek( pFile , 0 , SEEK_SET );
+		*pBytes = fread_s( pBuf , iFileLen+1 , 1 , iFileLen , pFile );
+		*ppData = pBuf;
+
+		fclose( pFile );
+		pFile = NULL;
+		return S_OK;
+	}
+	STDMETHOD(Close)(THIS_ LPCVOID pData)
+	{
+		ZP_ASSERT( pData );
+
+		char* pBuf = (char*)pData;
+		delete[] pBuf;
+		pBuf = NULL;
+
+		return S_OK;
+	}
+};
+
 void D3DRenderImpl::_InitEffect( void )
 {
 	DWORD dwFlags = 
@@ -841,24 +882,44 @@ void D3DRenderImpl::_InitEffect( void )
 #endif
 		; 
 
-	ID3DXBuffer* pBuf = NULL;
-
+	//创建全局变量共享的Pool
 	HRESULT hRes = 
+	D3DXCreateEffectPool( &m_pEffectPool );
+	ZP_ASSERT( SUCCEEDED( hRes ) );
+
+	ID3DXBuffer* pErrorBuf = NULL; 
+	D3DIncludeCallback d3dIncludeCallback;
+
+	hRes = 
+		D3DXCreateEffectFromFileA( 
+		m_pD3D9Device , 
+		"globalconst.fx" , 
+		NULL , 
+		&d3dIncludeCallback , 
+		0 ,
+		m_pEffectPool ,
+		&m_pGlobalConstEffect ,
+		&pErrorBuf
+		);
+
+
+	 hRes = 
 		D3DXCreateEffectFromFileA( 
 			m_pD3D9Device , 
-			".\\shader\\shader.fx" , 
+			"shader.fx" , 
 			NULL , 
-			NULL , 
+			&d3dIncludeCallback , 
 			0 ,
-			NULL ,
+			m_pEffectPool ,
 			&m_pEffect ,
-			&pBuf
+			&pErrorBuf
 		);
-	String errStr;
-	if( pBuf )
-	{
-		errStr = (char*)pBuf->GetBufferPointer();
-	}
+
+	 String errStr;
+	 if( pErrorBuf )
+	 {
+		 errStr = (char*)pErrorBuf->GetBufferPointer();
+	 }
 
 	ZP_ASSERT( SUCCEEDED( hRes ) );
 }

@@ -104,6 +104,8 @@ namespace Render
 		LPD3DXCONSTANTTABLE  m_pD3DPSConstantTab; 
 		D3DLIGHT9 m_currLight;
 		D3DMATERIAL9 m_material;
+		ID3DXEffectPool* m_pEffectPool;	 ///>用于共享全局变量
+		LPD3DXEFFECT m_pGlobalConstEffect; ///>用于变更全局变量的Effect
 		LPD3DXEFFECT m_pEffect;
 		ID3DXFont* m_pFont;
 
