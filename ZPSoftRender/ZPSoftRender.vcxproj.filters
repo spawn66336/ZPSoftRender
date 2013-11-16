@@ -165,6 +165,15 @@
     <ClCompile Include="D3DRenderImpl.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
+    <ClCompile Include="D3DRenderOperation.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRenderPipeline.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DIncludeCallback.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -321,6 +330,15 @@
       <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="D3DRenderImpl.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRenderOperation.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRenderPipeline.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DIncludeCallback.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>

@@ -20,6 +20,7 @@ public:
 // 操作
 public:
 
+	void SetEngine( ZP3DEngine* pEngine ,  Camera* pCamera );
 	void RenderOneFrame(void);
 
 	//实现FrameListener接口

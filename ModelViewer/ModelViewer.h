@@ -9,6 +9,8 @@
 
 #include "resource.h"       // 主符号
 
+#include "ZP3DEngine.h"
+#include "Camera.h"
 
 // CModelViewerApp:
 // 有关此类的实现，请参阅 ModelViewer.cpp
@@ -35,6 +37,11 @@ public:
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL OnIdle(LONG lCount);
+
+protected:
+
+	ZP3DEngine* m_pEngine;
+	Camera*		  m_pCamera;
 };
 
 extern CModelViewerApp theApp;

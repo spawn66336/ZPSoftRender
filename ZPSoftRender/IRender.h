@@ -113,6 +113,13 @@ public:
 	*/
 	virtual void ApplyMaterial( Resource::Material* pMaterial ) = 0;
 
+	virtual void UnapplyMaterial( Resource::Material* pMaterial ) {};
+
+	/**
+	* @brief 当前渲染设备是否可用
+	* @remark 用来应对D3D设备丢失
+	*/
+	virtual bool IsActive( void ) { return true; }
 	
 	/**
 	* @brief 绘制几何图源
@@ -210,6 +217,12 @@ public:
 	* @remark 此函数只影响模型视图矩阵
 	*/
 	virtual void MultMatrix( const Math::Matrix4 &mat) = 0;
+
+	/**
+	* @brief 用来D3D渲染器捕获用户子模型信息
+	*/
+	virtual void* GetUserPointer( void ) const { return NULL; }
+	virtual void SetUserPointer( void* p ) { }
 
 };
 

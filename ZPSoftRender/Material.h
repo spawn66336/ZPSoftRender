@@ -39,6 +39,10 @@ namespace Resource
 		Texture2D* GetTexture( int channel );
 		void SetTexture( Texture2D* pTexture, int channel );  
 
+		//用户自定义指针
+		void* GetUserPointer( void ) const { return m_pUserPointer; }
+		void SetUserPointer( void* p ){ m_pUserPointer = p; }
+
 	protected:
 
 		String m_name;
@@ -47,6 +51,7 @@ namespace Resource
 		Math::Vec4 m_specular;
 		Real			   m_shininess;
 		Texture2D* m_texChannels[MAX_TEXTURE_CHANNEL];
+		void* m_pUserPointer; 
 	};
 
 }//namespace Resource

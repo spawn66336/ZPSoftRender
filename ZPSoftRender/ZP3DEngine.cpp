@@ -109,20 +109,25 @@ void ZP3DEngine::RenderOneFrame( void )
 		m_pFrameListener->FrameStarted();
 	}
 
-	//摄像机在移动时为了不卡顿切换至线框渲染
-	if( m_bIsMoving )
-	{
-		m_pRenderer->SetShadingModel( Render::WIREFRAME_MODEL );
-	}else{
-		m_pRenderer->SetShadingModel( (Render::SHADE_MODEL)m_uiShadeModel );
-	}
+	if( m_pRenderer->IsActive() )
+	{ 
+			//摄像机在移动时为了不卡顿切换至线框渲染
+			if( m_bIsMoving )
+			{
+				m_pRenderer->SetShadingModel( Render::WIREFRAME_MODEL );
+			}else{
+				m_pRenderer->SetShadingModel( (Render::SHADE_MODEL)m_uiShadeModel );
+			}
 
-	m_pRenderer->BeginDraw( m_pCamera ); 
+			m_pRenderer->BeginDraw( m_pCamera ); 
 	
-		Resource::MeshManager::GetInstance()->DrawActiveMesh( m_pRenderer , m_meshMatrix );
+				Resource::MeshManager::GetInstance()->DrawActiveMesh( m_pRenderer , m_meshMatrix );
 
-	m_pRenderer->EndDraw();
+			m_pRenderer->EndDraw(); 
+
 	m_pRenderer->SwapBuffers();
+
+	}//if( m_pRenderer->IsActive() )
 
 	if( m_pFrameListener )
 	{

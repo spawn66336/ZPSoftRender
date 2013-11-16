@@ -32,6 +32,8 @@ namespace Resource
 		unsigned int GetTextureHandle(void) const { return m_textureHandle; }
 		void SetTextureHandle( const int handle ){ m_textureHandle = handle; }
 
+		void* GetUserPointer( void ) const { return m_pUserPointer; }
+		void SetUserPointer( void* p) { m_pUserPointer = p; }
 	protected:
 
 		String m_name;			///>纹理名称
@@ -41,6 +43,7 @@ namespace Resource
 		unsigned char*  m_pixels;	///>像素缓冲区
 
 		unsigned int m_textureHandle; ///>用于OpenGL
+		void* m_pUserPointer;
 	};
 
 }//namespace Resource

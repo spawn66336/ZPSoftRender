@@ -61,8 +61,7 @@ CModelViewerView::CModelViewerView():
 }
 
 CModelViewerView::~CModelViewerView()
-{
-	ZP_SAFE_DELETE( m_pEngine ); 
+{ 
 }
 
 BOOL CModelViewerView::PreCreateWindow(CREATESTRUCT& cs)
@@ -159,34 +158,23 @@ void CModelViewerView::RenderOneFrame( void )
 
 void CModelViewerView::OnDestroy()
 {
-	CView::OnDestroy();
-	 
-	m_pEngine->Destroy();
+	m_pEngine = NULL;
+	m_pCamera = NULL;
+	CView::OnDestroy(); 
 }
 
 
 int CModelViewerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
-		return -1;
-
-
-	//初始化引擎 
-	m_pEngine = new ZP3DEngine;
-	m_pEngine->Init( this->GetSafeHwnd() );
-	m_pEngine->LoadResources();
-	m_pCamera = m_pEngine->GetCamera();
-	m_pEngine->RegisterFrameListener( this ); 
-	 
+		return -1;  
 	return 0;
 }
 
 
 void CModelViewerView::OnSize(UINT nType, int cx, int cy)
 {
-	
 	CView::OnSize(nType, cx, cy);
-	
 
 	if( m_pEngine )
 	{
@@ -334,6 +322,7 @@ void CModelViewerView::FrameStarted( void )
 
 	//禁用掉拖动时变为线框渲染
 	bMovingFlag = false;
+	if( m_pEngine )
 	m_pEngine->SetMovingFlag( bMovingFlag );
 }
 
@@ -391,31 +380,36 @@ void CModelViewerView::OnFrameShading()
 
 void CModelViewerView::OnFlatShading()
 { 
+	if( m_pEngine )
 	m_pEngine->SetShadeModel( Render::FLAT_MODEL );
 }
 
 
 void CModelViewerView::OnGouraudShading()
 { 
+	if( m_pEngine )
 	m_pEngine->SetShadeModel( Render::GOURAUD_MODEL );
 }
 
 
 void CModelViewerView::OnPhongShading()
 { 
+	if( m_pEngine )
 	m_pEngine->SetShadeModel( Render::PHONG_MODEL );
 }
 
 
 void CModelViewerView::OnBumpShading()
 { 
+	if( m_pEngine )
 	m_pEngine->SetShadeModel( Render::NORMMAP_MODEL );
 }
 
 
 void CModelViewerView::OnResetModel()
 {
-	m_pEngine->ResetMesh();
+	if( m_pEngine )
+		m_pEngine->ResetMesh();
 }
 
 
@@ -453,4 +447,10 @@ void CModelViewerView::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	__super::OnShowWindow(bShow, nStatus);
 
+}
+
+void CModelViewerView::SetEngine( ZP3DEngine* pEngine , Camera* pCamera )
+{
+	m_pEngine = pEngine;
+	m_pCamera = pCamera;
 }

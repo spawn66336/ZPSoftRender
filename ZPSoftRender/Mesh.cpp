@@ -96,6 +96,9 @@ namespace Resource
 			SubMesh* pSubMesh = itSubMesh->second;
 			ZP_ASSERT( NULL != pSubMesh );
 
+			//声明之后绘制的模型来自哪个子模型
+			pRenderer->SetUserPointer( (void*)pSubMesh );
+
 			Resource::Material* pMaterial = pSubMesh->GetMaterial();
 
 			pRenderer->PushMatrix(); 
@@ -107,6 +110,10 @@ namespace Resource
 			} 
 				pRenderer->DrawElements( pSubMesh->RenderData() );
 
+			if( NULL != pMaterial )
+			{
+				pRenderer->UnapplyMaterial( pMaterial );
+			}
 			pRenderer->PopMatrix();
 			itSubMesh++;
 		}

@@ -10,7 +10,8 @@ m_width(0),
 m_height(0),
 m_bpp(0),
 m_pixels(NULL),
-m_textureHandle(0)
+m_textureHandle(0),
+m_pUserPointer(0)
 {
 }
 

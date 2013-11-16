@@ -132,20 +132,38 @@ BOOL CModelViewerApp::InitInstance()
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 
+	CRect desktopRect;
+	::GetWindowRect( GetDesktopWindow() , &desktopRect );
+
+	m_pMainWnd->SetWindowPos( &CWnd::wndNoTopMost , 0 , 0 , desktopRect.Width() , desktopRect.Height() , SWP_FRAMECHANGED );
 	// 唯一的一个窗口已初始化，因此显示它并对其进行更新
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
+	 
+	//初始化引擎 
+	m_pEngine = new ZP3DEngine;
+	m_pEngine->Init( ( (CModelViewerView*)( ((CMainFrame*)AfxGetMainWnd())->GetActiveView() ) )->GetSafeHwnd() );
+	m_pEngine->LoadResources();
+	m_pCamera = m_pEngine->GetCamera();
+	m_pEngine->RegisterFrameListener( ( (CModelViewerView*)( ((CMainFrame*)AfxGetMainWnd())->GetActiveView() ) ) ); 
+
+	( (CModelViewerView*)( ((CMainFrame*)AfxGetMainWnd())->GetActiveView() ) )->SetEngine( m_pEngine , m_pCamera );
+
 	// 仅当具有后缀时才调用 DragAcceptFiles
 	//  在 SDI 应用程序中，这应在 ProcessShellCommand 之后发生
 	return TRUE;
 }
 
 int CModelViewerApp::ExitInstance()
-{
+{  
+	m_pEngine->Destroy();
+	ZP_SAFE_DELETE( m_pEngine ); 
 	//TODO: 处理可能已添加的附加资源
-	AfxOleTerm(FALSE);
+	AfxOleTerm(FALSE); 
+	return CWinAppEx::ExitInstance(); 
 
-	return CWinAppEx::ExitInstance();
+	
+
 }
 
 // CModelViewerApp 消息处理程序
@@ -211,15 +229,13 @@ void CModelViewerApp::SaveCustomState()
 }
 
 // CModelViewerApp 消息处理程序
-
-
-
-
-
+ 
 BOOL CModelViewerApp::OnIdle(LONG lCount)
 { 
-	( (CModelViewerView*)( ((CMainFrame*)AfxGetMainWnd())->GetActiveView() ) )->RenderOneFrame();
-
+	if( m_pEngine )
+	{
+		m_pEngine->RenderOneFrame();
+	} 
 	return TRUE;
 	/*return CWinAppEx::OnIdle(lCount);*/
 }

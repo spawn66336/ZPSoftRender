@@ -95,7 +95,10 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
     <ClCompile Include="ColladaMeshLoader.cpp" />
     <ClCompile Include="ColladaMeshReader.cpp" />
     <ClCompile Include="ColladaSubMeshReader.cpp" />
+    <ClCompile Include="D3DIncludeCallback.cpp" />
     <ClCompile Include="D3DRenderImpl.cpp" />
+    <ClCompile Include="D3DRenderOperation.cpp" />
+    <ClCompile Include="D3DRenderPipeline.cpp" />
     <ClCompile Include="FlatShadingPipeline.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="PixelShader.cpp" />
@@ -137,7 +140,10 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
     <ClInclude Include="ColladaMeshLoader.h" />
     <ClInclude Include="ColladaMeshReader.h" />
     <ClInclude Include="ColladaSubMeshReader.h" />
+    <ClInclude Include="D3DIncludeCallback.h" />
     <ClInclude Include="D3DRenderImpl.h" />
+    <ClInclude Include="D3DRenderOperation.h" />
+    <ClInclude Include="D3DRenderPipeline.h" />
     <ClInclude Include="FlatShadingPipeline.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="PixelShader.h" />

@@ -34,6 +34,9 @@
 
 #define ZP_SAFE_RELEASE( x ) do{ if( NULL != (x) ){ (x)->Release(); (x) = NULL; } }while(0)
 
+//是否支持PerfHud在D3D渲染器下有效
+#define ZP_SUPPORT_PERFHUD
+
 typedef std::string String;
 
 typedef float Real; 

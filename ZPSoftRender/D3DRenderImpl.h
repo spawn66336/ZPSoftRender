@@ -4,6 +4,8 @@
 #include "IRender.h"
 #include <d3d9.h>
 #include "d3dx9shader.h"
+#include "D3DRenderOperation.h"
+#include "D3DRenderPipeline.h"
 
 class Camera;
 
@@ -35,6 +37,7 @@ namespace Render
 		D3DRenderImpl(void);
 		virtual ~D3DRenderImpl(void);
 
+		virtual bool IsActive( void );
 		virtual void Init( const winHandle_t hwnd );  
 		virtual void Destroy();
 		virtual void Resize(); 
@@ -44,6 +47,7 @@ namespace Render
 		virtual void SetClearColor( const Math::Vec4& color); 
 		virtual void ClearBuffer(unsigned int flag) ; 
 		virtual void ApplyMaterial( Resource::Material* pMaterial ); 
+		virtual void UnapplyMaterial( Resource::Material* pMaterial );
 		virtual  void DrawElements( RenderPrimitive& renderPrimitive );
 		virtual void EnableTexture2D( bool enable); 
 		virtual void EnableLight( bool enable );
@@ -60,6 +64,9 @@ namespace Render
 		virtual void LoadIdentity();
 		virtual void MultMatrix( const Math::Matrix4 &mat);
 
+		virtual void* GetUserPointer( void ) const { return m_pCurrSubMesh; }
+		virtual void SetUserPointer( void* p ) { m_pCurrSubMesh = p; }
+
 	protected: 
 
 		void _SetupMatrices( Camera* pCam );
@@ -72,12 +79,19 @@ namespace Render
 		void _DestroyHelperVB( void );
 		void _DrawHelper( void );
 		void _PrepareRender( RenderPrimitive& renderPrimitive );
+		void _PrepareRenderOperation( RenderPrimitive& renderPrimitive , D3DRenderOperation* pOp );
 		void _OnDeviceLost( void );
 		void _OnDeviceReset( void );
 		void _ApplyRenderState( void );
 		void _ApplyShadeModel( void );
 		void _ApplyAllLights( void );
 		void _DestroyTextureCache( void );
+
+		void _InitRT( void );
+		void _DestroyRT( void );
+		void _ResizeRT( const int w , const int h  );
+		void _ApplyRT( void );
+		void _UnapplyRT( void );
 
 		void _DrawText( const int x , const int y , const String& str );
 		void _InitFont( void );
@@ -88,12 +102,22 @@ namespace Render
 		bool _LoadPixelShader( const String& filename , IDirect3DPixelShader9 ** ppPS );
 
 	protected: 
+		bool m_bActive;
 		D3DPRESENT_PARAMETERS m_d3dParams;
 		IDirect3D9* m_pD3D9;
-		LPDIRECT3DDEVICE9 m_pD3D9Device;
-		LPDIRECT3DVERTEXBUFFER9 m_pD3DVB;
-		LPDIRECT3DINDEXBUFFER9 m_pD3DIB;
+		LPDIRECT3DDEVICE9 m_pD3D9Device;			//D3D设备 
+		IDirect3DVertexDeclaration9* m_pDefaultVBDecl; //默认的VB格式
 
+		void*					   m_pCurrSubMesh;				//用户当前渲染图元所属SubMesh
+		Resource::Material* m_pCurrMaterial;				//用户当前指定的材质，用于生成RenderOp
+		RenderOperationCache m_RenderOpCache;     //渲染操作缓冲区
+		D3DRenderPipeline	m_renderPipe;					//渲染管线
+
+		IDirect3DTexture9* m_pColorRT;						//颜色缓冲区纹理
+		IDirect3DSurface9* m_pColorRTSurface;			//颜色缓冲区的Surface
+		IDirect3DSurface9* m_pDepthStencilSurface;  //深度模板缓冲区
+		IDirect3DSurface9* m_pSavedColorRT;
+		IDirect3DSurface9* m_pSavedDepthStencilSurface;
 
 		LPDIRECT3DVERTEXBUFFER9 m_pD3DHelperVB;
 		LPDIRECT3DINDEXBUFFER9 m_pD3DHelperIB;
@@ -105,8 +129,7 @@ namespace Render
 		D3DLIGHT9 m_currLight;
 		D3DMATERIAL9 m_material;
 		ID3DXEffectPool* m_pEffectPool;	 ///>用于共享全局变量
-		LPD3DXEFFECT m_pGlobalConstEffect; ///>用于变更全局变量的Effect
-		LPD3DXEFFECT m_pEffect;
+		LPD3DXEFFECT m_pGlobalConstEffect; ///>用于变更全局变量的Effect 
 		ID3DXFont* m_pFont;
 
 		D3DVIEWPORT9 m_viewPort;
@@ -130,6 +153,8 @@ namespace Render
 		typedef std::map<String,Light*> lightTable_t; 
 		lightTable_t m_lights;						///>光源列表
 	};
+
+
 
 }//namespace Render
 

@@ -7,7 +7,8 @@ namespace Resource
 	m_ambient( 0.1f , 0.1f, 0.1f , 1.0f ),
 	m_diffuse( 0.75f , 0.75f , 0.75f , 1.0f ),
 	m_specular( 1.0f , 1.0f , 1.0f , 1.0f ),
-	m_shininess( 128.0f )
+	m_shininess( 128.0f ),
+	m_pUserPointer(NULL)
 	{ 
 		for( int iChannel = 0 ; iChannel < MAX_TEXTURE_CHANNEL ; iChannel++ )
 		{
@@ -18,6 +19,7 @@ namespace Resource
 
 	Material::~Material(void)
 	{
+		m_pUserPointer = NULL;
 	}  
 
 	void Material::SetTexture( Texture2D* pTexture, int channel )

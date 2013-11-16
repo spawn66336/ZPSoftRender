@@ -48,13 +48,10 @@ struct Material_t
 };
 
  
-
+float4x4 m4World;
 uniform float3 f3LightPos;
-
-
 sampler2D diffuseTex;
 sampler2D normalTex;
-
 uniform Material_t g_Material;
 
 
