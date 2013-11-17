@@ -79,7 +79,7 @@ namespace Render
 		void _DestroyHelperVB( void );
 		void _DrawHelper( void );
 		void _PrepareRender( RenderPrimitive& renderPrimitive );
-		void _PrepareRenderOperation( RenderPrimitive& renderPrimitive , D3DRenderOperation* pOp );
+		void _PrepareRenderOperation( RenderPrimitive& renderPrimitive , D3DRenderOperation* pOp ); 
 		void _OnDeviceLost( void );
 		void _OnDeviceReset( void );
 		void _ApplyRenderState( void );

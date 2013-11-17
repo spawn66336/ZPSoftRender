@@ -36,6 +36,7 @@
 
 //是否支持PerfHud在D3D渲染器下有效
 #define ZP_SUPPORT_PERFHUD
+//#define ZP_DEBUG_D3D
 
 typedef std::string String;
 

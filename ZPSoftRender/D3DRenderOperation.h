@@ -11,6 +11,7 @@ namespace Render
 	{
 	public:
 		Math::Matrix4						   m_worldMat;		//世界矩阵
+		unsigned int							   m_streamIndex; //流索引
 		IDirect3DVertexDeclaration9* m_pVertexDecl; //顶点定义
 		LPDIRECT3DVERTEXBUFFER9  m_pVB;				//绘制所用顶点缓冲区
 		LPDIRECT3DINDEXBUFFER9   m_pIB;				//绘制所用索引缓冲区
@@ -20,6 +21,7 @@ namespace Render
 		unsigned int							  m_primCount;		//图元数
 	public:
 		D3DRenderOperation():
+		  m_streamIndex(0),
 		  m_pVertexDecl(NULL),
 		  m_pVB(NULL),
 		  m_pIB(NULL),

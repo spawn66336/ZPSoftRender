@@ -43,6 +43,12 @@
     <Filter Include="源文件\Collada">
       <UniqueIdentifier>{a5595c8a-8bfe-4709-bdf5-5a8aba8275ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Terrain">
+      <UniqueIdentifier>{5b7e45a9-15f7-433e-b68c-266de8b5373e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Terrain">
+      <UniqueIdentifier>{d69abf84-8a65-4e9a-a60e-d0805c73a983}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vec2.cpp">
@@ -168,11 +174,20 @@
     <ClCompile Include="D3DRenderOperation.cpp">
       <Filter>源文件\Render</Filter>
     </ClCompile>
-    <ClCompile Include="D3DRenderPipeline.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="D3DIncludeCallback.cpp">
       <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DRenderPipeline.cpp">
+      <Filter>源文件\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ClipMapReader.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="ClipMapTerrain.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="ClipMapLevel.cpp">
+      <Filter>源文件\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -335,11 +350,23 @@
     <ClInclude Include="D3DRenderOperation.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
-    <ClInclude Include="D3DRenderPipeline.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="D3DIncludeCallback.h">
       <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DRenderPipeline.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipMapReader.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipMapTerrain.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipMapLevel.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipMapTerrainDefine.h">
+      <Filter>头文件\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

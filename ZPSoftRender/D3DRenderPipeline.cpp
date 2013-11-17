@@ -46,17 +46,8 @@ void D3DRenderPipeline::Render( void )
 		Resource::Material* pMat = matGroup.m_pMaterial;
 
 		Resource::Texture2D* pDiffTex = pMat->GetTexture( DIFFUSE_CH );
-		Resource::Texture2D* pNormTex = pMat->GetTexture( BUMPMAP_CH );
-
-		if( pDiffTex )
-		{
-			m_pDevice->SetTexture( DIFFUSE_CH , (IDirect3DTexture9*)pDiffTex->GetUserPointer() ); 
-		}
-
-		if( pNormTex )
-		{
-			m_pDevice->SetTexture( BUMPMAP_CH , (IDirect3DTexture9*)pNormTex->GetUserPointer() ); 
-		}
+		Resource::Texture2D* pNormTex = pMat->GetTexture( BUMPMAP_CH ); 
+	
 
 		String techniqueName = "NormalMapShading";
 	  
@@ -66,9 +57,7 @@ void D3DRenderPipeline::Render( void )
 			HRESULT hRes = m_pEffect->SetTechnique( techniqueName.c_str() );
 			
 			Math::Vec3 LightPos( 30.f , 30.f , 30.f ); 
-			m_pEffect->SetValue( "f3LightPos"  , &(LightPos) , sizeof(LightPos) ); 
-			m_pEffect->SetInt(  "diffuseTex" , DIFFUSE_CH );
-			m_pEffect->SetInt(  "normalTex" , BUMPMAP_CH );
+			m_pEffect->SetValue( "f3LightPos"  , &(LightPos) , sizeof(LightPos) );  
 
 			D3DMATERIAL9 material;
 			//应用材质 
@@ -77,7 +66,17 @@ void D3DRenderPipeline::Render( void )
 			memcpy( &material.Diffuse , &pMat->GetDiffuse() , sizeof(D3DCOLORVALUE) );
 			memcpy( &material.Specular , &pMat->GetSpecular() , sizeof(D3DCOLORVALUE) );
 			material.Power = pMat->GetShininess();     
+
 			m_pEffect->SetValue( "g_Material" , (LPCVOID)&material , sizeof(material) );  
+			if( pDiffTex )
+			{
+				m_pEffect->SetTexture( "diffuseTex" , (IDirect3DTexture9*)pDiffTex->GetUserPointer() );  
+			}
+
+			if( pNormTex )
+			{
+				m_pEffect->SetTexture( "normalTex" , (IDirect3DTexture9*)pNormTex->GetUserPointer() );  
+			}
 			 
 			m_pEffect->Begin( &uiPassCount ,  0 ); 
 
@@ -91,11 +90,11 @@ void D3DRenderPipeline::Render( void )
 					 
 						D3DRenderOperation* pOp = *itOp;
 						//设置私有变量
-						m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)pOp->m_worldMat.m ); 
+						m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)&( pOp->m_worldMat ) ); 
 						m_pEffect->CommitChanges(); 
 
 						m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
-						m_pDevice->SetStreamSource( 0 , pOp->m_pVB , 0 , pOp->m_stride  );
+						m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
 						m_pDevice->SetIndices( pOp->m_pIB ); 
 						m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );  
 
@@ -107,19 +106,18 @@ void D3DRenderPipeline::Render( void )
 
 			m_pEffect->End(); 
 		}
-		//auto itOp = matGroup.m_OpList.begin();
-		//while( itOp != matGroup.m_OpList.end() )
-		//{
-		//			 
-		//	D3DRenderOperation* pOp = *itOp;  
-		//	m_pDevice->SetTransform( D3DTS_WORLD , (D3DXMATRIX*)pOp->m_worldMat.m  );
-		//	m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
-		//	m_pDevice->SetStreamSource( 0 , pOp->m_pVB , 0 , pOp->m_stride  );
-		//	m_pDevice->SetIndices( pOp->m_pIB ); 
-		//	m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );  
+	/*	auto itOp = matGroup.m_OpList.begin();
+		while( itOp != matGroup.m_OpList.end() )
+		{
 
-		//	++itOp;
-		//}
+			D3DRenderOperation* pOp = *itOp;  
+			m_pDevice->SetTransform( D3DTS_WORLD , (D3DXMATRIX*)pOp->m_worldMat.m  );
+			m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
+			m_pDevice->SetStreamSource( 0 , pOp->m_pVB , 0 , pOp->m_stride  );
+			m_pDevice->SetIndices( pOp->m_pIB ); 
+			m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );  
+			++itOp;
+		}*/
 
 		m_pDevice->SetTexture( BUMPMAP_CH , NULL ); 
 		m_pDevice->SetTexture( DIFFUSE_CH , NULL );
@@ -146,14 +144,20 @@ void D3DRenderPipeline::Init( IDirect3DDevice9* pDevice  , ID3DXEffectPool* pPoo
 	//创建全局变量共享的Pool 
 	ID3DXBuffer* pErrorBuf = NULL; 
 	D3DIncludeCallback d3dIncludeCallback;
-	   
+
+	DWORD dwShaderFlags = 0;
+
+#ifdef ZP_DEBUG_D3D
+	dwShaderFlags = D3DXSHADER_DEBUG|D3DXSHADER_SKIPOPTIMIZATION;
+#endif
+	    
 	HRESULT hRes   = 
 		D3DXCreateEffectFromFileA( 
 		m_pDevice , 
 		"shader.fx" , 
 		NULL , 
 		&d3dIncludeCallback , 
-		0 ,
+		dwShaderFlags ,
 		m_pEffectPool ,
 		&m_pEffect ,
 		&pErrorBuf

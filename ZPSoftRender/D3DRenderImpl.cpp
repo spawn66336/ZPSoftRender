@@ -108,15 +108,26 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 	} 
 #endif 
 
+#ifdef ZP_DEBUG_D3D
+	hRes = m_pD3D9->CreateDevice( 
+		AdapterToUse , 
+		D3DDEVTYPE_REF , 
+		m_hWnd , 
+		D3DCREATE_HARDWARE_VERTEXPROCESSING, 
+		&m_d3dParams ,
+		&m_pD3D9Device
+		);
+#else
 	//创建D3D设备
 	hRes = m_pD3D9->CreateDevice( 
 				AdapterToUse , 
 				DeviceType , 
 				m_hWnd , 
-				D3DCREATE_SOFTWARE_VERTEXPROCESSING, 
+				D3DCREATE_HARDWARE_VERTEXPROCESSING, 
 				&m_d3dParams ,
 				&m_pD3D9Device
 		);
+#endif
 
 	ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );  
 	ZP_ASSERT( NULL != m_pD3D9Device );
@@ -229,8 +240,8 @@ void D3DRenderImpl::EndDraw( void )
 {    
 	if( NULL != m_pGlobalConstEffect )
 	{
-		m_pGlobalConstEffect->SetMatrix( "m4View" , (D3DXMATRIX*)m_m4ViewMat.m  );
-		m_pGlobalConstEffect->SetMatrix( "m4Proj" , (D3DXMATRIX*)m_m4ProjMat.m ); 
+		m_pGlobalConstEffect->SetMatrix( "m4View" , (D3DXMATRIX*)&m_m4ViewMat  );
+		m_pGlobalConstEffect->SetMatrix( "m4Proj" , (D3DXMATRIX*)&m_m4ProjMat ); 
 		//m_pGlobalConstEffect->SetMatrix( "m4World" , (D3DXMATRIX*)m_m4WorldMat.m  );
 	}
 
@@ -373,20 +384,10 @@ void D3DRenderImpl::_CommitTexture( Resource::Texture2D* pTexture  , const int t
 			}
 
 		}//if( NULL == pD3DTexture )
-		 
-		if( pD3DTexture )
-		{ 
+	 
 			//将在资源中记录纹理对象，今后用于管线渲染
 			pTexture->SetUserPointer( pD3DTexture );
-
-			m_pD3D9Device->SetTexture( tex_ch , pD3DTexture ); 
-			m_pD3D9Device->SetSamplerState( tex_ch  , D3DSAMP_ADDRESSU , D3DTADDRESS_WRAP ); 
-			m_pD3D9Device->SetSamplerState( tex_ch , D3DSAMP_ADDRESSV , D3DTADDRESS_WRAP );
-			m_pD3D9Device->SetSamplerState( tex_ch , D3DSAMP_MINFILTER ,  D3DTEXF_LINEAR );
-			m_pD3D9Device->SetSamplerState( tex_ch , D3DSAMP_MAGFILTER ,  D3DTEXF_LINEAR );  
-			m_pD3D9Device->SetTexture( tex_ch , NULL ); 
-		}
-
+  
 	}//	if(NULL != pTexture )
 }
 
@@ -395,6 +396,7 @@ void D3DRenderImpl::DrawElements( RenderPrimitive& renderPrimitive )
 { 
 	D3DRenderOperation* pOp = m_RenderOpCache.CreateRenderOperation( m_pCurrSubMesh );
 	_PrepareRenderOperation( renderPrimitive , pOp );
+	pOp->m_worldMat = m_m4WorldMat;
 	m_renderPipe.PushRenderOp( m_pCurrMaterial , pOp );  
 }
 
@@ -533,7 +535,7 @@ void D3DRenderImpl::_InitHelperVB( void )
 	 
 	//创建足够大的顶点缓冲区
 	HRESULT hRes = m_pD3D9Device->CreateVertexBuffer( 
-		uiVBLockSize , 0 , 	D3DFVF_XYZ|D3DFVF_DIFFUSE , D3DPOOL_DEFAULT , &m_pD3DHelperVB , NULL );
+		uiVBLockSize , D3DUSAGE_WRITEONLY , 	D3DFVF_XYZ|D3DFVF_DIFFUSE , D3DPOOL_DEFAULT , &m_pD3DHelperVB , NULL );
 	ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
 
 	d3dRenderVert2_t* pVertBuf = NULL;
@@ -566,6 +568,7 @@ void D3DRenderImpl::_DestroyHelperVB( void )
 	ZP_SAFE_RELEASE( m_pD3DHelperIB ); 
 }
 
+ 
 
 void D3DRenderImpl::_PrepareRenderOperation( RenderPrimitive& renderPrimitive , D3DRenderOperation* pOp )
 {
@@ -580,12 +583,13 @@ void D3DRenderImpl::_PrepareRenderOperation( RenderPrimitive& renderPrimitive , 
 
 	unsigned int uiVertCount = renderPrimitive.VertexBuf().Count();
 	unsigned int uiIndexCount = renderPrimitive.IndicesCount(); 
+	 
 	//拷贝顶点
 	unsigned int uiVBLockSize = uiVertCount*sizeof(d3dRenderVert_t); 
 
 	//创建顶点缓冲区
 	HRESULT hRes = m_pD3D9Device->CreateVertexBuffer( 
-		uiVBLockSize , 0 , 0 , D3DPOOL_DEFAULT , &pNewVB , NULL );
+		uiVBLockSize , D3DUSAGE_WRITEONLY , 0 , D3DPOOL_DEFAULT , &pNewVB , NULL );
 	ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
 	 
 
@@ -611,7 +615,7 @@ void D3DRenderImpl::_PrepareRenderOperation( RenderPrimitive& renderPrimitive , 
 
 	//创建索引缓冲区
 	hRes = m_pD3D9Device->CreateIndexBuffer( 
-		uiIBLockSize , 0 , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &pNewIB , NULL );
+		uiIBLockSize , D3DUSAGE_WRITEONLY , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &pNewIB , NULL );
 	ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
 
 	hRes = pNewIB->Lock( 0 , uiIBLockSize , &pBuf , 0  );
@@ -628,7 +632,7 @@ void D3DRenderImpl::_PrepareRenderOperation( RenderPrimitive& renderPrimitive , 
 
 
 	IDirect3DVertexDeclaration9* pDecl = NULL;
-	D3DVERTEXELEMENT9 declElems[6] ={
+	D3DVERTEXELEMENT9 declElems[] ={
 		{ 0 , 0 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_POSITION , 0 },
 		{ 0 , sizeof(float)*3 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_NORMAL , 0 },
 		{ 0 , sizeof(float)*6 , D3DDECLTYPE_FLOAT2 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_TEXCOORD , 0 },
@@ -640,6 +644,7 @@ void D3DRenderImpl::_PrepareRenderOperation( RenderPrimitive& renderPrimitive , 
 	ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );
 
 	//填充渲染操作
+	pOp->m_streamIndex = 0;
 	pOp->m_pVertexDecl = pDecl;
 	pOp->m_pVB = pNewVB;
 	pOp->m_pIB = pNewIB;
@@ -937,13 +942,19 @@ void D3DRenderImpl::_InitEffect( void )
 	ID3DXBuffer* pErrorBuf = NULL; 
 	D3DIncludeCallback d3dIncludeCallback;
 
+	DWORD dwShaderFlags = 0;
+
+#ifdef ZP_DEBUG_D3D
+	dwShaderFlags = D3DXSHADER_DEBUG;
+#endif
+
 	hRes = 
 		D3DXCreateEffectFromFileA( 
 		m_pD3D9Device , 
 		"globalconst.fx" , 
 		NULL , 
 		&d3dIncludeCallback , 
-		0 ,
+		dwShaderFlags ,
 		m_pEffectPool ,
 		&m_pGlobalConstEffect ,
 		&pErrorBuf
@@ -1084,6 +1095,7 @@ bool D3DRenderImpl::IsActive( void )
 	return false;
 
 }
+
 
  
 

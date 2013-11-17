@@ -1,4 +1,3 @@
-
 #include "global.fx"
 
 //顶点着色器输入
@@ -47,12 +46,34 @@ struct Material_t
 	float  fPower;
 };
 
- 
 float4x4 m4World;
-uniform float3 f3LightPos;
-sampler2D diffuseTex;
-sampler2D normalTex;
-uniform Material_t g_Material;
+float3 f3LightPos;
+
+texture diffuseTex;
+sampler2D SampleDiffuseTex = sampler_state
+{
+	Texture=<diffuseTex>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = LINEAR;
+	AddressU  = WRAP;
+	AddressV  = WRAP;
+	AddressW  = WRAP;
+};
+
+texture normalTex;
+sampler2D SampleNormalTex = sampler_state
+{
+	Texture=<normalTex>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = LINEAR;
+	AddressU  = WRAP;
+	AddressV  = WRAP;
+	AddressW  = WRAP;
+};
+
+Material_t g_Material;
 
 
 
@@ -92,8 +113,8 @@ VS_OUTPUT NormalMapShadingVS( VS_INPUT input )
 PS_OUTPUT NormalMapShadingPS( PS_INPUT input )
 {
 	PS_OUTPUT output;
-	float3 f3Normal = normalize( ( tex2D( normalTex, input.f2Tex ).xyz * 2.0f ) - 1.0f );
-	float4 f4DiffColor = tex2D( diffuseTex , input.f2Tex );
+	float3 f3Normal = normalize( ( tex2D( SampleNormalTex, input.f2Tex ).xyz * 2.0f ) - 1.0f );
+	float4 f4DiffColor = tex2D( SampleDiffuseTex , input.f2Tex );
 	float3 f3ViewDir = normalize( input.f3ViewDir );
 	float  fDiffFactor   = max( 0.0f , dot( f3Normal, normalize(input.f3LightDir) ) ); 
 	float3 f3H     = normalize( input.f3LightDir + input.f3ViewDir );
@@ -136,7 +157,7 @@ PS_OUTPUT PhongShadingPS( PS_INPUT input )
 	PS_OUTPUT output;
 	float3 f3Normal = input.f3Norm;
 	f3Normal = normalize( f3Normal );
-	float4 f4DiffColor = tex2D( diffuseTex , input.f2Tex );
+	float4 f4DiffColor = tex2D( SampleDiffuseTex , input.f2Tex );
 	float3 f3ViewDir = normalize( input.f3ViewDir );
 	float  fDiffFactor   = max( 0.0f , dot( f3Normal, normalize(input.f3LightDir) ) ); 
 	float3 f3H     = normalize( input.f3LightDir + input.f3ViewDir );

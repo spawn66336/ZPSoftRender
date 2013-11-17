@@ -1,0 +1,64 @@
+#ifndef ZP_CLIPMAP_TERRAIN_DEFINE
+#define ZP_CLIPMAP_TERRAIN_DEFINE
+
+#include "ZPDependency.h"
+#include "ZPMathDependency.h"
+
+namespace Terrain
+{
+
+	typedef struct{
+		int size; //结构体大小
+		int img_width; //顶层图片的宽度
+		int img_height; //顶层图片的高度
+		int pixel_size;		//像素的字节大小
+		int component; //像素的分量数
+
+		int is_dem; //是否是高程图
+		int max_height;	//当前高程图最高的高度（对于高程图有意义）
+		int min_height;//当前高程图最低的高度（对于高程图有意义）
+		int span_hori; //横向跨度（单位米）
+		int span_vert; //垂直跨度（单位米）
+
+		int mipmap_level; //mipmap的层数
+		unsigned int mipmap_level_offset[1]; 
+	}ClipMapDemFileHeader_t;
+
+	class TerrainVertex
+	{
+	public:
+		Math::Vec3 m_pos;
+		Math::Vec3 m_norm;
+		Math::Vec4 m_color;
+	};
+
+	class ClipMapGridPos
+	{
+	public:
+		ClipMapGridPos():x(0),z(0){}
+		ClipMapGridPos( const int in_x , const int in_z ):x(in_x),z(in_z){}
+		ClipMapGridPos( const ClipMapGridPos& pos ):x(pos.x),z(pos.z){}
+		~ClipMapGridPos(){}
+		int x;
+		int z;
+	};
+
+	class ClipMapArea
+	{ 
+	public:
+		//区域的横向采样点数
+		int Width( void ) const { return maxPos.x - minPos.x + 1; }
+		//区域的纵向采样点数
+		int Height( void ) const { return maxPos.z - minPos.z + 1; }
+		ClipMapGridPos maxPos;
+		ClipMapGridPos minPos;
+	};
+
+	//将传入数映射到奇数
+	extern int Map2Odd( int x );
+
+	//求余数
+	extern int Mod( int x , int y );
+}//namespace Terrain
+
+#endif

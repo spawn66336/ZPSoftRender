@@ -92,6 +92,9 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ClipMapLevel.cpp" />
+    <ClCompile Include="ClipMapReader.cpp" />
+    <ClCompile Include="ClipMapTerrain.cpp" />
     <ClCompile Include="ColladaMeshLoader.cpp" />
     <ClCompile Include="ColladaMeshReader.cpp" />
     <ClCompile Include="ColladaSubMeshReader.cpp" />
@@ -137,6 +140,10 @@ copy  $(TargetDir)\$(TargetName).lib  $(TargetDir)\lib</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ClipMapLevel.h" />
+    <ClInclude Include="ClipMapReader.h" />
+    <ClInclude Include="ClipMapTerrain.h" />
+    <ClInclude Include="ClipMapTerrainDefine.h" />
     <ClInclude Include="ColladaMeshLoader.h" />
     <ClInclude Include="ColladaMeshReader.h" />
     <ClInclude Include="ColladaSubMeshReader.h" />

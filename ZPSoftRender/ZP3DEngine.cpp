@@ -10,6 +10,7 @@
 #include "SoftRenderImpl.h"
 #include "FrameStackAllocator.h"
 #include "D3DRenderImpl.h"
+#include "ClipMapTerrain.h"
 
 ZP3DEngine::ZP3DEngine(void):
 m_bIsMoving(false),
@@ -34,6 +35,11 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 	Resource::MaterialManager::CreateInstance();
 	Resource::MeshManager::CreateInstance();
 
+	//初始化地形
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+		Terrain::ClipMapTerrain::CreateInstance();
+		Terrain::ClipMapTerrain::GetInstance()->Init( ".\\dem\\ASTGTM2_N27E086_dem.mipmap", 6 , Math::Vec3() , 2.0f );
+#endif
 	m_meshMatrix = Math::Matrix4::IDENTITY;
 
 #	if defined( ZP_GL_RENDERER ) 
@@ -75,6 +81,12 @@ void ZP3DEngine::Destroy( void )
 	ZP_SAFE_DELETE( m_pRenderer ); 
 	ZP_SAFE_DELETE( m_pCamera );
 
+	//销毁地形
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->Destroy();
+	Terrain::ClipMapTerrain::DestroyInstance();
+#endif
+
 	Resource::MeshManager::DestroyInstance();
 	Resource::MaterialManager::DestroyInstance();
 	Resource::TextureManager::DestroyInstance();
@@ -108,6 +120,11 @@ void ZP3DEngine::RenderOneFrame( void )
 	{
 		m_pFrameListener->FrameStarted();
 	}
+
+	//更新地形
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->Update( m_pCamera->GetPos() );
+#endif
 
 	if( m_pRenderer->IsActive() )
 	{ 
