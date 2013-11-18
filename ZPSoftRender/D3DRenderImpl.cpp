@@ -729,15 +729,17 @@ void D3DRenderImpl::_OnDeviceReset( void )
 	_ResizeRT( m_viewPort.Width , m_viewPort.Height );
 	m_pFont->OnResetDevice();
 	_InitEffect();
-	_InitVB(); 
-	m_renderPipe.OnResetDevice();
+	_InitVB();
+	m_renderPipe.Init( m_pD3D9Device , m_pEffectPool );
+	//m_renderPipe.OnResetDevice();
 
 }
 
 void D3DRenderImpl::_OnDeviceLost( void )
 { 
 	m_RenderOpCache.Clear();
-	m_renderPipe.OnLostDevice();
+	m_renderPipe.Destroy();
+	//m_renderPipe.OnLostDevice();
 	_DestroyVB();   
 	_DestroyEffect();
 	m_pFont->OnLostDevice();
@@ -945,7 +947,7 @@ void D3DRenderImpl::_InitEffect( void )
 	DWORD dwShaderFlags = 0;
 
 #ifdef ZP_DEBUG_D3D
-	dwShaderFlags = D3DXSHADER_DEBUG;
+	dwShaderFlags = D3DXSHADER_DEBUG|D3DXSHADER_SKIPOPTIMIZATION;
 #endif
 
 	hRes = 
@@ -967,7 +969,6 @@ void D3DRenderImpl::_DestroyEffect( void )
 { 
 	ZP_SAFE_RELEASE( m_pGlobalConstEffect );
 	ZP_SAFE_RELEASE( m_pEffectPool ); 
-	
 }
 
 void D3DRenderImpl::_InitFont( void )

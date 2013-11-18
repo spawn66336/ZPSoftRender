@@ -47,8 +47,7 @@ void D3DRenderPipeline::Render( void )
 
 		Resource::Texture2D* pDiffTex = pMat->GetTexture( DIFFUSE_CH );
 		Resource::Texture2D* pNormTex = pMat->GetTexture( BUMPMAP_CH ); 
-	
-
+	 
 		String techniqueName = "NormalMapShading";
 	  
 		if( m_pEffect )
@@ -66,7 +65,7 @@ void D3DRenderPipeline::Render( void )
 			memcpy( &material.Diffuse , &pMat->GetDiffuse() , sizeof(D3DCOLORVALUE) );
 			memcpy( &material.Specular , &pMat->GetSpecular() , sizeof(D3DCOLORVALUE) );
 			material.Power = pMat->GetShininess();     
-
+			int size = sizeof(material);
 			m_pEffect->SetValue( "g_Material" , (LPCVOID)&material , sizeof(material) );  
 			if( pDiffTex )
 			{
@@ -77,48 +76,29 @@ void D3DRenderPipeline::Render( void )
 			{
 				m_pEffect->SetTexture( "normalTex" , (IDirect3DTexture9*)pNormTex->GetUserPointer() );  
 			}
-			 
-			m_pEffect->Begin( &uiPassCount ,  0 ); 
-
-				for( UINT uiPass = 0 ; uiPass < uiPassCount ; uiPass++ )
+			  
+			m_pEffect->Begin( &uiPassCount ,  0 );  
+			for( UINT uiPass = 0 ; uiPass < uiPassCount ; uiPass++ )
+			{ 
+				m_pEffect->BeginPass( uiPass );   
+				auto itOp = matGroup.m_OpList.begin();
+				while( itOp != matGroup.m_OpList.end() )
 				{ 
-					m_pEffect->BeginPass( uiPass );   
+					D3DRenderOperation* pOp = *itOp;
+					m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)&( pOp->m_worldMat ) ); 
+					m_pEffect->CommitChanges();
 
-					auto itOp = matGroup.m_OpList.begin();
-					while( itOp != matGroup.m_OpList.end() )
-					{
-					 
-						D3DRenderOperation* pOp = *itOp;
-						//设置私有变量
-						m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)&( pOp->m_worldMat ) ); 
-						m_pEffect->CommitChanges(); 
-
-						m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
-						m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
-						m_pDevice->SetIndices( pOp->m_pIB ); 
-						m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );  
-
-						++itOp;
-					}
-
-					m_pEffect->EndPass();
+					m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
+					m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
+					m_pDevice->SetIndices( pOp->m_pIB ); 
+					m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );   
+					++itOp;
 				}
-
+					m_pEffect->EndPass();
+			} 
 			m_pEffect->End(); 
-		}
-	/*	auto itOp = matGroup.m_OpList.begin();
-		while( itOp != matGroup.m_OpList.end() )
-		{
-
-			D3DRenderOperation* pOp = *itOp;  
-			m_pDevice->SetTransform( D3DTS_WORLD , (D3DXMATRIX*)pOp->m_worldMat.m  );
-			m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
-			m_pDevice->SetStreamSource( 0 , pOp->m_pVB , 0 , pOp->m_stride  );
-			m_pDevice->SetIndices( pOp->m_pIB ); 
-			m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );  
-			++itOp;
-		}*/
-
+		}//if( m_pEffect )
+  
 		m_pDevice->SetTexture( BUMPMAP_CH , NULL ); 
 		m_pDevice->SetTexture( DIFFUSE_CH , NULL );
 

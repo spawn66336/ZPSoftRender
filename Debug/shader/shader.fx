@@ -1,5 +1,7 @@
 #include "global.fx"
 
+
+
 //顶点着色器输入
 struct VS_INPUT
 {
@@ -46,8 +48,6 @@ struct Material_t
 	float  fPower;
 };
 
-float4x4 m4World;
-float3 f3LightPos;
 
 texture diffuseTex;
 sampler2D SampleDiffuseTex = sampler_state
@@ -73,9 +73,11 @@ sampler2D SampleNormalTex = sampler_state
 	AddressW  = WRAP;
 };
 
+
+float4x4 m4World;
+float3 f3LightPos;
 Material_t g_Material;
-
-
+ 
 
 VS_OUTPUT NormalMapShadingVS( VS_INPUT input )
 {
