@@ -47,9 +47,24 @@ namespace Terrain
 	{ 
 	public:
 		//区域的横向采样点数
-		int Width( void ) const { return maxPos.x - minPos.x + 1; }
+		int Width( void ) const { return maxPos.x - minPos.x; }
 		//区域的纵向采样点数
-		int Height( void ) const { return maxPos.z - minPos.z + 1; }
+		int Height( void ) const { return maxPos.z - minPos.z; }
+		//两个区域是否相等
+		bool Equal( const ClipMapArea& other ) const
+		{
+			if( 
+				minPos.x == other.minPos.x &&
+				minPos.z == other.minPos.z &&
+				Width() ==  other.Width() &&
+				Height() == other.Height()
+				)
+			{
+				return true;
+			}
+			return false;
+		}
+
 		ClipMapGridPos maxPos;
 		ClipMapGridPos minPos;
 	};

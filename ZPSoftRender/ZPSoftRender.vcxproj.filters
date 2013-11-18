@@ -189,6 +189,9 @@
     <ClCompile Include="ClipMapLevel.cpp">
       <Filter>源文件\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="ClipMapHeightMapBlock.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ZPDependency.h">
@@ -366,6 +369,9 @@
       <Filter>头文件\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="ClipMapTerrainDefine.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipMapHeightMapBlock.h">
       <Filter>头文件\Terrain</Filter>
     </ClInclude>
   </ItemGroup>

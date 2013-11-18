@@ -6,7 +6,8 @@ namespace Terrain
 
 ClipMapReader::ClipMapReader(void):
 m_pDemFile(NULL),
-m_pFileHeader(NULL)
+m_pFileHeader(NULL),
+m_pHeightMapData(NULL)
 {
 }
 
@@ -38,10 +39,25 @@ void ClipMapReader::Init( const String& strMapName )
 	fseek( m_pDemFile , 0 , SEEK_SET);
 	fread( (void*)m_pFileHeader , 1 , iHeadSize , m_pDemFile );
 	
+	//计算高度图数据大小
+	unsigned int uiBufSize = 
+		m_pFileHeader->img_width*
+		m_pFileHeader->img_height ;
+
+	m_pHeightMapData = new unsigned int[uiBufSize];
+	memset( m_pHeightMapData , 0 , sizeof(unsigned int)*uiBufSize );
+	ZP_ASSERT( NULL != m_pHeightMapData );
+	//定位到第0层
+	fseek( m_pDemFile , m_pFileHeader->mipmap_level_offset[0] , SEEK_SET);
+	//读取高程图
+	fread( m_pHeightMapData , sizeof(unsigned int) , uiBufSize , m_pDemFile );
 }
 
 void ClipMapReader::Destroy( void )
 {
+	//销毁高程图
+	ZP_SAFE_DELETE_BUFFER( m_pHeightMapData );
+
 	if( m_pFileHeader )
 	{
 		free((void*)m_pFileHeader);
@@ -72,6 +88,16 @@ int ClipMapReader::GetHeightMapMaxHeight( void ) const
 int ClipMapReader::GetHeightMapMinHeight( void ) const
 {
 	return m_pFileHeader->min_height;
+}
+
+unsigned int ClipMapReader::Sample( const int x , const int z )
+{
+	//若超出范围返回0高程
+	if( x < 0 || x >= GetHeightMapWidth() ||
+		z < 0 || z >= GetHeightMapHeight() )
+		return 0;
+
+	return m_pHeightMapData[ z * GetHeightMapWidth() + x ];
 }
 
 }
