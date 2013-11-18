@@ -5,6 +5,7 @@
 #include "Material.h"
 #include "Texture2D.h"
 #include "D3DIncludeCallback.h"
+#include "ClipMapTerrain.h"
 
 
 namespace Render
@@ -132,6 +133,10 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 	ZP_ASSERT( TRUE == SUCCEEDED( hRes ) );  
 	ZP_ASSERT( NULL != m_pD3D9Device );
 
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->Init( m_pD3D9Device , ".\\dem\\ASTGTM2_N27E086_dem.mipmap", 6 , Math::Vec3() , 2.0f );
+#endif
+
 	if( FAILED(hRes) )
 	{
 		::MessageBoxA(NULL , "设备创建失败!" , NULL , MB_OK );
@@ -158,6 +163,12 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 
 void D3DRenderImpl::Destroy()
 { 
+
+
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->Destroy();
+#endif
+
 	//销毁管线
 	m_renderPipe.Destroy();
 
@@ -238,6 +249,17 @@ void D3DRenderImpl::BeginDraw( Camera* pCam )
 
 void D3DRenderImpl::EndDraw( void )
 {    
+
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->GetRenderOps( m_terrainTmpRenderOps );
+	auto itOp = m_terrainTmpRenderOps.begin();
+	while( itOp != m_terrainTmpRenderOps.end() )
+	{
+		m_renderPipe.PushRenderOp( NULL , *itOp );
+		++itOp;
+	}
+	m_terrainTmpRenderOps.clear();
+#endif
 	if( NULL != m_pGlobalConstEffect )
 	{
 		m_pGlobalConstEffect->SetMatrix( "m4View" , (D3DXMATRIX*)&m_m4ViewMat  );

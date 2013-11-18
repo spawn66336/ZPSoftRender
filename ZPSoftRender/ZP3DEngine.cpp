@@ -37,8 +37,7 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 
 	//初始化地形
 #ifdef ZP_CLIPMAP_TERRAIN_DEMO
-		Terrain::ClipMapTerrain::CreateInstance();
-		Terrain::ClipMapTerrain::GetInstance()->Init( ".\\dem\\ASTGTM2_N27E086_dem.mipmap", 6 , Math::Vec3() , 2.0f );
+		Terrain::ClipMapTerrain::CreateInstance(); 
 #endif
 	m_meshMatrix = Math::Matrix4::IDENTITY;
 
@@ -82,8 +81,7 @@ void ZP3DEngine::Destroy( void )
 	ZP_SAFE_DELETE( m_pCamera );
 
 	//销毁地形
-#ifdef ZP_CLIPMAP_TERRAIN_DEMO
-	Terrain::ClipMapTerrain::GetInstance()->Destroy();
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO 
 	Terrain::ClipMapTerrain::DestroyInstance();
 #endif
 

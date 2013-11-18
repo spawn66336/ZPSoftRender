@@ -111,6 +111,7 @@ namespace Render
 		void*					   m_pCurrSubMesh;				//用户当前渲染图元所属SubMesh
 		Resource::Material* m_pCurrMaterial;				//用户当前指定的材质，用于生成RenderOp
 		RenderOperationCache m_RenderOpCache;     //渲染操作缓冲区
+		std::vector<D3DRenderOperation*> m_terrainTmpRenderOps;
 		D3DRenderPipeline	m_renderPipe;					//渲染管线
 
 		IDirect3DTexture9* m_pColorRT;						//颜色缓冲区纹理

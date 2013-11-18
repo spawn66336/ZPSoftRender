@@ -44,8 +44,8 @@ void ClipMapReader::Init( const String& strMapName )
 		m_pFileHeader->img_width*
 		m_pFileHeader->img_height ;
 
-	m_pHeightMapData = new unsigned int[uiBufSize];
-	memset( m_pHeightMapData , 0 , sizeof(unsigned int)*uiBufSize );
+	m_pHeightMapData = new float[uiBufSize];
+	memset( m_pHeightMapData , 0 , sizeof(float)*uiBufSize );
 	ZP_ASSERT( NULL != m_pHeightMapData );
 	//定位到第0层
 	fseek( m_pDemFile , m_pFileHeader->mipmap_level_offset[0] , SEEK_SET);
@@ -90,7 +90,7 @@ int ClipMapReader::GetHeightMapMinHeight( void ) const
 	return m_pFileHeader->min_height;
 }
 
-unsigned int ClipMapReader::Sample( const int x , const int z )
+float ClipMapReader::Sample( const int x , const int z )
 {
 	//若超出范围返回0高程
 	if( x < 0 || x >= GetHeightMapWidth() ||

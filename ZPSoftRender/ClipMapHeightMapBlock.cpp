@@ -23,8 +23,8 @@ namespace Terrain
 
 		unsigned int uiSize = m_uiClipMapSize*m_uiClipMapSize;
 		//初始化高程图区域
-		m_pHeightMap = new unsigned int[uiSize];
-		memset( m_pHeightMap , 0 , sizeof(unsigned int)*uiSize );  
+		m_pHeightMap = new float[uiSize];
+		memset( m_pHeightMap , 0 , sizeof(float)*uiSize );  
 	}
 
 	void ClipMapHeightMapBlock::Destroy( void )
@@ -37,7 +37,7 @@ namespace Terrain
 		//初次更新则全部更新
 		if( m_uiFlag&AREA_UNINIT )
 		{
-			_UpdateArea( m_currArea );
+			_UpdateArea( newArea );
 			m_currArea = newArea;
 			m_uiFlag &= ~AREA_IS_DIRTY;
 			m_uiFlag &= ~AREA_UNINIT;
@@ -71,7 +71,7 @@ namespace Terrain
 		{
 			for( ; x <= updateArea.maxPos.x ; x+= stride )
 			{ 
-				unsigned int h =  ClipMapReader::GetInstance()->Sample( x , z ); 
+				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
 				int localX = x>>m_uiLevel;
 				int localZ = z>>m_uiLevel;
 				_SetHeight( localX , localZ , h );
@@ -80,15 +80,16 @@ namespace Terrain
 	}
 
 
-	void ClipMapHeightMapBlock::_SetHeight( const int localX , const int localZ , const unsigned int h )
+	void ClipMapHeightMapBlock::_SetHeight( const int localX , const int localZ , const float h )
 	{ 
 		int iWrapX = localX%m_uiClipMapSize;
 		int iWrapZ = localZ%m_uiClipMapSize; 
 		m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX] = h;
 	}
 
-	unsigned int ClipMapHeightMapBlock::Sample( const int localX , const int localZ )
+	float ClipMapHeightMapBlock::Sample( const int localX , const int localZ )
 	{
+		//return 0.0f;
 		int iWrapX = localX%m_uiClipMapSize;
 		int iWrapZ = localZ%m_uiClipMapSize; 
 		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX];

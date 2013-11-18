@@ -25,7 +25,7 @@ public:
 	* @return 是否进行了真正的更新
 	*/
 	bool Update( const ClipMapArea& newArea );
-	unsigned int Sample( const int localX , const int localZ );
+	float Sample( const int localX , const int localZ );
 protected:
 	void _UpdateArea( const ClipMapArea& updateArea );
 
@@ -35,13 +35,13 @@ protected:
 	* @param z 纵坐标（当前层坐标）
 	* @param h 待设置高度
 	*/
-	void _SetHeight( const int localX , const int localZ , const unsigned int h );
+	void _SetHeight( const int localX , const int localZ , const float h );
 protected:
 	ClipMapArea m_currArea;
 	unsigned int  m_uiLevel;				//当前所在级别
 	unsigned int  m_uiClipMapSize;		//剪切图大小
 	unsigned int  m_uiFlag;
-	unsigned int* m_pHeightMap;		//当前层高程图
+	float* m_pHeightMap;		//当前层高程图
 };
 
 }//namespace Terrain

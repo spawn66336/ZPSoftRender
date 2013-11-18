@@ -21,13 +21,13 @@ namespace Terrain
 		int GetHeightMapMaxHeight( void ) const;
 		int GetHeightMapMinHeight( void ) const;
 
-		unsigned int Sample( const int x , const int z );
+		float Sample( const int x , const int z );
 
 	protected:
 		String m_strMapName;										//地图路径
 		FILE*   m_pDemFile;	
 		ClipMapDemFileHeader_t* m_pFileHeader;	//文件头
-		unsigned int* m_pHeightMapData;
+		float* m_pHeightMapData;
 	};
 
 }//namespace Terrain
