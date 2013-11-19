@@ -753,12 +753,18 @@ void D3DRenderImpl::_OnDeviceReset( void )
 	_InitEffect();
 	_InitVB();
 	m_renderPipe.Init( m_pD3D9Device , m_pEffectPool );
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->OnResetDevice();
+#endif
 	//m_renderPipe.OnResetDevice();
 
 }
 
 void D3DRenderImpl::_OnDeviceLost( void )
 { 
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	Terrain::ClipMapTerrain::GetInstance()->OnLostDevice();
+#endif
 	m_RenderOpCache.Clear();
 	m_renderPipe.Destroy();
 	//m_renderPipe.OnLostDevice();

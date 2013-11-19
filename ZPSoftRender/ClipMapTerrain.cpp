@@ -116,7 +116,7 @@ Terrain::ClipMapGridPos ClipMapTerrain::_WorldPos2GridPos( const Math::Vec3& v3P
 {
 	Math::Vec3 v3TerrainCoord = v3Pos - m_v3TerrainOrigin;
 	v3TerrainCoord /= m_fGridWidth;
-	return ClipMapGridPos(  (int)floor( v3Pos.x ) ,  (int)floor( v3Pos.z ) ); 
+	return ClipMapGridPos(  (int)floor( v3TerrainCoord.x ) ,  (int)floor( v3TerrainCoord.z ) ); 
 }
 
 void ClipMapTerrain::OnLostDevice( void )

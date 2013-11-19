@@ -112,12 +112,14 @@ namespace Terrain
 
 	void TerrainLevelRenderData::Update( ClipMapLevel* pLevel )
 	{ 
+		m_v3LocalPos = pLevel->GetLocalPos();
+
 		if( NULL == m_pVBDecl )
 		{
 			D3DVERTEXELEMENT9 declElems[] ={
 				{ 0 , 0 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_POSITION , 0 },
 				{ 0 , sizeof(float)*3 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_NORMAL , 0 },
-				{ 0 , sizeof(float)*6 , D3DDECLTYPE_FLOAT4  , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_COLOR , 0 }, 
+				{ 0 , sizeof(float)*6 , D3DDECLTYPE_D3DCOLOR  , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_COLOR , 0 }, 
 				D3DDECL_END()
 			}; 
 			m_pDevice->CreateVertexDeclaration( declElems , &m_pVBDecl );
@@ -137,7 +139,7 @@ namespace Terrain
 			bVBNeedUpdate = true;
 			m_uiVertNum = pLevel->GetVertsNum();
 			ZP_SAFE_RELEASE( m_pVB );
-			m_pDevice->CreateVertexBuffer( m_uiVertNum*sizeof(TerrainVertex) , D3DUSAGE_DYNAMIC , 0 , D3DPOOL_DEFAULT , &m_pVB , NULL );
+			m_pDevice->CreateVertexBuffer( m_uiVertNum*sizeof(TerrainVertex) , D3DUSAGE_WRITEONLY , 0 , D3DPOOL_DEFAULT , &m_pVB , NULL );
 			ZP_ASSERT( NULL != m_pVB );
 
 			//更新12个地形块的渲染操作的顶点缓冲区
@@ -159,7 +161,7 @@ namespace Terrain
 		{
 			void* pBuf = NULL;
 			unsigned int uiLockSize = m_uiVertNum*sizeof(TerrainVertex) ;
-			m_pVB->Lock( 0 , uiLockSize , &pBuf , D3DLOCK_DISCARD );
+			m_pVB->Lock( 0 , uiLockSize , &pBuf , 0 );
 				memcpy_s( pBuf , uiLockSize , pLevel->GetVerts() , uiLockSize );
 			m_pVB->Unlock();
 			pBuf = NULL;

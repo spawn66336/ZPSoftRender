@@ -29,7 +29,7 @@ namespace Terrain
 	public:
 		Math::Vec3 m_pos;
 		Math::Vec3 m_norm;
-		Math::Vec4 m_color;
+		DWORD	  m_color;
 	};
 
 	class ClipMapGridPos

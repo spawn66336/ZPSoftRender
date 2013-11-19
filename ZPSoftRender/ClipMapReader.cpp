@@ -97,7 +97,7 @@ float ClipMapReader::Sample( const int x , const int z )
 		z < 0 || z >= GetHeightMapHeight() )
 		return 0;
 
-	return m_pHeightMapData[ z * GetHeightMapWidth() + x ];
+	return m_pHeightMapData[ z * GetHeightMapWidth() + x ] - (float)GetHeightMapMinHeight();
 }
 
 }

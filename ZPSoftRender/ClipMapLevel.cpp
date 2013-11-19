@@ -55,7 +55,7 @@ void ClipMapLevel::_InitVerts( void )
 			unsigned int offset = z*m_uiClipMapSize+x;
 			m_pVerts[offset].m_pos = v3Origin + v3Dx*(float)x + v3Dz*(float)z;
 			m_pVerts[offset].m_norm = Math::Vec3( 0.0f,1.0f,0.0f);
-			m_pVerts[offset].m_color = Math::Vec4(1.0f,0.0f,0.0f,1.0f);
+			m_pVerts[offset].m_color = 0xffffffff;
 		}
 	}
 }
@@ -69,6 +69,7 @@ void ClipMapLevel::Update( const ClipMapGridPos& center )
 	m_currArea.maxPos.x = m_currArea.minPos.x + ( m_uiClipMapSize - 1 )*m_uiGridSize;
 	m_currArea.maxPos.z = m_currArea.minPos.z + ( m_uiClipMapSize - 1 )*m_uiGridSize;
 	
+	//更新当前层的高程图
 	bool bChange = 
 		m_heightMapBlock.Update( m_currArea );
 
@@ -86,14 +87,24 @@ void ClipMapLevel::_UpdateVerts( void )
 {
 	//使用高程更新网格点y值
 	int stride = 1<<m_uiLevel;
+	//for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
+	//{
+	//		int localz = m_currArea.minPos.z + stride*z;
+	//		for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
+	//		{
+	//			unsigned int offset = z*m_uiClipMapSize+x;
+	//			int localx = m_currArea.minPos.x + stride*x;		
+	//			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel );
+	//		
+	//		}
+	//}
+
 	for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
-	{
-		int localz = m_currArea.minPos.z + stride*z;
+	{ 
 		for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
 		{
 			unsigned int offset = z*m_uiClipMapSize+x;
-			int localx = m_currArea.minPos.x + stride*x;		
-			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( localx , localz );
+			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( x , m_uiClipMapSize-1-z );
 		}
 	}
 }
@@ -152,12 +163,13 @@ void ClipMapLevel::_InitTilesIndices( void )
 
 Math::Vec3 ClipMapLevel::GetLocalPos( void ) const
 {
-	return Math::Vec3( ((float)m_centerPos.x) * m_fGridWidth , 0.0f , ((float)m_centerPos.z)*m_fGridWidth );
+	return Math::Vec3( ((float)(m_centerPos.x>>m_uiLevel)) * m_fGridWidth , 0.0f , 
+									((float)(m_centerPos.z>>m_uiLevel)) * m_fGridWidth );
 }
 
 bool ClipMapLevel::TestFlag( CLIPMAPLEVEL_FLAG bit )
 {
-	return m_uiFlag&bit;
+	return (bool)( m_uiFlag&bit );
 }
 
 void ClipMapLevel::SetFlag( CLIPMAPLEVEL_FLAG bit , bool b )
@@ -188,6 +200,7 @@ unsigned int ClipMapLevel::GetPrimtiveNumPerTile( void ) const
 	return (m-2)*4 //条带间退化三角形
 			   +2			//首尾各一个退化三角形
 			   +(m-1)*(m-1)*2; 
+ 
 }
 
 

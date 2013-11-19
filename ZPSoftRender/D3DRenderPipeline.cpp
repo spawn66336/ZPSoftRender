@@ -50,6 +50,8 @@ void D3DRenderPipeline::Render( void )
 			auto itOp = matGroup.m_OpList.begin();
 			while( itOp != matGroup.m_OpList.end() )
 			{
+				m_pDevice->SetVertexShader(NULL);
+				m_pDevice->SetPixelShader( NULL );
 				D3DRenderOperation* pOp = *itOp; 
 				m_pDevice->SetRenderState( D3DRS_LIGHTING , FALSE);
 				m_pDevice->SetRenderState( D3DRS_CULLMODE ,D3DCULL_NONE );
@@ -58,7 +60,7 @@ void D3DRenderPipeline::Render( void )
 				m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
 				m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
 				m_pDevice->SetIndices( pOp->m_pIB ); 
-				m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount, 0 , pOp->m_primCount );   
+				m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount , 0 , pOp->m_primCount );   
 				++itOp;
 			}
 
@@ -120,9 +122,6 @@ void D3DRenderPipeline::Render( void )
 			m_pEffect->End(); 
 		}//if( m_pEffect )
   
-		m_pDevice->SetTexture( BUMPMAP_CH , NULL ); 
-		m_pDevice->SetTexture( DIFFUSE_CH , NULL );
-
 		++itMatGroup;
 	}
 }

@@ -51,9 +51,7 @@ namespace Terrain
 			return false;
 		}
 		m_uiFlag |= AREA_IS_DIRTY; 
-
-		//int diffx = newArea.minPos.x - m_currArea.minPos.x;
-		//int diffz = newArea.minPos.z - m_currArea.minPos.z;
+		 
 		//暂行全部更新，后面再实现部分更新
 		_UpdateArea( newArea );
 		m_currArea = newArea; 
@@ -62,21 +60,34 @@ namespace Terrain
 	}
 
 	void ClipMapHeightMapBlock::_UpdateArea( const ClipMapArea& updateArea )
-	{
-		int x = updateArea.minPos.x;
-		int z = updateArea.minPos.z;
+	{ 
 		int stride = 1<<m_uiLevel;
 
-		for( ; z <= updateArea.maxPos.z ; z+=stride )
+		/*
+		for( int z = updateArea.minPos.z ; z <= updateArea.maxPos.z ; z+=stride )
 		{
-			for( ; x <= updateArea.maxPos.x ; x+= stride )
+			for( int x = updateArea.minPos.x ; x <= updateArea.maxPos.x ; x+= stride )
 			{ 
 				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
 				int localX = x>>m_uiLevel;
 				int localZ = z>>m_uiLevel;
-				_SetHeight( localX , localZ , h );
+				_SetHeight( localX , localZ , h*0.01f );
 			}
 		} 
+		*/
+
+		int z = updateArea.minPos.z; 
+		for( unsigned int localz = 0 ; localz < m_uiClipMapSize ; localz++ )
+		{
+			int x = updateArea.minPos.x;
+			for( unsigned int localx = 0 ; localx < m_uiClipMapSize ; localx++ )
+			{
+				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
+				m_pHeightMap[ localz*m_uiClipMapSize + localx ] = h*0.01f;
+				x += stride;
+			}
+			z += stride;
+		}
 	}
 
 
@@ -88,11 +99,11 @@ namespace Terrain
 	}
 
 	float ClipMapHeightMapBlock::Sample( const int localX , const int localZ )
-	{
-		//return 0.0f;
-		int iWrapX = localX%m_uiClipMapSize;
+	{ 
+		/*int iWrapX = localX%m_uiClipMapSize;
 		int iWrapZ = localZ%m_uiClipMapSize; 
-		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX];
+		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX];*/
+		return m_pHeightMap[localZ*m_uiClipMapSize + localX];
 	}
 
 }//namespace Terrain
