@@ -10,7 +10,11 @@ namespace Terrain
 	m_uiGridSize(0),
 	m_fGridWidth(0.0f),
 	m_pVerts(NULL),
-	m_uiFlag(0)
+	m_ppTilesIndices(NULL),
+	m_pGapTileIndices(NULL),
+	m_pCenterTileIndices(NULL),
+	m_uiFlag( SHOW_GAP_TILES| 
+				    SHOW_FIXED_UP_RING )
 {
 
 }
@@ -20,12 +24,18 @@ ClipMapLevel::~ClipMapLevel(void)
 	//释放顶点
 	ZP_SAFE_DELETE_BUFFER( m_pVerts );
 
-	//释放索引
-	for( int i = 0 ; i < 12 ; i++ )
+	if( m_ppTilesIndices )
 	{
-		ZP_SAFE_DELETE_BUFFER( m_ppTilesIndices[i] );
+		//释放索引
+		for( int i = 0 ; i < 12 ; i++ )
+		{
+			ZP_SAFE_DELETE_BUFFER( m_ppTilesIndices[i] );
+		}
+		ZP_SAFE_DELETE_BUFFER( m_ppTilesIndices );
 	}
-	ZP_SAFE_DELETE_BUFFER( m_ppTilesIndices );
+
+	ZP_SAFE_DELETE_BUFFER( m_pGapTileIndices );
+	ZP_SAFE_DELETE_BUFFER( m_pCenterTileIndices );
 }
  
 void ClipMapLevel::Init( const unsigned int uiLevel ,  const unsigned int uiClipMapSize ,  const float fGridWidth )
@@ -39,6 +49,10 @@ void ClipMapLevel::Init( const unsigned int uiLevel ,  const unsigned int uiClip
 	_InitVerts();
 	//初始化12个子块索引
 	_InitTilesIndices();
+	//初始化上下左右4个修补块索引
+	_InitGapTilesIndices();
+
+	_InitCenterTileIndices();
 }
 
 void ClipMapLevel::_InitVerts( void )
@@ -161,6 +175,102 @@ void ClipMapLevel::_InitTilesIndices( void )
 	}//for( int i = 0 ; i < 12 ; i++ )
 }
 
+
+void ClipMapLevel::_InitGapTilesIndices( void )
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	unsigned int indicesNum = ( ( m*2 ) + 2 )*2 * 4;
+	m_pGapTileIndices = new unsigned short[indicesNum ];
+	int j = 0;
+
+	//上方的修补条
+	unsigned int iStartIndex = 2*( m-1 );
+	for( unsigned int iStrip = 0 ; iStrip < 2  ; iStrip++ )
+	{
+		unsigned int iStripStartIndex = iStartIndex + iStrip;
+		m_pGapTileIndices[j++] = iStripStartIndex;
+		for( unsigned int i = 0 ; i < m ; i++ )
+		{
+			m_pGapTileIndices[j++] = iStripStartIndex + i * m_uiClipMapSize;
+			m_pGapTileIndices[j++] = iStripStartIndex + i * m_uiClipMapSize + 1;
+		}
+		m_pGapTileIndices[j++] = iStripStartIndex + ( m - 1 ) * m_uiClipMapSize + 1;
+	}
+
+
+	//下方的修补条
+	iStartIndex = 2*( m-1 ) + ( (m-1)*3+2 )*m_uiClipMapSize;
+	for( unsigned int iStrip = 0 ; iStrip < 2 ; iStrip++ )
+	{
+		unsigned int iStripStartIndex = iStartIndex + iStrip;
+		m_pGapTileIndices[j++] = iStripStartIndex;
+		for( unsigned int i = 0 ; i < m ; i++ )
+		{
+			m_pGapTileIndices[j++] = iStripStartIndex + i * m_uiClipMapSize;
+			m_pGapTileIndices[j++] = iStripStartIndex + i * m_uiClipMapSize + 1;
+		}
+		m_pGapTileIndices[j++] = iStripStartIndex + ( m - 1 ) * m_uiClipMapSize + 1;
+	}
+
+	//左方的修补条
+	iStartIndex = ( (m-1)*2+1 )*m_uiClipMapSize;
+	for( unsigned int iStrip = 0 ; iStrip < 2 ; iStrip++ )
+	{
+		unsigned int iStripStartIndex = iStartIndex + iStrip*m_uiClipMapSize;
+		m_pGapTileIndices[j++] = iStripStartIndex;
+		for( unsigned int i = 0 ; i < m ; i++ )
+		{
+			m_pGapTileIndices[j++] = iStripStartIndex + i;
+			m_pGapTileIndices[j++] = iStripStartIndex + i - m_uiClipMapSize;
+		}
+		m_pGapTileIndices[j++] = iStripStartIndex + m - 1 - m_uiClipMapSize;
+	}
+
+	//右方的修补条
+	iStartIndex = ( (m-1)*2+1 )*m_uiClipMapSize + 3*(m-1)+2;
+	for( unsigned int iStrip = 0 ; iStrip < 2 ; iStrip++ )
+	{
+		unsigned int iStripStartIndex = iStartIndex + iStrip*m_uiClipMapSize;
+		m_pGapTileIndices[j++] = iStripStartIndex;
+		for( unsigned int i = 0 ; i < m ; i++ )
+		{
+			m_pGapTileIndices[j++] = iStripStartIndex + i;
+			m_pGapTileIndices[j++] = iStripStartIndex + i - m_uiClipMapSize;
+		}
+		m_pGapTileIndices[j++] = iStripStartIndex + m - 1 - m_uiClipMapSize;
+	}
+
+	ZP_ASSERT( indicesNum == j );
+}
+
+
+void ClipMapLevel::_InitCenterTileIndices( void )
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	unsigned int indicesNum = ( ( 2*m+1 )*2+2 ) * //每个条带的索引数 
+												( ( m - 1) *2 + 2); //条带数
+
+	m_pCenterTileIndices = new unsigned short[indicesNum];
+
+	int j = 0;
+	unsigned int iStartIndex = m*m_uiClipMapSize + m-1;
+
+	for( unsigned int iStrip = 0 ; iStrip < ( ( m - 1) *2 + 2 ) ; iStrip++ )
+	{
+		unsigned int iStripStartIndex = iStartIndex + iStrip*m_uiClipMapSize;
+
+		m_pCenterTileIndices[j++] = iStripStartIndex;
+		for( unsigned int i = 0 ; i < 2*m+1 ; i++ )
+		{
+			m_pCenterTileIndices[j++] = iStripStartIndex + i;
+			m_pCenterTileIndices[j++] = iStripStartIndex + i - m_uiClipMapSize;
+		}
+		m_pCenterTileIndices[j++] = iStripStartIndex + 2*(m-1) + 2 - m_uiClipMapSize;
+	}
+	ZP_ASSERT( j == indicesNum );
+}
+
+
 Math::Vec3 ClipMapLevel::GetLocalPos( void ) const
 {
 	return Math::Vec3( ((float)(m_centerPos.x>>m_uiLevel)) * m_fGridWidth , 0.0f , 
@@ -203,8 +313,31 @@ unsigned int ClipMapLevel::GetPrimtiveNumPerTile( void ) const
  
 }
 
+unsigned int ClipMapLevel::GetGapTileIndicesNum( void ) const
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	return  ( ( m*2 ) + 2 )*2 * 4;
+}
 
+unsigned int ClipMapLevel::GetGapTilePrimitiveNum( void ) const
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	return ( m - 1 )*4*4 + 2 + 4*7;
+}
 
+unsigned int ClipMapLevel::GetCenterTileIndicesNum( void ) const
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	return  ( ( 2*m+1 )*2+2 ) * //每个条带的索引数 
+		( ( m - 1) *2 + 2); //条带数
+}
 
+unsigned int ClipMapLevel::GetCenterTilePrimitiveNum( void ) const
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	return (2*(m-1)+2)*2*(2*(m-1)+2)+ //正常三角形数
+				(2*(m-1)+1)*4 + 2;  //退化三角形数
+}
+ 
 
 }//namespace Terrain

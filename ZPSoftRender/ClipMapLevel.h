@@ -9,7 +9,14 @@ namespace Terrain
 
 	enum CLIPMAPLEVEL_FLAG
 	{
-		VERTS_CHANGE= 1
+		VERTS_CHANGE= 1<<0 ,
+		SHOW_CENTER_TILE = 1<<1 ,
+		SHOW_GAP_TILES = 1<<2,
+		SHOW_LEFT_TOP_L_TILE = 1<<3,
+		SHOW_LEFT_BOTTOM_L_TILE = 1<<4,
+		SHOW_RIGHT_TOP_L_TILE = 1<<5,
+		SHOW_RIGHT_BOTTOM_L_TILE = 1<<6,
+		SHOW_FIXED_UP_RING = 1<<7
 	};
 
 class ClipMapLevel
@@ -25,23 +32,36 @@ public:
 
 	bool TestFlag( CLIPMAPLEVEL_FLAG bit  );
 	void SetFlag( CLIPMAPLEVEL_FLAG bit , bool b );
+	unsigned int GetFlag(void) const { return m_uiFlag; }
 	
-	TerrainVertex* GetVerts( void ){ return m_pVerts; } 
-	unsigned short** GetTilesIndices( void ){ return m_ppTilesIndices; }
+	TerrainVertex* GetVerts( void ) { return m_pVerts; } 
+	unsigned short** GetTilesIndices( void ) { return m_ppTilesIndices; }
+	unsigned short*  GetGapTileIndices( void ) { return m_pGapTileIndices; }
+	unsigned short* GetCenterTileIndices( void ){ return m_pCenterTileIndices; }
 
 	//顶点数
 	unsigned int GetVertsNum( void ) const;
+
+	
+	unsigned int GetTileNum( void ) const { return 12; }
 	//每个地形子块的索引数
 	unsigned int GetIndicesNumPerTile( void ) const;
 	//每个地形子块的几何体数
 	unsigned int GetPrimtiveNumPerTile( void ) const;
-	unsigned int GetTileNum( void ) const { return 12; }
+	unsigned int GetGapTileIndicesNum( void ) const;
+	unsigned int GetGapTilePrimitiveNum( void ) const;
+
+	unsigned int GetCenterTileIndicesNum( void ) const;
+	unsigned int GetCenterTilePrimitiveNum( void ) const;
+
 	Math::Vec3 GetLocalPos( void ) const;
 
 protected:
 	void _InitVerts( void );
 	//构建12个子地形块的索引
 	void _InitTilesIndices( void );
+	void _InitGapTilesIndices( void );
+	void _InitCenterTileIndices( void );
 	void _UpdateVerts( void );
 protected:
 	unsigned int  m_uiLevel;			  //当前ClipMap层级
@@ -53,6 +73,8 @@ protected:
 	ClipMapHeightMapBlock m_heightMapBlock;	//当前层高度图块
 	TerrainVertex* m_pVerts;			//当前层的顶点
 	unsigned short** m_ppTilesIndices; //12个小地形块的索引
+	unsigned short*   m_pGapTileIndices; //上下左右各四个修补条
+	unsigned short*	m_pCenterTileIndices;		//中心块（只对于顶层层可见）
 	unsigned int m_uiFlag;				//标志
 };
 

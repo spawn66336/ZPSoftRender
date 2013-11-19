@@ -737,12 +737,11 @@ void D3DRenderImpl::_SetupMatrices( Camera* pCam )
 	if( NULL == pCam )
 	{
 		return;
-	}
-
+	} 
 	m_m4ViewMat = pCam->GetCameraMatrix(); 
 	m_pD3D9Device->SetTransform(  D3DTS_VIEW , (D3DMATRIX*)( m_m4ViewMat.m ) );
 
-	m_m4ProjMat = Math::Matrix4::MakeD3DProjectionMatrix( 60.0f , m_fAspect , 2.0f , 1000.0f );  
+	m_m4ProjMat = Math::Matrix4::MakeD3DProjectionMatrix( 60.0f , m_fAspect , 2.0f , 9999000.0f );  
 	m_pD3D9Device->SetTransform(  D3DTS_PROJECTION ,  (D3DMATRIX*)( &m_m4ProjMat.m ) );   
 }
 

@@ -83,7 +83,7 @@ namespace Terrain
 			for( unsigned int localx = 0 ; localx < m_uiClipMapSize ; localx++ )
 			{
 				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
-				m_pHeightMap[ localz*m_uiClipMapSize + localx ] = h*0.01f;
+				m_pHeightMap[ localz*m_uiClipMapSize + localx ] = h*0.1f;
 				x += stride;
 			}
 			z += stride;

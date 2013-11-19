@@ -66,6 +66,9 @@ void ClipMapTerrain::Init(
 	m_uiLevelNum = 5;
 	m_pLevels = new ClipMapLevel[m_uiLevelNum];
 	
+	//使最顶层 渲染中心区块
+	m_pLevels[0].SetFlag( SHOW_CENTER_TILE , true );
+
 	for( unsigned int i = 0 ; i < m_uiLevelNum ; i++ )
 	{
 		m_pLevels[i].Init( i , m_uiClipMapSize , m_fGridWidth );

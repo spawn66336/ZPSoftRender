@@ -193,7 +193,7 @@
       <Filter>源文件\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="ClipMapTerrainRenderDataCache.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -378,7 +378,7 @@
       <Filter>头文件\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="ClipMapTerrainRenderDataCache.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

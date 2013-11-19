@@ -50,11 +50,10 @@ void D3DRenderPipeline::Render( void )
 			auto itOp = matGroup.m_OpList.begin();
 			while( itOp != matGroup.m_OpList.end() )
 			{
-				m_pDevice->SetVertexShader(NULL);
-				m_pDevice->SetPixelShader( NULL );
+				 
 				D3DRenderOperation* pOp = *itOp; 
 				m_pDevice->SetRenderState( D3DRS_LIGHTING , FALSE);
-				m_pDevice->SetRenderState( D3DRS_CULLMODE ,D3DCULL_NONE );
+				//m_pDevice->SetRenderState( D3DRS_CULLMODE ,D3DCULL_NONE );
 				m_pDevice->SetTexture(0,0);
 				m_pDevice->SetTransform( D3DTS_WORLD , (D3DXMATRIX*)&pOp->m_worldMat );
 				m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
