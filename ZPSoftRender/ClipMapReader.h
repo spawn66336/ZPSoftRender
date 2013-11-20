@@ -21,7 +21,7 @@ namespace Terrain
 		int GetHeightMapMaxHeight( void ) const;
 		int GetHeightMapMinHeight( void ) const;
 
-		float Sample( const int x , const int z );
+		bool Sample( const int x , const int z , float& sample );
 
 	protected:
 		String m_strMapName;										//µØÍ¼Â·¾¶

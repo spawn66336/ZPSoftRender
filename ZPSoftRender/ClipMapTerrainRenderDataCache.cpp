@@ -91,7 +91,13 @@ namespace Terrain
 	m_uiCenterTileIndiceNum(0),
 	m_uiCenterTilePrimitiveNum(0),
 	m_uiIndiceNumPerLTile(0),
-	m_uiPrimitivePerLTile(0)
+	m_uiPrimitivePerLTile(0),
+	m_pFixedRingVB(0),
+	m_pFixedRingIB(0),
+	m_pFixedRingOp(0),
+	m_uiFixedRingVertNum(0),
+	m_uiFixedRingIndicesNum(0),
+	m_uiFixedRingPrimitiveNum(0)
 	{
 		ZP_ASSERT(0);
 		memset( m_ppTileIB , 0 , sizeof(m_ppTileIB[0])*12 );
@@ -122,7 +128,13 @@ namespace Terrain
 	m_uiCenterTileIndiceNum(0),
 	m_uiCenterTilePrimitiveNum(0),
 	m_uiIndiceNumPerLTile(0),
-	m_uiPrimitivePerLTile(0)
+	m_uiPrimitivePerLTile(0),
+	m_pFixedRingVB(0),
+	m_pFixedRingIB(0),
+	m_pFixedRingOp(0),
+	m_uiFixedRingVertNum(0),
+	m_uiFixedRingIndicesNum(0),
+	m_uiFixedRingPrimitiveNum(0)
 	{
 		memset( m_ppTileIB , 0 , sizeof(m_ppTileIB[0])*12 );
 
@@ -139,6 +151,8 @@ namespace Terrain
 		m_pLeftBottomLTileOp = new Render::D3DRenderOperation;
 		m_pRightTopLTileOp = new Render::D3DRenderOperation;
 		m_pRightBottomLTileOp = new Render::D3DRenderOperation;
+
+		m_pFixedRingOp = new Render::D3DRenderOperation;
 	} 
 
 	TerrainLevelRenderData::~TerrainLevelRenderData()
@@ -173,6 +187,10 @@ namespace Terrain
 		ZP_SAFE_DELETE(m_pLeftBottomLTileOp);
 		ZP_SAFE_DELETE(m_pRightTopLTileOp);
 		ZP_SAFE_DELETE(m_pRightBottomLTileOp);
+
+		ZP_SAFE_RELEASE( m_pFixedRingVB );
+		ZP_SAFE_RELEASE( m_pFixedRingIB );
+		ZP_SAFE_DELETE( m_pFixedRingOp );
 	}
 
 	void TerrainLevelRenderData::Update( ClipMapLevel* pLevel )
@@ -219,6 +237,10 @@ namespace Terrain
 			m_pLeftBottomLTileOp->m_pVertexDecl = m_pVBDecl;
 			m_pRightTopLTileOp->m_pVertexDecl = m_pVBDecl;
 			m_pRightBottomLTileOp->m_pVertexDecl = m_pVBDecl;
+
+			m_pVBDecl->AddRef();
+			ZP_SAFE_RELEASE( m_pFixedRingOp->m_pVertexDecl );
+			m_pFixedRingOp->m_pVertexDecl = m_pVBDecl;
 		}
 
 		 //检查VB是否需要更新
@@ -437,6 +459,64 @@ namespace Terrain
 		}
 		m_uiPrimitivePerLTile = pLevel->GetPrimitiveNumPerLTile();
 
+
+		bool bFixedRingVBNeedUpdate = false;
+		if( pLevel->GetFixedRingVertNum() != m_uiFixedRingVertNum )
+		{
+			bFixedRingVBNeedUpdate = true;
+			m_uiFixedRingVertNum = pLevel->GetFixedRingVertNum();
+			ZP_SAFE_RELEASE( m_pFixedRingVB );
+			m_pDevice->
+				CreateVertexBuffer( m_uiFixedRingVertNum*sizeof(TerrainVertex) , D3DUSAGE_WRITEONLY , 0 , D3DPOOL_DEFAULT , &m_pFixedRingVB , NULL );
+			ZP_ASSERT( NULL != m_pFixedRingVB );
+
+			m_pFixedRingVB->AddRef();
+			ZP_SAFE_RELEASE( m_pFixedRingOp->m_pVB );
+			m_pFixedRingOp->m_pVB = m_pFixedRingVB;
+
+		}else{
+			if( pLevel->TestFlag( VERTS_CHANGE ) )
+			{
+				bFixedRingVBNeedUpdate = true;
+			}
+		}
+
+		if( bFixedRingVBNeedUpdate )
+		{
+			void* pBuf = NULL;
+			unsigned int uiLockSize = m_uiFixedRingVertNum*sizeof(TerrainVertex) ;
+			m_pFixedRingVB->Lock( 0 , uiLockSize , &pBuf , 0 );
+			memcpy_s( pBuf , uiLockSize , pLevel->GetFixedRingVerts() , uiLockSize );
+			m_pFixedRingVB->Unlock();
+			pBuf = NULL;
+		}
+
+		bool bFixedRingIBNeedUpdate = false;
+		if( pLevel->GetFixedRingIndicesNum() != m_uiFixedRingIndicesNum )
+		{
+			bFixedRingIBNeedUpdate = true;
+			m_uiFixedRingIndicesNum = pLevel->GetFixedRingIndicesNum();
+			ZP_SAFE_RELEASE( m_pFixedRingIB );
+			m_pDevice->CreateIndexBuffer( 
+				sizeof(unsigned short)*m_uiFixedRingIndicesNum , D3DUSAGE_WRITEONLY , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &m_pFixedRingIB , NULL );
+			ZP_ASSERT( NULL != m_pFixedRingIB );
+			m_pFixedRingIB->AddRef();
+			ZP_SAFE_RELEASE( m_pFixedRingOp->m_pIB );
+			m_pFixedRingOp->m_pIB = m_pFixedRingIB;
+		}
+
+		if( bFixedRingIBNeedUpdate )
+		{
+			unsigned short* pFixedRingIndices = pLevel->GetFixedRingIndices();
+			void* pBuf = NULL;
+			unsigned int uiLockSize = sizeof(unsigned short)*m_uiFixedRingIndicesNum;
+			m_pFixedRingIB->Lock( 0 ,uiLockSize, &pBuf , 0 );
+			memcpy_s( pBuf ,uiLockSize, pFixedRingIndices ,uiLockSize );
+			m_pFixedRingIB->Unlock();
+		}
+
+		m_uiFixedRingPrimitiveNum = pLevel->GetFixedRingPrimitiveNum();
+
 	}
 
 	void TerrainLevelRenderData::GetRenderOps( std::vector<Render::D3DRenderOperation*>& opList )
@@ -445,16 +525,16 @@ namespace Terrain
 		 
 		if( m_uiLevelCurrFlag & SHOW_OUTER_TILES )
 		{ 
-		for( int i = 0 ; i < 12 ; i++ )
-		{
-			m_tileRenderOps[i]->m_worldMat = localMat;
-			m_tileRenderOps[i]->m_vertexCount = m_uiVertNum;
-			m_tileRenderOps[i]->m_stride = sizeof( TerrainVertex );
-			m_tileRenderOps[i]->m_primitiveType = D3DPT_TRIANGLESTRIP;
-			m_tileRenderOps[i]->m_primCount = m_uiPrimtivePerTile;
-			m_tileRenderOps[i]->m_streamIndex = 0;
-			opList.push_back( m_tileRenderOps[i] );
-		} 
+			for( int i = 0 ; i < 12 ; i++ )
+			{
+				m_tileRenderOps[i]->m_worldMat = localMat;
+				m_tileRenderOps[i]->m_vertexCount = m_uiVertNum;
+				m_tileRenderOps[i]->m_stride = sizeof( TerrainVertex );
+				m_tileRenderOps[i]->m_primitiveType = D3DPT_TRIANGLESTRIP;
+				m_tileRenderOps[i]->m_primCount = m_uiPrimtivePerTile;
+				m_tileRenderOps[i]->m_streamIndex = 0;
+				opList.push_back( m_tileRenderOps[i] );
+			} 
 		}
 
 		if( m_uiLevelCurrFlag & SHOW_GAP_TILES )
@@ -515,6 +595,17 @@ namespace Terrain
 			m_pRightBottomLTileOp->m_primCount = m_uiPrimitivePerLTile;
 			m_pRightBottomLTileOp->m_streamIndex = 0;
 			opList.push_back( m_pRightBottomLTileOp );
+		} 
+		
+		if( m_uiLevelCurrFlag & SHOW_FIXED_UP_RING )
+		{
+			m_pFixedRingOp->m_worldMat = localMat;
+			m_pFixedRingOp->m_vertexCount = m_uiFixedRingVertNum;
+			m_pFixedRingOp->m_stride = sizeof( TerrainVertex );
+			m_pFixedRingOp->m_primitiveType = D3DPT_TRIANGLELIST;
+			m_pFixedRingOp->m_primCount = m_uiFixedRingPrimitiveNum;
+			m_pFixedRingOp->m_streamIndex = 0;
+			opList.push_back( m_pFixedRingOp );
 		}
 	}
 

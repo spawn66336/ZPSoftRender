@@ -53,13 +53,14 @@ void D3DRenderPipeline::Render( void )
 				 
 				D3DRenderOperation* pOp = *itOp; 
 				m_pDevice->SetRenderState( D3DRS_LIGHTING , FALSE);
-				//m_pDevice->SetRenderState( D3DRS_CULLMODE ,D3DCULL_NONE );
+				m_pDevice->SetRenderState( D3DRS_CULLMODE ,D3DCULL_CW );
 				m_pDevice->SetTexture(0,0);
 				m_pDevice->SetTransform( D3DTS_WORLD , (D3DXMATRIX*)&pOp->m_worldMat );
 				m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
 				m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
 				m_pDevice->SetIndices( pOp->m_pIB ); 
 				m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount , 0 , pOp->m_primCount );   
+	 
 				++itOp;
 			}
 

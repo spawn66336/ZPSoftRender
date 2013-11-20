@@ -27,6 +27,7 @@ namespace Terrain
 		LPDIRECT3DDEVICE9	m_pDevice;
 		LPDIRECT3DVERTEXDECLARATION9 m_pVBDecl;
 		LPDIRECT3DVERTEXBUFFER9 m_pVB;
+		LPDIRECT3DVERTEXBUFFER9 m_pFixedRingVB;
 		LPDIRECT3DINDEXBUFFER9 m_ppTileIB[12];
 		LPDIRECT3DINDEXBUFFER9 m_pGapTileIB;
 		LPDIRECT3DINDEXBUFFER9 m_pCenterTileIB;		//中心区块IB
@@ -35,6 +36,8 @@ namespace Terrain
 		LPDIRECT3DINDEXBUFFER9 m_pLeftBottomLTileIB;		 
 		LPDIRECT3DINDEXBUFFER9 m_pRightTopLTileIB;		 
 		LPDIRECT3DINDEXBUFFER9 m_pRightBottomLTileIB;		 
+
+		LPDIRECT3DINDEXBUFFER9 m_pFixedRingIB;
 
 		Math::Vec3 m_v3LocalPos;
 		unsigned int m_uiLevelCurrFlag;     //所对应层级的标志（用来标识某块是否用于显示）
@@ -53,6 +56,10 @@ namespace Terrain
 		unsigned int m_uiIndiceNumPerLTile;
 		unsigned int m_uiPrimitivePerLTile;
 
+		unsigned int m_uiFixedRingVertNum;
+		unsigned int m_uiFixedRingIndicesNum;
+		unsigned int m_uiFixedRingPrimitiveNum;
+
 		Render::D3DRenderOperation* m_tileRenderOps[12];
 		Render::D3DRenderOperation* m_pGapTileOp;
 		Render::D3DRenderOperation* m_pCenterTileOp;
@@ -61,6 +68,8 @@ namespace Terrain
 		Render::D3DRenderOperation* m_pLeftBottomLTileOp;
 		Render::D3DRenderOperation* m_pRightTopLTileOp;
 		Render::D3DRenderOperation* m_pRightBottomLTileOp;
+
+		Render::D3DRenderOperation* m_pFixedRingOp;
 	};
 
 	class ClipMapTerrainRenderDataCache

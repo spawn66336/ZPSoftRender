@@ -28,7 +28,7 @@ public:
 	float Sample( const int localX , const int localZ );
 protected:
 	void _UpdateArea( const ClipMapArea& updateArea );
-
+	 
 	/**
 	* @brief 设置高程图某点高度
 	* @param x 横坐标（当前层坐标）

@@ -73,6 +73,13 @@ void ClipMapTerrain::Init(
 	{
 		m_pLevels[i].Init( i , m_uiClipMapSize , m_fGridWidth );
 	}
+	//链接所有层
+	for( unsigned int i = 0 ; i < m_uiLevelNum-1 ; i++ )
+	{
+		m_pLevels[i].SetNextLevel( &m_pLevels[i+1] );
+	}
+
+	m_pLevels[m_uiLevelNum-1].SetFlag( SHOW_FIXED_UP_RING , false );
 
 	//初始化网格区域
 	Update( Math::Vec3() ); 
@@ -137,6 +144,7 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 			}
 		}
 	}
+	 
 
 	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
 	{

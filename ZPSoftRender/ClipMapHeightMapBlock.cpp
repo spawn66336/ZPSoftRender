@@ -62,45 +62,49 @@ namespace Terrain
 	void ClipMapHeightMapBlock::_UpdateArea( const ClipMapArea& updateArea )
 	{ 
 		int stride = 1<<m_uiLevel; 
-		for( int z = updateArea.minPos.z ; z <= updateArea.maxPos.z ; z+=stride )
+		for( int z = updateArea.minPos.z ; z <= updateArea.maxPos.z ; )
 		{
-			for( int x = updateArea.minPos.x ; x <= updateArea.maxPos.x ; x+= stride )
+			for( int x = updateArea.minPos.x ; x <= updateArea.maxPos.x ;  )
 			{ 
-				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
+				float h = 0.0f; 
+				ClipMapReader::GetInstance()->Sample( x , z , h );
 				int localX = x>>m_uiLevel;
 				int localZ = z>>m_uiLevel;
 				_SetHeight( localX , localZ , h*0.1f );
+				x+= stride;
 			}
-		} 
-		 
-		/*int z = updateArea.minPos.z; 
-		for( unsigned int localz = 0 ; localz < m_uiClipMapSize ; localz++ )
-		{
-			int x = updateArea.minPos.x;
-			for( unsigned int localx = 0 ; localx < m_uiClipMapSize ; localx++ )
-			{
-				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
-				m_pHeightMap[ localz*m_uiClipMapSize + localx ] = h*0.1f;
-				x += stride;
-			}
-			z += stride;
-		}*/ 
-
+			z+=stride;
+		}  
 	} 
 
 	void ClipMapHeightMapBlock::_SetHeight( const int localX , const int localZ , const float h )
 	{   
-		int iWrapX = localX%m_uiClipMapSize;
-		int iWrapZ = localZ%m_uiClipMapSize; 
+		int iWrapX = localX%((int)m_uiClipMapSize);
+		if( iWrapX < 0 )
+		{
+			iWrapX += ((int)m_uiClipMapSize);
+		}
+		int iWrapZ = localZ%((int)m_uiClipMapSize);
+		if( iWrapZ < 0 )
+		{
+			iWrapZ += ((int)m_uiClipMapSize);
+		}
 		m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX] = h;
 	}
 
 	float ClipMapHeightMapBlock::Sample( const int localX , const int localZ )
 	{ 
-		int iWrapX = localX%m_uiClipMapSize;
-		int iWrapZ = localZ%m_uiClipMapSize; 
-		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX];
-		//return m_pHeightMap[localZ*m_uiClipMapSize + localX];
+		int iWrapX = localX%((int)m_uiClipMapSize);
+		if( iWrapX < 0 )
+		{
+			iWrapX += ((int)m_uiClipMapSize);
+		}
+		int iWrapZ = localZ%((int)m_uiClipMapSize);
+		if( iWrapZ < 0 )
+		{
+			iWrapZ += ((int)m_uiClipMapSize);
+		}
+		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX]; 
 	}
 
 }//namespace Terrain

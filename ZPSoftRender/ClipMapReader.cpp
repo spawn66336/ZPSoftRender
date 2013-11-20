@@ -90,14 +90,17 @@ int ClipMapReader::GetHeightMapMinHeight( void ) const
 	return m_pFileHeader->min_height;
 }
 
-float ClipMapReader::Sample( const int x , const int z )
+bool ClipMapReader::Sample( const int x , const int z , float& sample )
 {
 	//若超出范围返回0高程
 	if( x < 0 || x >= GetHeightMapWidth() ||
 		z < 0 || z >= GetHeightMapHeight() )
-		return 0;
-
-	return m_pHeightMapData[ z * GetHeightMapWidth() + x ] - (float)GetHeightMapMinHeight();
+	{
+		sample = 0.0f;
+		return false;
+	}
+	sample =  m_pHeightMapData[ z * GetHeightMapWidth() + x ] - (float)GetHeightMapMinHeight();
+	return true;
 }
 
 }
