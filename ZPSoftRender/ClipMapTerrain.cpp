@@ -103,16 +103,45 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 		int iCurrLevelCenterZ = Map2Odd( iPrevLevelCenterZ );
 		ClipMapGridPos currLevelCenter( iCurrLevelCenterX*uiCurrLevelGirdSize , iCurrLevelCenterZ*uiCurrLevelGirdSize );
 
-		m_pLevels[iLevel].Update( currLevelCenter );
-		m_renderDataCache.UpdateTerrainLevelRenderData( &m_pLevels[iLevel] );
-		
+		m_pLevels[iLevel].Update( currLevelCenter ); 
+
 		unsigned int uiNextLevelGridSize = uiCurrLevelGirdSize<<1;
 		iPrevLevelCenterX = ( currLevelCenter.x + Mod( currLevelCenter.x , uiNextLevelGridSize ) ) / uiNextLevelGridSize;
 		iPrevLevelCenterZ = ( currLevelCenter.z + Mod( currLevelCenter.z , uiNextLevelGridSize ) ) / uiNextLevelGridSize;
 		uiCurrLevelGirdSize = uiNextLevelGridSize;
 	} 
 
+	//决定绘制哪边的修补环
+	unsigned int uiTopLevel = 0;
+	for( unsigned int iLevel = uiTopLevel+1 ; iLevel < m_uiLevelNum; iLevel++ )
+	{
+		ClipMapGridPos prevLevelCenter = m_pLevels[iLevel-1].GetCenter();
+		ClipMapGridPos currLevelCenter = m_pLevels[iLevel].GetCenter();
+		int diffx = currLevelCenter.x - prevLevelCenter.x;
+		int diffz = currLevelCenter.z - prevLevelCenter.z;
+		
+		if( diffx > 0 )
+		{//在右边
+			if( diffz > 0)
+			{//在上面
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_RIGHT_TOP_L_TILE );
+			}else{//在下面
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_RIGHT_BOTTOM_L_TILE );
+			}
+		}else{//在左边
+			if( diffz > 0 )
+			{//在上面
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_LEFT_TOP_L_TILE );
+			}else{//在下面
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_LEFT_BOTTOM_L_TILE );
+			}
+		}
+	}
 
+	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
+	{
+		m_renderDataCache.UpdateTerrainLevelRenderData( &m_pLevels[iLevel] );
+	}
 } 
  
 Terrain::ClipMapGridPos ClipMapTerrain::_WorldPos2GridPos( const Math::Vec3& v3Pos  )

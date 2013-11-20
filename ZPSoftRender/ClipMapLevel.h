@@ -10,13 +10,14 @@ namespace Terrain
 	enum CLIPMAPLEVEL_FLAG
 	{
 		VERTS_CHANGE= 1<<0 ,
-		SHOW_CENTER_TILE = 1<<1 ,
-		SHOW_GAP_TILES = 1<<2,
-		SHOW_LEFT_TOP_L_TILE = 1<<3,
-		SHOW_LEFT_BOTTOM_L_TILE = 1<<4,
-		SHOW_RIGHT_TOP_L_TILE = 1<<5,
-		SHOW_RIGHT_BOTTOM_L_TILE = 1<<6,
-		SHOW_FIXED_UP_RING = 1<<7
+		SHOW_OUTER_TILES = 1<<1,
+		SHOW_CENTER_TILE = 1<<2 ,
+		SHOW_GAP_TILES = 1<<3,
+		SHOW_LEFT_TOP_L_TILE = 1<<4,
+		SHOW_LEFT_BOTTOM_L_TILE = 1<<5,
+		SHOW_RIGHT_TOP_L_TILE = 1<<6,
+		SHOW_RIGHT_BOTTOM_L_TILE = 1<<7,
+		SHOW_FIXED_UP_RING = 1<<8
 	};
 
 class ClipMapLevel
@@ -33,26 +34,36 @@ public:
 	bool TestFlag( CLIPMAPLEVEL_FLAG bit  );
 	void SetFlag( CLIPMAPLEVEL_FLAG bit , bool b );
 	unsigned int GetFlag(void) const { return m_uiFlag; }
+	void SetShowLTileFlag( CLIPMAPLEVEL_FLAG bit );
 	
 	TerrainVertex* GetVerts( void ) { return m_pVerts; } 
 	unsigned short** GetTilesIndices( void ) { return m_ppTilesIndices; }
 	unsigned short*  GetGapTileIndices( void ) { return m_pGapTileIndices; }
 	unsigned short* GetCenterTileIndices( void ){ return m_pCenterTileIndices; }
 
+	unsigned short* GetLeftTopLTileIndices( void ){ return m_pLeftTopLTileIndices; }
+	unsigned short* GetLeftBottomLTileIndices( void ){ return m_pLeftBottomLTileIndices; }
+	unsigned short* GetRightTopLTileIndices( void ){ return m_pRightTopTileIndices; }
+	unsigned short* GetRightBottomLTileIndices( void ){ return m_pRightBottomTileIndices; }
+
 	//顶点数
 	unsigned int GetVertsNum( void ) const;
-
-	
+	//获得外围的瓦片数
 	unsigned int GetTileNum( void ) const { return 12; }
 	//每个地形子块的索引数
 	unsigned int GetIndicesNumPerTile( void ) const;
 	//每个地形子块的几何体数
 	unsigned int GetPrimtiveNumPerTile( void ) const;
+	//获得上下左右的修补瓦片条的总索引数
 	unsigned int GetGapTileIndicesNum( void ) const;
-	unsigned int GetGapTilePrimitiveNum( void ) const;
+	//获得上下左右的修补瓦片条的总绘制面数
+	unsigned int GetGapTilePrimitiveNum( void ) const; 
 
 	unsigned int GetCenterTileIndicesNum( void ) const;
 	unsigned int GetCenterTilePrimitiveNum( void ) const;
+
+	unsigned int GetIndicesNumPerLTile( void ) const;
+	unsigned int GetPrimitiveNumPerLTile( void ) const;
 
 	Math::Vec3 GetLocalPos( void ) const;
 
@@ -62,6 +73,8 @@ protected:
 	void _InitTilesIndices( void );
 	void _InitGapTilesIndices( void );
 	void _InitCenterTileIndices( void );
+	void _InitLFixedTileIndices( void );
+	//根据高程图更新顶点的高度值
 	void _UpdateVerts( void );
 protected:
 	unsigned int  m_uiLevel;			  //当前ClipMap层级
@@ -75,6 +88,12 @@ protected:
 	unsigned short** m_ppTilesIndices; //12个小地形块的索引
 	unsigned short*   m_pGapTileIndices; //上下左右各四个修补条
 	unsigned short*	m_pCenterTileIndices;		//中心块（只对于顶层层可见）
+
+	unsigned short*	m_pLeftTopLTileIndices;
+	unsigned short*   m_pLeftBottomLTileIndices;
+	unsigned short*   m_pRightTopTileIndices;
+	unsigned short*   m_pRightBottomTileIndices;
+
 	unsigned int m_uiFlag;				//标志
 };
 

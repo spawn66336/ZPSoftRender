@@ -36,9 +36,9 @@ namespace Terrain
 	{
 		//初次更新则全部更新
 		if( m_uiFlag&AREA_UNINIT )
-		{
-			_UpdateArea( newArea );
+		{ 
 			m_currArea = newArea;
+			_UpdateArea( newArea );
 			m_uiFlag &= ~AREA_IS_DIRTY;
 			m_uiFlag &= ~AREA_UNINIT;
 			return true;
@@ -53,17 +53,15 @@ namespace Terrain
 		m_uiFlag |= AREA_IS_DIRTY; 
 		 
 		//暂行全部更新，后面再实现部分更新
-		_UpdateArea( newArea );
 		m_currArea = newArea; 
+		_UpdateArea( m_currArea ); 
 		m_uiFlag &= ~AREA_IS_DIRTY;
 		return true;
 	}
 
 	void ClipMapHeightMapBlock::_UpdateArea( const ClipMapArea& updateArea )
 	{ 
-		int stride = 1<<m_uiLevel;
-
-		/*
+		int stride = 1<<m_uiLevel; 
 		for( int z = updateArea.minPos.z ; z <= updateArea.maxPos.z ; z+=stride )
 		{
 			for( int x = updateArea.minPos.x ; x <= updateArea.maxPos.x ; x+= stride )
@@ -71,12 +69,11 @@ namespace Terrain
 				float h =  ClipMapReader::GetInstance()->Sample( x , z ); 
 				int localX = x>>m_uiLevel;
 				int localZ = z>>m_uiLevel;
-				_SetHeight( localX , localZ , h*0.01f );
+				_SetHeight( localX , localZ , h*0.1f );
 			}
 		} 
-		*/
-
-		int z = updateArea.minPos.z; 
+		 
+		/*int z = updateArea.minPos.z; 
 		for( unsigned int localz = 0 ; localz < m_uiClipMapSize ; localz++ )
 		{
 			int x = updateArea.minPos.x;
@@ -87,12 +84,12 @@ namespace Terrain
 				x += stride;
 			}
 			z += stride;
-		}
-	}
+		}*/ 
 
+	} 
 
 	void ClipMapHeightMapBlock::_SetHeight( const int localX , const int localZ , const float h )
-	{ 
+	{   
 		int iWrapX = localX%m_uiClipMapSize;
 		int iWrapZ = localZ%m_uiClipMapSize; 
 		m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX] = h;
@@ -100,10 +97,10 @@ namespace Terrain
 
 	float ClipMapHeightMapBlock::Sample( const int localX , const int localZ )
 	{ 
-		/*int iWrapX = localX%m_uiClipMapSize;
+		int iWrapX = localX%m_uiClipMapSize;
 		int iWrapZ = localZ%m_uiClipMapSize; 
-		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX];*/
-		return m_pHeightMap[localZ*m_uiClipMapSize + localX];
+		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX];
+		//return m_pHeightMap[localZ*m_uiClipMapSize + localX];
 	}
 
 }//namespace Terrain

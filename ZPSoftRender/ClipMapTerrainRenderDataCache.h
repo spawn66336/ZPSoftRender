@@ -30,6 +30,12 @@ namespace Terrain
 		LPDIRECT3DINDEXBUFFER9 m_ppTileIB[12];
 		LPDIRECT3DINDEXBUFFER9 m_pGapTileIB;
 		LPDIRECT3DINDEXBUFFER9 m_pCenterTileIB;		//中心区块IB
+
+		LPDIRECT3DINDEXBUFFER9 m_pLeftTopLTileIB;		 
+		LPDIRECT3DINDEXBUFFER9 m_pLeftBottomLTileIB;		 
+		LPDIRECT3DINDEXBUFFER9 m_pRightTopLTileIB;		 
+		LPDIRECT3DINDEXBUFFER9 m_pRightBottomLTileIB;		 
+
 		Math::Vec3 m_v3LocalPos;
 		unsigned int m_uiLevelCurrFlag;     //所对应层级的标志（用来标识某块是否用于显示）
 
@@ -44,9 +50,17 @@ namespace Terrain
 		unsigned int m_uiCenterTileIndiceNum;
 		unsigned int m_uiCenterTilePrimitiveNum;
 
+		unsigned int m_uiIndiceNumPerLTile;
+		unsigned int m_uiPrimitivePerLTile;
+
 		Render::D3DRenderOperation* m_tileRenderOps[12];
 		Render::D3DRenderOperation* m_pGapTileOp;
 		Render::D3DRenderOperation* m_pCenterTileOp;
+
+		Render::D3DRenderOperation* m_pLeftTopLTileOp;
+		Render::D3DRenderOperation* m_pLeftBottomLTileOp;
+		Render::D3DRenderOperation* m_pRightTopLTileOp;
+		Render::D3DRenderOperation* m_pRightBottomLTileOp;
 	};
 
 	class ClipMapTerrainRenderDataCache

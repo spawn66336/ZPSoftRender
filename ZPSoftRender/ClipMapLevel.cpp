@@ -13,7 +13,12 @@ namespace Terrain
 	m_ppTilesIndices(NULL),
 	m_pGapTileIndices(NULL),
 	m_pCenterTileIndices(NULL),
-	m_uiFlag( SHOW_GAP_TILES| 
+	m_pLeftTopLTileIndices(NULL),
+	m_pLeftBottomLTileIndices(NULL),
+	m_pRightTopTileIndices(NULL),
+	m_pRightBottomTileIndices(NULL),
+	m_uiFlag( SHOW_OUTER_TILES|
+					SHOW_GAP_TILES| 
 				    SHOW_FIXED_UP_RING )
 {
 
@@ -36,6 +41,11 @@ ClipMapLevel::~ClipMapLevel(void)
 
 	ZP_SAFE_DELETE_BUFFER( m_pGapTileIndices );
 	ZP_SAFE_DELETE_BUFFER( m_pCenterTileIndices );
+
+	ZP_SAFE_DELETE_BUFFER( m_pLeftTopLTileIndices );
+	ZP_SAFE_DELETE_BUFFER( m_pLeftBottomLTileIndices );
+	ZP_SAFE_DELETE_BUFFER( m_pRightTopTileIndices );
+	ZP_SAFE_DELETE_BUFFER( m_pRightBottomTileIndices );
 }
  
 void ClipMapLevel::Init( const unsigned int uiLevel ,  const unsigned int uiClipMapSize ,  const float fGridWidth )
@@ -51,8 +61,10 @@ void ClipMapLevel::Init( const unsigned int uiLevel ,  const unsigned int uiClip
 	_InitTilesIndices();
 	//初始化上下左右4个修补块索引
 	_InitGapTilesIndices();
-
+	//构建中心块的索引
 	_InitCenterTileIndices();
+	//初始化L型修补块索引
+	_InitLFixedTileIndices();
 }
 
 void ClipMapLevel::_InitVerts( void )
@@ -101,26 +113,26 @@ void ClipMapLevel::_UpdateVerts( void )
 {
 	//使用高程更新网格点y值
 	int stride = 1<<m_uiLevel;
-	//for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
-	//{
-	//		int localz = m_currArea.minPos.z + stride*z;
-	//		for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
-	//		{
-	//			unsigned int offset = z*m_uiClipMapSize+x;
-	//			int localx = m_currArea.minPos.x + stride*x;		
-	//			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel );
-	//		
-	//		}
-	//}
-
-	for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
-	{ 
-		for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
+	for(  int z = 0 ; z < m_uiClipMapSize ; z++ )
+	{
+		int localz = m_currArea.maxPos.z - stride*z;
+		for(  int x = 0 ; x < m_uiClipMapSize ; x++ )
 		{
 			unsigned int offset = z*m_uiClipMapSize+x;
-			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( x , m_uiClipMapSize-1-z );
+
+			int localx = m_currArea.minPos.x + stride*x;		
+			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel ); 
 		}
 	}
+
+	//for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
+	//{ 
+	//	for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
+	//	{
+	//		unsigned int offset = z*m_uiClipMapSize+x;
+	//		m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( x , m_uiClipMapSize-1-z );
+	//	}
+	//}
 }
 
 void ClipMapLevel::_InitTilesIndices( void )
@@ -270,7 +282,101 @@ void ClipMapLevel::_InitCenterTileIndices( void )
 	ZP_ASSERT( j == indicesNum );
 }
 
+void ClipMapLevel::_InitLFixedTileIndices( void )
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	unsigned int indicesPerLTile = (2*m+1)*2+2 + 2*m*2+2;
 
+	m_pLeftTopLTileIndices = new unsigned short[indicesPerLTile];
+	m_pLeftBottomLTileIndices = new unsigned short[indicesPerLTile];
+	m_pRightTopTileIndices = new unsigned short[indicesPerLTile];
+	m_pRightBottomTileIndices = new unsigned short[indicesPerLTile];
+
+	//构建左上 
+	unsigned int j = 0;
+	unsigned int iStripStartIndex = m*m_uiClipMapSize+m-1;
+	m_pLeftTopLTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m+1 ; i++ )
+	{
+		m_pLeftTopLTileIndices[j++] = iStripStartIndex + i;
+		m_pLeftTopLTileIndices[j++] = iStripStartIndex + i - m_uiClipMapSize;
+	}
+	m_pLeftTopLTileIndices[j++] = iStripStartIndex + 2*m - m_uiClipMapSize;
+
+	iStripStartIndex = m*m_uiClipMapSize+m-1;
+	m_pLeftTopLTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m ; i++ )
+	{
+		m_pLeftTopLTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize;
+		m_pLeftTopLTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize+1;
+	}
+	m_pLeftTopLTileIndices[j++] = iStripStartIndex+(2*m-1)*m_uiClipMapSize+1;
+	ZP_ASSERT( j == indicesPerLTile );
+
+	//构建左下
+	j = 0;
+	iStripStartIndex = (3*(m-1)+2)*m_uiClipMapSize+m-1;
+	m_pLeftBottomLTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m+1 ; i++ )
+	{
+		m_pLeftBottomLTileIndices[j++] = iStripStartIndex+i;
+		m_pLeftBottomLTileIndices[j++] = iStripStartIndex+i-m_uiClipMapSize;
+	}
+	m_pLeftBottomLTileIndices[j++] = iStripStartIndex+2*m-m_uiClipMapSize;
+
+	iStripStartIndex = (m-1)*m_uiClipMapSize+m-1;
+	m_pLeftBottomLTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m ; i++ )
+	{
+		m_pLeftBottomLTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize;
+		m_pLeftBottomLTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize+1;
+	}
+	m_pLeftBottomLTileIndices[j++] = iStripStartIndex+(2*m-1)*m_uiClipMapSize+1;
+	ZP_ASSERT( j == indicesPerLTile );
+
+	//构建右上
+	j = 0;
+	iStripStartIndex = m*m_uiClipMapSize+m-1;
+	m_pRightTopTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m+1 ; i++ )
+	{
+		m_pRightTopTileIndices[j++] = iStripStartIndex + i;
+		m_pRightTopTileIndices[j++] = iStripStartIndex + i - m_uiClipMapSize;
+	}
+	m_pRightTopTileIndices[j++] = iStripStartIndex + 2*m - m_uiClipMapSize;
+
+	iStripStartIndex = m*m_uiClipMapSize+3*m-2; 
+	m_pRightTopTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m ; i++ )
+	{
+		m_pRightTopTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize;
+		m_pRightTopTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize+1;
+	}
+	m_pRightTopTileIndices[j++] = iStripStartIndex+(2*m-1)*m_uiClipMapSize+1;
+	ZP_ASSERT( j == indicesPerLTile );
+
+	//构建右下
+	j = 0;
+	iStripStartIndex = (3*(m-1)+2)*m_uiClipMapSize+m-1;
+	m_pRightBottomTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m+1 ; i++ )
+	{
+		m_pRightBottomTileIndices[j++] = iStripStartIndex+i;
+		m_pRightBottomTileIndices[j++] = iStripStartIndex+i-m_uiClipMapSize;
+	}
+	m_pRightBottomTileIndices[j++] = iStripStartIndex+2*m-m_uiClipMapSize;
+
+	iStripStartIndex = (m-1)*m_uiClipMapSize+3*m-2;
+	m_pRightBottomTileIndices[j++] = iStripStartIndex;
+	for( unsigned int i = 0 ; i < 2*m ; i++ )
+	{
+		m_pRightBottomTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize;
+		m_pRightBottomTileIndices[j++] = iStripStartIndex+i*m_uiClipMapSize+1;
+	}
+	m_pRightBottomTileIndices[j++] =  iStripStartIndex+(2*m-1)*m_uiClipMapSize+1;
+	ZP_ASSERT( j == indicesPerLTile );
+}
+ 
 Math::Vec3 ClipMapLevel::GetLocalPos( void ) const
 {
 	return Math::Vec3( ((float)(m_centerPos.x>>m_uiLevel)) * m_fGridWidth , 0.0f , 
@@ -338,6 +444,31 @@ unsigned int ClipMapLevel::GetCenterTilePrimitiveNum( void ) const
 	return (2*(m-1)+2)*2*(2*(m-1)+2)+ //正常三角形数
 				(2*(m-1)+1)*4 + 2;  //退化三角形数
 }
- 
+
+unsigned int ClipMapLevel::GetIndicesNumPerLTile( void ) const
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	return  (2*m+1)*2+2 + 2*m*2+2;
+}
+
+unsigned int ClipMapLevel::GetPrimitiveNumPerLTile( void ) const
+{
+	unsigned int m = ( m_uiClipMapSize+1 )/4;
+	return 4+2+(2*(m-1)+2)*2+(2*m-1)*2;
+}
+
+void ClipMapLevel::SetShowLTileFlag( CLIPMAPLEVEL_FLAG bit )
+{ 
+	unsigned int m = 
+		SHOW_LEFT_TOP_L_TILE|
+		SHOW_LEFT_BOTTOM_L_TILE|
+		SHOW_RIGHT_TOP_L_TILE|
+		SHOW_RIGHT_BOTTOM_L_TILE;
+	m_uiFlag &= ~m;
+	m_uiFlag |= bit;
+}
+
+
+
 
 }//namespace Terrain

@@ -73,15 +73,25 @@ namespace Terrain
 	m_pVB(0),
 	m_pGapTileIB(0),
 	m_pCenterTileIB(0),
+	m_pLeftTopLTileIB(0),		 
+	m_pLeftBottomLTileIB(0),		 
+	m_pRightTopLTileIB(0),
+	m_pRightBottomLTileIB(0),		 
 	m_pGapTileOp(0),
 	m_pCenterTileOp(0),
+	m_pLeftTopLTileOp(0),
+	m_pLeftBottomLTileOp(0),
+	m_pRightTopLTileOp(0),
+	m_pRightBottomLTileOp(0),
 	m_uiVertNum(0),
 	m_uiIndiceNumPerTile(0),
 	m_uiPrimtivePerTile(0),
 	m_uiGapTileIndiceNum(0),
 	m_uiGapTilePrimitiveNum(0),
 	m_uiCenterTileIndiceNum(0),
-	m_uiCenterTilePrimitiveNum(0)
+	m_uiCenterTilePrimitiveNum(0),
+	m_uiIndiceNumPerLTile(0),
+	m_uiPrimitivePerLTile(0)
 	{
 		ZP_ASSERT(0);
 		memset( m_ppTileIB , 0 , sizeof(m_ppTileIB[0])*12 );
@@ -94,15 +104,25 @@ namespace Terrain
 	m_pVB(0),
 	m_pGapTileIB(0),
 	m_pCenterTileIB(0),
+	m_pLeftTopLTileIB(0),		 
+	m_pLeftBottomLTileIB(0),		 
+	m_pRightTopLTileIB(0),
+	m_pRightBottomLTileIB(0),		 
 	m_pGapTileOp(0),
 	m_pCenterTileOp(0),
+	m_pLeftTopLTileOp(0),
+	m_pLeftBottomLTileOp(0),
+	m_pRightTopLTileOp(0),
+	m_pRightBottomLTileOp(0),
 	m_uiVertNum(0),
 	m_uiIndiceNumPerTile(0),
 	m_uiPrimtivePerTile(0),
 	m_uiGapTileIndiceNum(0),
 	m_uiGapTilePrimitiveNum(0),
 	m_uiCenterTileIndiceNum(0),
-	m_uiCenterTilePrimitiveNum(0)
+	m_uiCenterTilePrimitiveNum(0),
+	m_uiIndiceNumPerLTile(0),
+	m_uiPrimitivePerLTile(0)
 	{
 		memset( m_ppTileIB , 0 , sizeof(m_ppTileIB[0])*12 );
 
@@ -114,6 +134,11 @@ namespace Terrain
 
 		m_pGapTileOp = new Render::D3DRenderOperation;
 		m_pCenterTileOp = new Render::D3DRenderOperation;
+
+		m_pLeftTopLTileOp = new Render::D3DRenderOperation;
+		m_pLeftBottomLTileOp = new Render::D3DRenderOperation;
+		m_pRightTopLTileOp = new Render::D3DRenderOperation;
+		m_pRightBottomLTileOp = new Render::D3DRenderOperation;
 	} 
 
 	TerrainLevelRenderData::~TerrainLevelRenderData()
@@ -138,6 +163,16 @@ namespace Terrain
 		//释放中心区块的索引缓冲区与渲染操作
 		ZP_SAFE_RELEASE( m_pCenterTileIB );
 		ZP_SAFE_DELETE( m_pCenterTileOp );
+
+		ZP_SAFE_RELEASE( m_pLeftTopLTileIB);		 
+		ZP_SAFE_RELEASE( m_pLeftBottomLTileIB );	 
+		ZP_SAFE_RELEASE( m_pRightTopLTileIB );
+		ZP_SAFE_RELEASE( m_pRightBottomLTileIB );		 
+
+		ZP_SAFE_DELETE( m_pLeftTopLTileOp );
+		ZP_SAFE_DELETE(m_pLeftBottomLTileOp);
+		ZP_SAFE_DELETE(m_pRightTopLTileOp);
+		ZP_SAFE_DELETE(m_pRightBottomLTileOp);
 	}
 
 	void TerrainLevelRenderData::Update( ClipMapLevel* pLevel )
@@ -169,6 +204,21 @@ namespace Terrain
 			m_pVBDecl->AddRef();
 			ZP_SAFE_RELEASE( m_pCenterTileOp->m_pVertexDecl );
 			m_pCenterTileOp->m_pVertexDecl = m_pVBDecl;
+
+			m_pVBDecl->AddRef();
+			m_pVBDecl->AddRef();
+			m_pVBDecl->AddRef();
+			m_pVBDecl->AddRef();
+
+			ZP_SAFE_RELEASE( m_pLeftTopLTileOp->m_pVertexDecl );
+			ZP_SAFE_RELEASE( m_pLeftBottomLTileOp->m_pVertexDecl );
+			ZP_SAFE_RELEASE( m_pRightTopLTileOp->m_pVertexDecl );
+			ZP_SAFE_RELEASE( m_pRightBottomLTileOp->m_pVertexDecl );
+
+			m_pLeftTopLTileOp->m_pVertexDecl = m_pVBDecl;
+			m_pLeftBottomLTileOp->m_pVertexDecl = m_pVBDecl;
+			m_pRightTopLTileOp->m_pVertexDecl = m_pVBDecl;
+			m_pRightBottomLTileOp->m_pVertexDecl = m_pVBDecl;
 		}
 
 		 //检查VB是否需要更新
@@ -196,6 +246,21 @@ namespace Terrain
 			m_pVB->AddRef();
 			ZP_SAFE_RELEASE( m_pCenterTileOp->m_pVB );
 			m_pCenterTileOp->m_pVB = m_pVB;
+
+			m_pVB->AddRef();
+			m_pVB->AddRef();
+			m_pVB->AddRef();
+			m_pVB->AddRef();
+
+			ZP_SAFE_RELEASE( m_pLeftTopLTileOp->m_pVB );
+			ZP_SAFE_RELEASE( m_pLeftBottomLTileOp->m_pVB );
+			ZP_SAFE_RELEASE( m_pRightTopLTileOp->m_pVB );
+			ZP_SAFE_RELEASE( m_pRightBottomLTileOp->m_pVB );
+
+			m_pLeftTopLTileOp->m_pVB = m_pVB;
+			m_pLeftBottomLTileOp->m_pVB = m_pVB;
+			m_pRightTopLTileOp->m_pVB = m_pVB;
+			m_pRightBottomLTileOp->m_pVB = m_pVB;
 
 		}else{
 			if( pLevel->TestFlag( VERTS_CHANGE ) )
@@ -300,6 +365,77 @@ namespace Terrain
 			m_pCenterTileIB->Unlock();
 		}
 		m_uiCenterTilePrimitiveNum = pLevel->GetCenterTilePrimitiveNum();
+		 
+		bool bLTileIBNeedUpdate = false;
+		if( pLevel->GetIndicesNumPerLTile() != m_uiIndiceNumPerLTile )
+		{
+			bLTileIBNeedUpdate = true;
+			m_uiIndiceNumPerLTile = pLevel->GetIndicesNumPerLTile();
+			ZP_SAFE_RELEASE( m_pLeftTopLTileIB );
+			ZP_SAFE_RELEASE( m_pLeftBottomLTileIB );
+			ZP_SAFE_RELEASE( m_pRightTopLTileIB  );
+			ZP_SAFE_RELEASE( m_pRightBottomLTileIB );
+
+			m_pDevice->CreateIndexBuffer( 
+				sizeof(unsigned short)*m_uiIndiceNumPerLTile , D3DUSAGE_WRITEONLY , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &m_pLeftTopLTileIB , NULL );
+			ZP_ASSERT( m_pLeftTopLTileIB );
+			m_pDevice->CreateIndexBuffer( 
+				sizeof(unsigned short)*m_uiIndiceNumPerLTile , D3DUSAGE_WRITEONLY , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &m_pLeftBottomLTileIB , NULL );
+			ZP_ASSERT( m_pLeftBottomLTileIB );
+			m_pDevice->CreateIndexBuffer( 
+				sizeof(unsigned short)*m_uiIndiceNumPerLTile , D3DUSAGE_WRITEONLY , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &m_pRightTopLTileIB , NULL );
+			ZP_ASSERT( m_pRightTopLTileIB );
+			m_pDevice->CreateIndexBuffer( 
+				sizeof(unsigned short)*m_uiIndiceNumPerLTile , D3DUSAGE_WRITEONLY , D3DFMT_INDEX16 , D3DPOOL_DEFAULT , &m_pRightBottomLTileIB , NULL );
+			ZP_ASSERT( m_pRightBottomLTileIB );
+			
+			m_pLeftTopLTileIB->AddRef();
+			m_pLeftBottomLTileIB->AddRef();
+			m_pRightTopLTileIB->AddRef();
+			m_pRightBottomLTileIB->AddRef();
+
+			ZP_SAFE_RELEASE( m_pLeftTopLTileOp->m_pIB ); 
+			ZP_SAFE_RELEASE( m_pLeftBottomLTileOp->m_pIB ); 
+			ZP_SAFE_RELEASE( m_pRightTopLTileOp->m_pIB ); 
+			ZP_SAFE_RELEASE( m_pRightBottomLTileOp->m_pIB ); 
+
+			 m_pLeftTopLTileOp->m_pIB = m_pLeftTopLTileIB;
+			 m_pLeftBottomLTileOp->m_pIB = m_pLeftBottomLTileIB;
+			 m_pRightTopLTileOp->m_pIB = m_pRightTopLTileIB;
+			 m_pRightBottomLTileOp->m_pIB = m_pRightBottomLTileIB;
+		}
+
+		if( bLTileIBNeedUpdate )
+		{
+			unsigned short* pLeftTopLTileIndices = pLevel->GetLeftTopLTileIndices();
+			void* pBuf = NULL;
+			unsigned int uiLockSize = sizeof(unsigned short)*m_uiIndiceNumPerLTile;
+			m_pLeftTopLTileIB->Lock( 0 ,uiLockSize, &pBuf , 0 );
+			memcpy_s( pBuf ,uiLockSize, pLeftTopLTileIndices ,uiLockSize );
+			m_pLeftTopLTileIB->Unlock();
+
+			unsigned short* pLeftBottomLTileIndices = pLevel->GetLeftBottomLTileIndices();
+			pBuf = NULL;
+			uiLockSize = sizeof(unsigned short)*m_uiIndiceNumPerLTile;
+			m_pLeftBottomLTileIB->Lock( 0 ,uiLockSize, &pBuf , 0 );
+			memcpy_s( pBuf ,uiLockSize, pLeftBottomLTileIndices ,uiLockSize );
+			m_pLeftBottomLTileIB->Unlock();
+
+			unsigned short* pRightTopLTileIndices = pLevel->GetRightTopLTileIndices();
+			pBuf = NULL;
+			uiLockSize = sizeof(unsigned short)*m_uiIndiceNumPerLTile;
+			m_pRightTopLTileIB->Lock( 0 ,uiLockSize, &pBuf , 0 );
+			memcpy_s( pBuf ,uiLockSize, pRightTopLTileIndices ,uiLockSize );
+			m_pRightTopLTileIB->Unlock();
+
+			unsigned short* pRightBottomLTileIndices = pLevel->GetRightBottomLTileIndices();
+			pBuf = NULL;
+			uiLockSize = sizeof(unsigned short)*m_uiIndiceNumPerLTile;
+			m_pRightBottomLTileIB->Lock( 0 ,uiLockSize, &pBuf , 0 );
+			memcpy_s( pBuf ,uiLockSize, pRightBottomLTileIndices ,uiLockSize );
+			m_pRightBottomLTileIB->Unlock();
+		}
+		m_uiPrimitivePerLTile = pLevel->GetPrimitiveNumPerLTile();
 
 	}
 
@@ -307,6 +443,8 @@ namespace Terrain
 	{
 		Math::Matrix4 localMat = Math::Matrix4::MakeTranslationMatrix( m_v3LocalPos );
 		 
+		if( m_uiLevelCurrFlag & SHOW_OUTER_TILES )
+		{ 
 		for( int i = 0 ; i < 12 ; i++ )
 		{
 			m_tileRenderOps[i]->m_worldMat = localMat;
@@ -316,6 +454,7 @@ namespace Terrain
 			m_tileRenderOps[i]->m_primCount = m_uiPrimtivePerTile;
 			m_tileRenderOps[i]->m_streamIndex = 0;
 			opList.push_back( m_tileRenderOps[i] );
+		} 
 		}
 
 		if( m_uiLevelCurrFlag & SHOW_GAP_TILES )
@@ -338,6 +477,44 @@ namespace Terrain
 			m_pCenterTileOp->m_primCount = m_uiCenterTilePrimitiveNum;
 			m_pCenterTileOp->m_streamIndex = 0;
 			opList.push_back( m_pCenterTileOp );
+		}
+
+		if( m_uiLevelCurrFlag & SHOW_LEFT_TOP_L_TILE )
+		{
+			m_pLeftTopLTileOp->m_worldMat = localMat;
+			m_pLeftTopLTileOp->m_vertexCount = m_uiVertNum;
+			m_pLeftTopLTileOp->m_stride = sizeof( TerrainVertex );
+			m_pLeftTopLTileOp->m_primitiveType = D3DPT_TRIANGLESTRIP;
+			m_pLeftTopLTileOp->m_primCount = m_uiPrimitivePerLTile;
+			m_pLeftTopLTileOp->m_streamIndex = 0;
+			opList.push_back( m_pLeftTopLTileOp );
+		}else if( m_uiLevelCurrFlag & SHOW_LEFT_BOTTOM_L_TILE )
+		{
+			m_pLeftBottomLTileOp->m_worldMat = localMat;
+			m_pLeftBottomLTileOp->m_vertexCount = m_uiVertNum;
+			m_pLeftBottomLTileOp->m_stride = sizeof( TerrainVertex );
+			m_pLeftBottomLTileOp->m_primitiveType = D3DPT_TRIANGLESTRIP;
+			m_pLeftBottomLTileOp->m_primCount = m_uiPrimitivePerLTile;
+			m_pLeftBottomLTileOp->m_streamIndex = 0;
+			opList.push_back( m_pLeftBottomLTileOp );
+		}else if( m_uiLevelCurrFlag & SHOW_RIGHT_TOP_L_TILE )
+		{
+			m_pRightTopLTileOp->m_worldMat = localMat;
+			m_pRightTopLTileOp->m_vertexCount = m_uiVertNum;
+			m_pRightTopLTileOp->m_stride = sizeof( TerrainVertex );
+			m_pRightTopLTileOp->m_primitiveType = D3DPT_TRIANGLESTRIP;
+			m_pRightTopLTileOp->m_primCount = m_uiPrimitivePerLTile;
+			m_pRightTopLTileOp->m_streamIndex = 0;
+			opList.push_back( m_pRightTopLTileOp );
+		}else if( m_uiLevelCurrFlag & SHOW_RIGHT_BOTTOM_L_TILE )
+		{
+			m_pRightBottomLTileOp->m_worldMat = localMat;
+			m_pRightBottomLTileOp->m_vertexCount = m_uiVertNum;
+			m_pRightBottomLTileOp->m_stride = sizeof( TerrainVertex );
+			m_pRightBottomLTileOp->m_primitiveType = D3DPT_TRIANGLESTRIP;
+			m_pRightBottomLTileOp->m_primCount = m_uiPrimitivePerLTile;
+			m_pRightBottomLTileOp->m_streamIndex = 0;
+			opList.push_back( m_pRightBottomLTileOp );
 		}
 	}
 
