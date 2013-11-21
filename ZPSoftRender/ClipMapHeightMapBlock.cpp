@@ -7,7 +7,8 @@ namespace Terrain
 	m_uiLevel(0),		//当前所在级别
 	m_uiClipMapSize(0),		//剪切图大小
 	m_uiFlag(AREA_UNINIT),
-	m_pHeightMap(0)
+	m_pHeightMap(0),
+	m_pNormalMap(0)
 	{
 	}
 	 
@@ -25,11 +26,15 @@ namespace Terrain
 		//初始化高程图区域
 		m_pHeightMap = new float[uiSize];
 		memset( m_pHeightMap , 0 , sizeof(float)*uiSize );  
+
+		//初始化法线图
+		m_pNormalMap = new Math::Vec3[uiSize]; 
 	}
 
 	void ClipMapHeightMapBlock::Destroy( void )
 	{
 		ZP_SAFE_DELETE_BUFFER( m_pHeightMap );
+		ZP_SAFE_DELETE_BUFFER( m_pNormalMap );
 	}
 
 	bool ClipMapHeightMapBlock::Update( const ClipMapArea& newArea )
@@ -67,10 +72,13 @@ namespace Terrain
 			for( int x = updateArea.minPos.x ; x <= updateArea.maxPos.x ;  )
 			{ 
 				float h = 0.0f; 
+				Math::Vec3 norm;
 				ClipMapReader::GetInstance()->Sample( x , z , h );
+				ClipMapReader::GetInstance()->SampleNormal( x , z , norm );
 				int localX = x>>m_uiLevel;
 				int localZ = z>>m_uiLevel;
-				_SetHeight( localX , localZ , h*0.1f );
+				_SetHeight( localX , localZ , h );
+				_SetNormal( localX , localZ , norm );
 				x+= stride;
 			}
 			z+=stride;
@@ -79,32 +87,44 @@ namespace Terrain
 
 	void ClipMapHeightMapBlock::_SetHeight( const int localX , const int localZ , const float h )
 	{   
-		int iWrapX = localX%((int)m_uiClipMapSize);
-		if( iWrapX < 0 )
-		{
-			iWrapX += ((int)m_uiClipMapSize);
-		}
-		int iWrapZ = localZ%((int)m_uiClipMapSize);
-		if( iWrapZ < 0 )
-		{
-			iWrapZ += ((int)m_uiClipMapSize);
-		}
+		int iWrapX = _WrapAddress( localX );
+		int iWrapZ = _WrapAddress( localZ );
 		m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX] = h;
+	}
+
+	void ClipMapHeightMapBlock::_SetNormal( const int localX , const int localZ , const Math::Vec3& norm )
+	{
+		int iWrapX = _WrapAddress( localX );
+		int iWrapZ = _WrapAddress( localZ );
+		m_pNormalMap[iWrapZ*m_uiClipMapSize+iWrapX] = norm;
 	}
 
 	float ClipMapHeightMapBlock::Sample( const int localX , const int localZ )
 	{ 
-		int iWrapX = localX%((int)m_uiClipMapSize);
-		if( iWrapX < 0 )
-		{
-			iWrapX += ((int)m_uiClipMapSize);
-		}
-		int iWrapZ = localZ%((int)m_uiClipMapSize);
-		if( iWrapZ < 0 )
-		{
-			iWrapZ += ((int)m_uiClipMapSize);
-		}
-		return m_pHeightMap[iWrapZ*m_uiClipMapSize + iWrapX]; 
+		int iWrapX = _WrapAddress( localX );
+		int iWrapZ = _WrapAddress( localZ );
+		return m_pHeightMap[iWrapZ*m_uiClipMapSize+iWrapX]; 
 	}
+
+
+	Math::Vec3 ClipMapHeightMapBlock::SampleNormal( const int localX , const int localZ )
+	{
+		int iWrapX = _WrapAddress( localX );
+		int iWrapZ = _WrapAddress( localZ );
+		return m_pNormalMap[iWrapZ*m_uiClipMapSize+iWrapX];
+	}
+
+
+	int ClipMapHeightMapBlock::_WrapAddress( int x )
+	{
+		int tmp = x%((int)m_uiClipMapSize);
+		if( tmp < 0 )
+		{
+			tmp += ((int)m_uiClipMapSize);
+		}
+		return tmp;
+	}
+
+
 
 }//namespace Terrain

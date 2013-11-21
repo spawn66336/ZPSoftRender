@@ -224,6 +224,7 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localz = m_currArea.maxPos.z;
 		int localx = m_currArea.minPos.x + stride*x;
 		m_pFixedRingVerts[x].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel );
+		m_pFixedRingVerts[x].m_norm = m_heightMapBlock.SampleNormal( localx>>m_uiLevel , localz>>m_uiLevel );
 	}
 	//更新内圈右方顶点高度
 	for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
@@ -231,6 +232,7 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localx = m_currArea.minPos.x + stride*(m_uiClipMapSize-1);
 		int localz = m_currArea.maxPos.z - stride*z;
 		m_pFixedRingVerts[m_uiClipMapSize+z].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel );
+		m_pFixedRingVerts[m_uiClipMapSize+z].m_norm = m_heightMapBlock.SampleNormal( localx>>m_uiLevel , localz>>m_uiLevel );
 	}
 	//更新内圈下方顶点高度
 	for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
@@ -238,6 +240,7 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localx = m_currArea.minPos.x + stride*x;
 		int localz = m_currArea.minPos.z;
 		m_pFixedRingVerts[2*m_uiClipMapSize+x].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel );
+		m_pFixedRingVerts[2*m_uiClipMapSize+x].m_norm = m_heightMapBlock.SampleNormal( localx>>m_uiLevel , localz>>m_uiLevel );
 	}
 	//更新内圈左侧顶点高度
 	for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
@@ -245,6 +248,7 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localx = m_currArea.minPos.x;
 		int localz = m_currArea.maxPos.z - stride*z;
 		m_pFixedRingVerts[3*m_uiClipMapSize+z].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel );
+		m_pFixedRingVerts[3*m_uiClipMapSize+z].m_norm = m_heightMapBlock.SampleNormal( localx>>m_uiLevel , localz>>m_uiLevel );
 	}
 
 	//若没有下一粗糙级别则不更新外圈
@@ -265,6 +269,7 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localz = m_currArea.maxPos.z;
 		m_pFixedRingVerts[uiOffset2OuterRing+x].m_pos.y = 
 			nextLevelHMBlockRef.Sample( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
+		m_pFixedRingVerts[uiOffset2OuterRing+x].m_norm = m_heightMapBlock.SampleNormal( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
 	}
 
 	//更新外环右侧
@@ -274,6 +279,8 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localz = m_currArea.maxPos.z - uiNextLevelStride*z;
 		m_pFixedRingVerts[uiOffset2OuterRing+uiOutterVertsPerLine+z].m_pos.y = 
 			nextLevelHMBlockRef.Sample( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
+		m_pFixedRingVerts[uiOffset2OuterRing+uiOutterVertsPerLine+z].m_norm = 
+			m_heightMapBlock.SampleNormal( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
 	}
 
 	//更新外环下面
@@ -283,6 +290,8 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localz = m_currArea.minPos.z;
 		m_pFixedRingVerts[uiOffset2OuterRing+2*uiOutterVertsPerLine+x].m_pos.y = 
 			nextLevelHMBlockRef.Sample( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
+		m_pFixedRingVerts[uiOffset2OuterRing+2*uiOutterVertsPerLine+x].m_norm = 
+			m_heightMapBlock.SampleNormal( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
 	}
 
 	//更新外环左侧
@@ -292,6 +301,8 @@ void ClipMapLevel::_UpdateFixedRingVerts( void )
 		int localz = m_currArea.maxPos.z - uiNextLevelStride*z;
 		m_pFixedRingVerts[uiOffset2OuterRing+3*uiOutterVertsPerLine+z].m_pos.y = 
 			nextLevelHMBlockRef.Sample( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
+		m_pFixedRingVerts[uiOffset2OuterRing+3*uiOutterVertsPerLine+z].m_norm = 
+			m_heightMapBlock.SampleNormal( localx>>(m_uiLevel+1) , localz>>(m_uiLevel+1) );
 	}
 }
 
@@ -309,17 +320,10 @@ void ClipMapLevel::_UpdateVerts( void )
 
 			int localx = m_currArea.minPos.x + stride*x;		
 			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( localx>>m_uiLevel , localz>>m_uiLevel ); 
+			m_pVerts[offset].m_norm = m_heightMapBlock.SampleNormal( localx>>m_uiLevel , localz>>m_uiLevel );
 		}
 	}
-
-	/*for( unsigned int z = 0 ; z < m_uiClipMapSize ; z++ )
-	{ 
-		for( unsigned int x = 0 ; x < m_uiClipMapSize ; x++ )
-		{
-			unsigned int offset = z*m_uiClipMapSize+x;
-			m_pVerts[offset].m_pos.y = m_heightMapBlock.Sample( x , m_uiClipMapSize-1-z );
-		}
-	}*/
+ 
 }
 
 void ClipMapLevel::_InitTilesIndices( void )

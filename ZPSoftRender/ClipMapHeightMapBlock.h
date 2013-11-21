@@ -26,9 +26,11 @@ public:
 	*/
 	bool Update( const ClipMapArea& newArea );
 	float Sample( const int localX , const int localZ );
+	Math::Vec3 SampleNormal( const int localX , const int localZ );
 protected:
 	void _UpdateArea( const ClipMapArea& updateArea );
 	 
+	int _WrapAddress( int x );
 	/**
 	* @brief 设置高程图某点高度
 	* @param x 横坐标（当前层坐标）
@@ -36,12 +38,14 @@ protected:
 	* @param h 待设置高度
 	*/
 	void _SetHeight( const int localX , const int localZ , const float h );
+	void _SetNormal( const int localX , const int localZ , const Math::Vec3& norm );
 protected:
 	ClipMapArea m_currArea;
 	unsigned int  m_uiLevel;				//当前所在级别
 	unsigned int  m_uiClipMapSize;		//剪切图大小
 	unsigned int  m_uiFlag;
 	float* m_pHeightMap;		//当前层高程图
+	Math::Vec3* m_pNormalMap; //当前层法线图
 };
 
 }//namespace Terrain

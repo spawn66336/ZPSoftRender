@@ -38,6 +38,28 @@ struct PS_OUTPUT
 };
 
 
+struct T_VS_INPUT
+{
+	float4 f4Pos : POSITION0;
+	float3 f3Norm : NORMAL0;
+};
+
+struct T_VS_OUTPUT
+{
+	float4 f4Pos : POSITION0;
+	float3 f3Norm : NORMAL0;
+	float3 f3LightDir : TEXCOORD0;
+	float3 f3ViewDir : TEXCOORD1;
+};
+
+struct T_PS_INPUT
+{
+	float3 f3Norm : NORMAL0; 
+	float3 f3LightDir : TEXCOORD0;
+	float3 f3ViewDir : TEXCOORD1;
+};
+
+
 //材质结构体
 struct Material_t
 { 
@@ -76,6 +98,7 @@ sampler2D SampleNormalTex = sampler_state
 
 float4x4 m4World;
 float3 f3LightPos;
+float3 f3DirLightDir;     //用于方向光
 Material_t g_Material;
  
 
@@ -173,6 +196,48 @@ PS_OUTPUT PhongShadingPS( PS_INPUT input )
 	return output;
 }
 
+
+
+T_VS_OUTPUT TerrainShadingVS( T_VS_INPUT input )
+{
+	T_VS_OUTPUT output;
+	//构造从本地空间到屏幕空间的变换矩阵
+	float4x4 worldView = mul( m4World , m4View );
+	float4x4 worldViewProj = mul( worldView , m4Proj );  
+	
+	 
+ 	float3 f3NormalInView = normalize( mul( input.f3Norm , worldView ) );  
+	float4 f4ObjPosInView = mul( input.f4Pos , worldView );
+	float3 f3LightDirInView = mul( -f3DirLightDir , worldView );
+	
+ 
+	output.f4Pos = mul( input.f4Pos , worldViewProj ); 
+	output.f3Norm = f3NormalInView;  
+	output.f3LightDir = f3LightDirInView;
+	output.f3ViewDir = -f4ObjPosInView.xyz;
+	 
+	return output;
+}
+
+PS_OUTPUT TerrainShadingPS( T_PS_INPUT input )
+{
+	PS_OUTPUT output;
+	float3 f3Normal = input.f3Norm;
+	f3Normal = normalize( f3Normal );
+	float4 f4DiffColor = float4(0.75,0.75,0.75,1.0);
+	float3 f3ViewDir = normalize( input.f3ViewDir );
+	float  fDiffFactor   = max( 0.0f , dot( f3Normal, normalize(input.f3LightDir) ) ); 
+	float3 f3H     = normalize( input.f3LightDir + input.f3ViewDir );
+	float  fSpecFactor    = max( 0.0f, dot( f3Normal , f3H ) );
+	
+    float4 f4TotalAmbient   = g_Material.f4Amb * f4DiffColor; 
+    float4 f4TotalDiffuse   = g_Material.f4Diff * fDiffFactor * f4DiffColor; 
+    float4 f4TotalSpecular  = g_Material.f4Spec * pow( fSpecFactor, g_Material.fPower );
+   
+	output.f4Color = saturate( f4TotalAmbient + f4TotalDiffuse ); 
+	return output;
+}
+
 technique NormalMapShading
 {
 	pass P0
@@ -188,5 +253,14 @@ technique PhongShading
 	{
 		VertexShader = compile vs_3_0 PhongShadingVS();
 		PixelShader  = compile ps_3_0 PhongShadingPS();
+	}
+}
+
+technique TerrainShading
+{
+	pass P0
+	{
+		VertexShader = compile vs_3_0 TerrainShadingVS();
+		PixelShader  = compile ps_3_0 TerrainShadingPS();
 	}
 }

@@ -47,22 +47,59 @@ void D3DRenderPipeline::Render( void )
 
 		if( NULL == pMat )
 		{
-			auto itOp = matGroup.m_OpList.begin();
-			while( itOp != matGroup.m_OpList.end() )
+			if( NULL == m_pEffect )
 			{
-				 
-				D3DRenderOperation* pOp = *itOp; 
-				m_pDevice->SetRenderState( D3DRS_LIGHTING , FALSE);
-				m_pDevice->SetRenderState( D3DRS_CULLMODE ,D3DCULL_CW );
-				m_pDevice->SetTexture(0,0);
-				m_pDevice->SetTransform( D3DTS_WORLD , (D3DXMATRIX*)&pOp->m_worldMat );
-				m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
-				m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
-				m_pDevice->SetIndices( pOp->m_pIB ); 
-				m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount , 0 , pOp->m_primCount );   
-	 
-				++itOp;
+				++itMatGroup;
+				continue;
 			}
+
+			//渲染地形
+			m_pEffect->SetTechnique( "TerrainShading" );
+			 
+			Math::Vec3 LightPos( 2000.0f , 8000.0f , 3000.f ); 
+			Math::Vec3 DirLightDir( 0.5f , -1.0f , 0.5f );
+			DirLightDir.Normalize();
+			m_pEffect->SetValue( "f3LightPos"  , &(LightPos) , sizeof(LightPos) );  
+			m_pEffect->SetValue( "f3DirLightDir" , &DirLightDir , sizeof(DirLightDir) );
+			D3DMATERIAL9 material;
+			Math::Vec4 v4Ambient( 0.1f , 0.1f, 0.1f , 1.0f );
+			Math::Vec4 v4Diffuse( 1.0f , 1.0f , 1.0f , 1.0f );
+			Math::Vec4 v4Specular( 1.0f , 1.0f , 1.0f , 1.0f );
+			float fShininess = 128.0f;
+
+			//应用材质  
+			memset( &material , 0 , sizeof( material ) ); 
+			memcpy( &material.Ambient , &v4Ambient , sizeof(D3DCOLORVALUE) );
+			memcpy( &material.Diffuse , &v4Diffuse , sizeof(D3DCOLORVALUE) );
+			memcpy( &material.Specular , &v4Specular , sizeof(D3DCOLORVALUE) );
+			material.Power = fShininess;     
+			int size = sizeof(material);
+			m_pEffect->SetValue( "g_Material" , (LPCVOID)&material , sizeof(material) ); 
+
+			UINT uiPassCount = 0;  
+			m_pEffect->Begin( &uiPassCount ,  0 );  
+
+			for( UINT uiPass = 0 ; uiPass < uiPassCount ; uiPass++ )
+			{  
+				m_pEffect->BeginPass( uiPass );   
+				auto itOp = matGroup.m_OpList.begin();
+				while( itOp != matGroup.m_OpList.end() )
+				{ 
+					D3DRenderOperation* pOp = *itOp;   
+
+					m_pEffect->SetMatrix( "m4World" , (D3DXMATRIX*)&( pOp->m_worldMat ) ); 
+					m_pEffect->CommitChanges();
+
+					m_pDevice->SetVertexDeclaration( pOp->m_pVertexDecl );
+					m_pDevice->SetStreamSource( pOp->m_streamIndex , pOp->m_pVB , 0 , pOp->m_stride  );
+					m_pDevice->SetIndices( pOp->m_pIB ); 
+					m_pDevice->DrawIndexedPrimitive( pOp->m_primitiveType , 0 , 0 , pOp->m_vertexCount , 0 , pOp->m_primCount );   
+
+					++itOp;
+				}
+				m_pEffect->EndPass();
+			}
+			m_pEffect->End();
 
 			++itMatGroup;
 			continue;
