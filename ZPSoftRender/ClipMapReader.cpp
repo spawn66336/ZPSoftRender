@@ -106,7 +106,7 @@ bool ClipMapReader::Sample( const int x , const int z , float& sample )
 		sample = 0.0f;
 		return false;
 	}
-	sample =  ( m_pHeightMapData[ z * GetHeightMapWidth() + x ] - (float)GetHeightMapMinHeight() )*0.1f;
+	sample =  ( m_pHeightMapData[ z * GetHeightMapWidth() + x ] - (float)GetHeightMapMinHeight() )*0.1f ;
 	return true;
 }
 

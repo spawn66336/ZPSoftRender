@@ -8,6 +8,7 @@ namespace Terrain
 	m_uiLevel(0),
 	m_uiClipMapSize(0),
 	m_uiGridSize(0),
+	m_fCenterHeight(0),
 	m_fGridWidth(0.0f),
 	m_pVerts(NULL),
 	m_pFixedRingVerts(NULL),
@@ -323,6 +324,9 @@ void ClipMapLevel::_UpdateVerts( void )
 			m_pVerts[offset].m_norm = m_heightMapBlock.SampleNormal( localx>>m_uiLevel , localz>>m_uiLevel );
 		}
 	}
+
+	//获得中心网格点高度
+	m_fCenterHeight = m_heightMapBlock.Sample( m_centerPos.x>>m_uiLevel , m_centerPos.z>>m_uiLevel );
  
 }
 
@@ -630,12 +634,12 @@ Math::Vec3 ClipMapLevel::GetLocalPos( void ) const
 									((float)(m_centerPos.z>>m_uiLevel)) * m_fGridWidth );
 }
 
-bool ClipMapLevel::TestFlag( CLIPMAPLEVEL_FLAG bit )
+bool ClipMapLevel::TestFlag( unsigned int bit )
 {
 	return (bool)( m_uiFlag&bit );
 }
 
-void ClipMapLevel::SetFlag( CLIPMAPLEVEL_FLAG bit , bool b )
+void ClipMapLevel::SetFlag( unsigned int bit , bool b )
 {
 	if( b )
 	{
@@ -737,6 +741,20 @@ unsigned int ClipMapLevel::GetFixedRingVertNum( void ) const
 void ClipMapLevel::SetNextLevel( ClipMapLevel* pLevel )
 {
 	m_pNextLevel = pLevel;
+}
+
+void ClipMapLevel::ClearShowFlags( void )
+{
+	unsigned int m = 
+		SHOW_OUTER_TILES|
+		SHOW_CENTER_TILE|
+		SHOW_GAP_TILES|
+		SHOW_LEFT_TOP_L_TILE|
+		SHOW_LEFT_BOTTOM_L_TILE|
+		SHOW_RIGHT_TOP_L_TILE|
+		SHOW_RIGHT_BOTTOM_L_TILE|
+		SHOW_FIXED_UP_RING; 
+	m_uiFlag &= ~m;
 }
 
 

@@ -118,10 +118,43 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 		uiCurrLevelGirdSize = uiNextLevelGridSize;
 	} 
 
-	//决定绘制哪边的修补环
+	//清空所有显示标志
+	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
+	{
+		m_pLevels[iLevel].ClearShowFlags(); 
+	}
+
 	unsigned int uiTopLevel = 0;
+	float fThreshold = 2.5f*m_fGridWidth*((float)m_uiClipMapSize);
+	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
+	{
+		if( ( v3CamPos.y - m_pLevels[iLevel].GetCenterHeight() ) > 
+			fThreshold*((float)(1<<iLevel)) )
+		{ 
+			uiTopLevel++;
+		}else{
+			break;
+		}
+	}
+
+	if( uiTopLevel >= m_uiLevelNum )
+	{
+		uiTopLevel = m_uiLevelNum-1;
+	}
+
+	unsigned int uiTopLevelShowFlags = SHOW_OUTER_TILES|
+																SHOW_CENTER_TILE |
+																SHOW_GAP_TILES|
+																SHOW_FIXED_UP_RING ;
+
+		m_pLevels[uiTopLevel].SetFlag( uiTopLevelShowFlags , true );
+	 
+
+	//决定绘制哪边的修补环
 	for( unsigned int iLevel = uiTopLevel+1 ; iLevel < m_uiLevelNum; iLevel++ )
 	{
+		m_pLevels[iLevel].SetFlag( SHOW_OUTER_TILES|SHOW_GAP_TILES|SHOW_FIXED_UP_RING , true );
+
 		ClipMapGridPos prevLevelCenter = m_pLevels[iLevel-1].GetCenter();
 		ClipMapGridPos currLevelCenter = m_pLevels[iLevel].GetCenter();
 		int diffx = currLevelCenter.x - prevLevelCenter.x;
