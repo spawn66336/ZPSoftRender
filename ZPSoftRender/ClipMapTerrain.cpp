@@ -125,11 +125,11 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 	}
 
 	unsigned int uiTopLevel = 0;
-	float fThreshold = 2.5f*m_fGridWidth*((float)m_uiClipMapSize);
+	float fLevelWidth = m_fGridWidth*((float)m_uiClipMapSize);
 	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
 	{
-		if( ( v3CamPos.y - m_pLevels[iLevel].GetCenterHeight() ) > 
-			fThreshold*((float)(1<<iLevel)) )
+		if( 2.5f*( v3CamPos.y - m_pLevels[iLevel].GetCenterHeight() ) >
+			fLevelWidth*((float)(1<<iLevel)) )
 		{ 
 			uiTopLevel++;
 		}else{
