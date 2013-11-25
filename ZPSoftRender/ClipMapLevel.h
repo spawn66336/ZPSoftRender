@@ -16,7 +16,9 @@ public:
 
 	void Init( const unsigned int uiLevel , const unsigned int uiClipMapSize , const float fGridWidth );
 	void SetNextLevel( ClipMapLevel* pLevel );
-	void Update( const ClipMapGridPos& center );
+	void UpdateHeightMap( const ClipMapGridPos& center );
+	//更新顶点需要在更新完所有层之后调用
+	void UpdateVerts( void );
 	const ClipMapGridPos& GetCenter( void ) const { return m_centerPos; }
 	const ClipMapArea& GetArea( void ) const { return m_currArea; }
 

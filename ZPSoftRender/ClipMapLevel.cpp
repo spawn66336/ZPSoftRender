@@ -189,7 +189,7 @@ void ClipMapLevel::_InitFixedRingVerts( void )
 }
 
 
-void ClipMapLevel::Update( const ClipMapGridPos& center )
+void ClipMapLevel::UpdateHeightMap( const ClipMapGridPos& center )
 {
 	m_centerPos = center; 
 	//使用更新过的中心坐标重新计算当前区域
@@ -202,16 +202,28 @@ void ClipMapLevel::Update( const ClipMapGridPos& center )
 	bool bChange = 
 		m_heightMapBlock.Update( m_currArea );
 
-	//若有变化更新顶点
 	if( bChange )
+	{
+		SetFlag( HEIGHTMAP_DIRTY , true );
+	}
+ 
+}
+
+
+void ClipMapLevel::UpdateVerts( void )
+{
+	//若高度图有变更新顶点
+	if( TestFlag(HEIGHTMAP_DIRTY) )
 	{
 		_UpdateVerts();
 		_UpdateFixedRingVerts();
 		SetFlag( VERTS_CHANGE , true );
+		SetFlag( HEIGHTMAP_DIRTY , false );
 	}else{
 		SetFlag( VERTS_CHANGE , false );
 	}
 }
+
 
 
 void ClipMapLevel::_UpdateFixedRingVerts( void )

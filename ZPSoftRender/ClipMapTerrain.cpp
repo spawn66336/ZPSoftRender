@@ -102,6 +102,7 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 	//将相机的世界坐标位置转换为地形格点坐标位置
 	m_CamPos = _WorldPos2GridPos( m_v3CamPos );
 	
+	//更新高度图
 	unsigned int uiCurrLevelGirdSize = 1;
 	int iPrevLevelCenterX = m_CamPos.x;
 	int iPrevLevelCenterZ = m_CamPos.z;
@@ -111,13 +112,19 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 		int iCurrLevelCenterZ = Map2Odd( iPrevLevelCenterZ );
 		ClipMapGridPos currLevelCenter( iCurrLevelCenterX*uiCurrLevelGirdSize , iCurrLevelCenterZ*uiCurrLevelGirdSize );
 
-		m_pLevels[iLevel].Update( currLevelCenter ); 
+		m_pLevels[iLevel].UpdateHeightMap( currLevelCenter ); 
 
 		unsigned int uiNextLevelGridSize = uiCurrLevelGirdSize<<1;
 		iPrevLevelCenterX = ( currLevelCenter.x + Mod( currLevelCenter.x , uiNextLevelGridSize ) ) / uiNextLevelGridSize;
 		iPrevLevelCenterZ = ( currLevelCenter.z + Mod( currLevelCenter.z , uiNextLevelGridSize ) ) / uiNextLevelGridSize;
 		uiCurrLevelGirdSize = uiNextLevelGridSize;
 	} 
+
+	//更新顶点
+	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
+	{ 
+		m_pLevels[iLevel].UpdateVerts();
+	}
 
 	//清空所有显示标志
 	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
