@@ -721,7 +721,7 @@ unsigned int ClipMapLevel::GetFixedRingPrimitiveNum( void ) const
 }
 
 
-void ClipMapLevel::SetShowLTileFlag( CLIPMAPLEVEL_FLAG bit )
+void ClipMapLevel::SetShowLTileFlag( unsigned int bit )
 { 
 	unsigned int m = 
 		SHOW_LEFT_TOP_L_TILE|

@@ -361,6 +361,14 @@ void CModelViewerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 			m_pCamera->Reset();
 		}
 	}
+
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	if( nChar == 'T' ||
+		nChar == 't' )
+	{
+		m_pEngine->SwitchShowMask();
+	}
+#endif
 	__super::OnChar(nChar, nRepCnt, nFlags);
 }
 

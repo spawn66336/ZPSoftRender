@@ -7,18 +7,6 @@
 namespace Terrain
 {
 
-	enum CLIPMAPLEVEL_FLAG
-	{
-		VERTS_CHANGE= 1<<0 ,
-		SHOW_OUTER_TILES = 1<<1,
-		SHOW_CENTER_TILE = 1<<2 ,
-		SHOW_GAP_TILES = 1<<3,
-		SHOW_LEFT_TOP_L_TILE = 1<<4,
-		SHOW_LEFT_BOTTOM_L_TILE = 1<<5,
-		SHOW_RIGHT_TOP_L_TILE = 1<<6,
-		SHOW_RIGHT_BOTTOM_L_TILE = 1<<7,
-		SHOW_FIXED_UP_RING = 1<<8
-	};
 
 class ClipMapLevel
 {
@@ -37,7 +25,7 @@ public:
 	bool TestFlag( unsigned int bit  );
 	void SetFlag( unsigned int bit , bool b );
 	unsigned int GetFlag(void) const { return m_uiFlag; }
-	void SetShowLTileFlag( CLIPMAPLEVEL_FLAG bit );
+	void SetShowLTileFlag( unsigned int bit );
 	void ClearShowFlags( void );
 	
 

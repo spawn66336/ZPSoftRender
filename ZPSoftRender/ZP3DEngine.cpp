@@ -71,6 +71,9 @@ void ZP3DEngine::Init( const winHandle_t hwnd )
 	}
 	
 	m_pCamera = new Camera;
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	 m_pCamera->SetPos( Math::Vec3( 1800.0f*4.0f , 0.0f , 1800.0f*4.0f ));
+#endif
 }
 
 void ZP3DEngine::Destroy( void )
@@ -122,6 +125,9 @@ void ZP3DEngine::RenderOneFrame( void )
 	//更新地形
 #ifdef ZP_CLIPMAP_TERRAIN_DEMO
 	Terrain::ClipMapTerrain::GetInstance()->Update( m_pCamera->GetPos() );
+	Math::Vec3 v3FinalCamPos;
+	Terrain::ClipMapTerrain::GetInstance()->CameraCollision( m_pCamera->GetPos() , v3FinalCamPos );
+	m_pCamera->SetPos( v3FinalCamPos );
 #endif
 
 	if( m_pRenderer->IsActive() )
@@ -251,5 +257,22 @@ void ZP3DEngine::SetMovingFlag( const bool flag /*= true */ )
 {
 	m_bIsMoving = flag;
 }
+
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+void ZP3DEngine::SwitchShowMask( void )
+{
+	static unsigned int uiShowMasks[] = {
+		TERRAIN_MASK_SHOW_ALL ,
+		TERRAIN_MASK_SHOW_OUTER_TILES ,
+		TERRAIN_MASK_SHOW_CENTER_TILE ,
+		TERRAIN_MASK_SHOW_GAP_TILES ,
+		TERRAIN_MASK_SHOW_L_FIXED_TILE ,
+		TERRAIN_MASK_SHOW_FIXED_RING
+	};
+	static unsigned int uiMaskIndex = 0; 
+	uiMaskIndex = ( uiMaskIndex+1 )%6;
+	Terrain::ClipMapTerrain::GetInstance()->SetMask( uiShowMasks[uiMaskIndex] );
+} 
+#endif
 
 

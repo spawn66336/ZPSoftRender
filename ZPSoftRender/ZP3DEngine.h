@@ -49,6 +49,10 @@ public:
 
 	virtual void SetMovingFlag( const bool flag = true );
 
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+	void SwitchShowMask( void );
+#endif
+
 protected:
 
 	void LoadModels(void); 

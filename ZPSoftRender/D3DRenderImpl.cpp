@@ -134,7 +134,7 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 	ZP_ASSERT( NULL != m_pD3D9Device );
 
 #ifdef ZP_CLIPMAP_TERRAIN_DEMO
-	Terrain::ClipMapTerrain::GetInstance()->Init( m_pD3D9Device , ".\\dem\\ASTGTM2_N35E138_dem.mipmap", 6 , Math::Vec3() , 4.0f );
+	Terrain::ClipMapTerrain::GetInstance()->Init( m_pD3D9Device , ".\\dem\\ASTGTM2_N35E138_dem.mipmap", 6 , Math::Vec3() , 4.0f ); 
 #endif
 
 	if( FAILED(hRes) )

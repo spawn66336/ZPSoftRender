@@ -24,7 +24,8 @@ m_uiClipMapSize(0),
 m_uiClipMapPow(0),
 m_fGridWidth(1.0f),
 m_pLevels(NULL),
-m_uiLevelNum(0)
+m_uiLevelNum(0),
+m_uiShowMask(TERRAIN_MASK_SHOW_ALL)
 {
 }
 
@@ -147,13 +148,13 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 																SHOW_GAP_TILES|
 																SHOW_FIXED_UP_RING ;
 
-		m_pLevels[uiTopLevel].SetFlag( uiTopLevelShowFlags , true );
+		m_pLevels[uiTopLevel].SetFlag( uiTopLevelShowFlags&m_uiShowMask , true );
 	 
 
 	//决定绘制哪边的修补环
 	for( unsigned int iLevel = uiTopLevel+1 ; iLevel < m_uiLevelNum; iLevel++ )
 	{
-		m_pLevels[iLevel].SetFlag( SHOW_OUTER_TILES|SHOW_GAP_TILES|SHOW_FIXED_UP_RING , true );
+		m_pLevels[iLevel].SetFlag( (SHOW_OUTER_TILES|SHOW_GAP_TILES|SHOW_FIXED_UP_RING)&m_uiShowMask , true );
 
 		ClipMapGridPos prevLevelCenter = m_pLevels[iLevel-1].GetCenter();
 		ClipMapGridPos currLevelCenter = m_pLevels[iLevel].GetCenter();
@@ -164,21 +165,22 @@ void ClipMapTerrain::Update(  const Math::Vec3 v3CamPos  )
 		{//在右边
 			if( diffz > 0)
 			{//在上面
-				m_pLevels[iLevel].SetShowLTileFlag( SHOW_RIGHT_TOP_L_TILE );
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_RIGHT_TOP_L_TILE&m_uiShowMask );
 			}else{//在下面
-				m_pLevels[iLevel].SetShowLTileFlag( SHOW_RIGHT_BOTTOM_L_TILE );
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_RIGHT_BOTTOM_L_TILE&m_uiShowMask );
 			}
 		}else{//在左边
 			if( diffz > 0 )
 			{//在上面
-				m_pLevels[iLevel].SetShowLTileFlag( SHOW_LEFT_TOP_L_TILE );
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_LEFT_TOP_L_TILE&m_uiShowMask );
 			}else{//在下面
-				m_pLevels[iLevel].SetShowLTileFlag( SHOW_LEFT_BOTTOM_L_TILE );
+				m_pLevels[iLevel].SetShowLTileFlag( SHOW_LEFT_BOTTOM_L_TILE&m_uiShowMask );
 			}
 		}
 	}
 	 
 
+	//更新地形渲染数据
 	for( unsigned int iLevel = 0 ; iLevel < m_uiLevelNum ; iLevel++ )
 	{
 		m_renderDataCache.UpdateTerrainLevelRenderData( &m_pLevels[iLevel] );
@@ -216,5 +218,42 @@ void ClipMapTerrain::GetRenderOps( std::vector<Render::D3DRenderOperation*>& opL
 	m_tmpOpList.clear();
 }
 
+void ClipMapTerrain::CameraCollision( const Math::Vec3& v3CamPos , Math::Vec3& v3FinalPos )
+{
+	ClipMapGridPos camLBGridPos = _WorldPos2GridPos( m_v3CamPos );
+	ClipMapGridPos camLTGridPos( camLBGridPos.x , camLBGridPos.z+1 );
+	ClipMapGridPos camRTGridPos( camLBGridPos.x+1 , camLBGridPos.z+1 );
+	ClipMapGridPos camRBGridPos( camLBGridPos.x+1 , camLBGridPos.z );
+
+	Math::Vec3 v3TerrainCoord = v3CamPos - m_v3TerrainOrigin; 
+	v3TerrainCoord.x /= m_fGridWidth;
+	v3TerrainCoord.z /= m_fGridWidth;
+
+	float fHeightLB = 0.0f , fHeightLT = 0.0f , fHeightRT = 0.0f , fHeightRB = 0.0f;
+	ClipMapReader::GetInstance()->Sample( camLBGridPos.x , camLBGridPos.z , fHeightLB );
+	ClipMapReader::GetInstance()->Sample( camLTGridPos.x , camLTGridPos.z , fHeightLT );
+	ClipMapReader::GetInstance()->Sample( camRTGridPos.x , camRTGridPos.z , fHeightRT );
+	ClipMapReader::GetInstance()->Sample( camRBGridPos.x , camRBGridPos.z , fHeightRB );
+
+	float fU = v3TerrainCoord.x - (float)camLBGridPos.x ;
+	float fV = v3TerrainCoord.z - (float)camLBGridPos.z;
+	float fOneMiusU = 1.0f - fU;
+	float fOneMiusV = 1.0f - fV;
+	
+	float fFinalHeight = 
+		fOneMiusU*fOneMiusV*fHeightLB + 
+		fU*fOneMiusV*fHeightRB+
+		fU*fV*fHeightRT+
+		fOneMiusU*fV*fHeightLT
+		;
+	float fOffset = 10.0f;
+	if( v3CamPos.y < fFinalHeight+fOffset )
+	{
+		v3FinalPos = Math::Vec3( v3CamPos.x , fFinalHeight+fOffset , v3CamPos.z ); 
+	}else{
+		v3FinalPos = v3CamPos;
+	}
+}
+ 
 
 }//namespace Terrain
