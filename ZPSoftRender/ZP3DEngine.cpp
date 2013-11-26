@@ -121,7 +121,6 @@ void ZP3DEngine::RenderOneFrame( void )
 	{
 		m_pFrameListener->FrameStarted();
 	}
-
 	//更新地形
 #ifdef ZP_CLIPMAP_TERRAIN_DEMO
 	Terrain::ClipMapTerrain::GetInstance()->Update( m_pCamera->GetPos() );
@@ -129,7 +128,6 @@ void ZP3DEngine::RenderOneFrame( void )
 	Terrain::ClipMapTerrain::GetInstance()->CameraCollision( m_pCamera->GetPos() , v3FinalCamPos );
 	m_pCamera->SetPos( v3FinalCamPos );
 #endif
-
 	if( m_pRenderer->IsActive() )
 	{ 
 			//摄像机在移动时为了不卡顿切换至线框渲染
@@ -141,9 +139,9 @@ void ZP3DEngine::RenderOneFrame( void )
 			}
 
 			m_pRenderer->BeginDraw( m_pCamera ); 
-	
+#ifndef ZP_CLIPMAP_TERRAIN_DEMO
 				Resource::MeshManager::GetInstance()->DrawActiveMesh( m_pRenderer , m_meshMatrix );
-
+#endif
 			m_pRenderer->EndDraw(); 
 
 	m_pRenderer->SwapBuffers();

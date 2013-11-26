@@ -4,6 +4,8 @@
 #include "Material.h"
 #include "Texture2D.h"
 #include "D3DRenderOperation.h"
+#include "MaterialManager.h"
+#include "ClipMapReader.h"
 
 namespace Render
 {
@@ -53,6 +55,10 @@ void D3DRenderPipeline::Render( void )
 				continue;
 			}
 
+			Resource::Material* pTerrainMat = 
+				Resource::MaterialManager::GetInstance()->CreateOrRetrieveMaterial("TerrainMat");
+			Resource::Texture2D* pTerrainColorTex = pTerrainMat->GetTexture(DIFFUSE_CH);
+
 			//äÖÈ¾µØÐÎ
 			m_pEffect->SetTechnique( "TerrainShading" );
 			 
@@ -75,6 +81,15 @@ void D3DRenderPipeline::Render( void )
 			material.Power = fShininess;     
 			int size = sizeof(material);
 			m_pEffect->SetValue( "g_Material" , (LPCVOID)&material , sizeof(material) ); 
+
+			float fTerrainHeightRange = 
+				( Terrain::ClipMapReader::GetInstance()->GetHeightMapMaxHeight() - 
+				Terrain::ClipMapReader::GetInstance()->GetHeightMapMinHeight() ) * 0.1f ;
+			m_pEffect->SetFloat("fTerrainHeightRange" , fTerrainHeightRange );
+			if( pTerrainColorTex )
+			{
+				m_pEffect->SetTexture("terrainColorTex" , (IDirect3DTexture9*)pTerrainColorTex->GetUserPointer());
+			}
 
 			UINT uiPassCount = 0;  
 			m_pEffect->Begin( &uiPassCount ,  0 );  

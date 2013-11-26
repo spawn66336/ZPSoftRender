@@ -49,14 +49,16 @@ struct T_VS_OUTPUT
 	float4 f4Pos : POSITION0;
 	float3 f3Norm : NORMAL0;
 	float3 f3LightDir : TEXCOORD0;
-	float3 f3ViewDir : TEXCOORD1;
+	float3 f3ViewDir : TEXCOORD1; 
+	float2 f2TerrainTex : TEXCOORD2;
 };
 
 struct T_PS_INPUT
 {
 	float3 f3Norm : NORMAL0; 
 	float3 f3LightDir : TEXCOORD0;
-	float3 f3ViewDir : TEXCOORD1;
+	float3 f3ViewDir : TEXCOORD1; 
+	float2 f2TerrainTex : TEXCOORD2;
 };
 
 
@@ -95,11 +97,24 @@ sampler2D SampleNormalTex = sampler_state
 	AddressW  = WRAP;
 };
 
+texture terrainColorTex;
+sampler2D SampleTerrainDiffTex  = sampler_state
+{
+	Texture=<terrainColorTex>;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = LINEAR;
+	AddressU  = WRAP;
+	AddressV  = WRAP;
+	AddressW  = WRAP;
+};
+
 
 float4x4 m4World;
 float3 f3LightPos;
 float3 f3DirLightDir;     //用于方向光
 Material_t g_Material;
+uniform float fTerrainHeightRange; //地形高度范围
  
 
 VS_OUTPUT NormalMapShadingVS( VS_INPUT input )
@@ -205,7 +220,7 @@ T_VS_OUTPUT TerrainShadingVS( T_VS_INPUT input )
 	float4x4 worldView = mul( m4World , m4View );
 	float4x4 worldViewProj = mul( worldView , m4Proj );  
 	
-	 
+	float4 f4WorldPos = mul( input.f4Pos , m4World);
  	float3 f3NormalInView = normalize( mul( input.f3Norm , worldView ) );  
 	float4 f4ObjPosInView = mul( input.f4Pos , worldView );
 	float3 f3LightDirInView = mul( -f3DirLightDir , worldView );
@@ -215,6 +230,7 @@ T_VS_OUTPUT TerrainShadingVS( T_VS_INPUT input )
 	output.f3Norm = f3NormalInView;  
 	output.f3LightDir = f3LightDirInView;
 	output.f3ViewDir = -f4ObjPosInView.xyz;
+	output.f2TerrainTex = float2(  f4WorldPos.y/fTerrainHeightRange , f4WorldPos.y/fTerrainHeightRange );
 	 
 	return output;
 }
@@ -224,7 +240,7 @@ PS_OUTPUT TerrainShadingPS( T_PS_INPUT input )
 	PS_OUTPUT output;
 	float3 f3Normal = input.f3Norm;
 	f3Normal = normalize( f3Normal );
-	float4 f4DiffColor = float4(0.75,0.75,0.75,1.0);
+	float4 f4DiffColor = tex2D( SampleTerrainDiffTex , input.f2TerrainTex );
 	float3 f3ViewDir = normalize( input.f3ViewDir );
 	float  fDiffFactor   = max( 0.0f , dot( f3Normal, normalize(input.f3LightDir) ) ); 
 	float3 f3H     = normalize( input.f3LightDir + input.f3ViewDir );

@@ -238,7 +238,7 @@ void CModelViewerView::FrameStarted( void )
 		return;
 	}
 
-	Real moveSpeed = 1.0f;
+	Real moveSpeed = 5.0f;
 	bool bMovingFlag = false;
 
 	//Ç°½ø

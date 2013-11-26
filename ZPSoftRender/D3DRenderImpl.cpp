@@ -6,6 +6,8 @@
 #include "Texture2D.h"
 #include "D3DIncludeCallback.h"
 #include "ClipMapTerrain.h"
+#include "MaterialManager.h"
+#include "TextureManager.h"
 
 
 namespace Render
@@ -18,6 +20,9 @@ m_pD3D9(NULL),
 m_pD3D9Device(NULL), 
 m_pDefaultVBDecl(NULL),
 m_pCurrMaterial(NULL),
+#ifdef ZP_CLIPMAP_TERRAIN_DEMO
+m_pTerrainMaterial(NULL),
+#endif
 m_pColorRT(NULL),
 m_pDepthStencilSurface(NULL),
 m_pColorRTSurface(NULL),
@@ -135,6 +140,9 @@ void D3DRenderImpl::Init( const winHandle_t hwnd )
 
 #ifdef ZP_CLIPMAP_TERRAIN_DEMO
 	Terrain::ClipMapTerrain::GetInstance()->Init( m_pD3D9Device , ".\\dem\\ASTGTM2_N35E138_dem.mipmap", 6 , Math::Vec3() , 4.0f ); 
+	m_pTerrainMaterial = Resource::MaterialManager::GetInstance()->CreateOrRetrieveMaterial("TerrainMat");
+	Resource::Texture2D* pTerrainColorTex = Resource::TextureManager::GetInstance()->CreateOrRetrieveTexture2DFromDefaultLocation("terrain_color.png");
+	m_pTerrainMaterial->SetTexture(  pTerrainColorTex , DIFFUSE_CH );
 #endif
 
 	if( FAILED(hRes) )
@@ -251,6 +259,10 @@ void D3DRenderImpl::EndDraw( void )
 {    
 
 #ifdef ZP_CLIPMAP_TERRAIN_DEMO
+
+	Resource::Texture2D* pTerrainTex = m_pTerrainMaterial->GetTexture( DIFFUSE_CH );  
+	_CommitTexture( pTerrainTex , DIFFUSE_CH );
+
 	Terrain::ClipMapTerrain::GetInstance()->GetRenderOps( m_terrainTmpRenderOps );
 	auto itOp = m_terrainTmpRenderOps.begin();
 	while( itOp != m_terrainTmpRenderOps.end() )
