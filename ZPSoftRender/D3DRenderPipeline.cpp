@@ -84,7 +84,7 @@ void D3DRenderPipeline::Render( void )
 
 			float fTerrainHeightRange = 
 				( Terrain::ClipMapReader::GetInstance()->GetHeightMapMaxHeight() - 
-				Terrain::ClipMapReader::GetInstance()->GetHeightMapMinHeight() ) * 0.1f ;
+				Terrain::ClipMapReader::GetInstance()->GetHeightMapMinHeight() ) * CLIPMAP_HEIGHT_SCALE ;
 			m_pEffect->SetFloat("fTerrainHeightRange" , fTerrainHeightRange );
 			if( pTerrainColorTex )
 			{

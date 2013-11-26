@@ -20,6 +20,7 @@ namespace Terrain
 		SHOW_FIXED_UP_RING = 1<<9
 	};
 
+#define CLIPMAP_HEIGHT_SCALE 0.13333f
 
 	typedef struct{
 		int size; //结构体大小
